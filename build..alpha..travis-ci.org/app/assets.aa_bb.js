@@ -1,6 +1,6 @@
 // usr/bin/env node
 /*
- * lib.aa_bb.js (0.0.1)
+ * lib.aa_bb.js (2019.9.8)
  * https://github.com/kaizhu256/node-aa-bb
  * the greatest app in the world!
  *
