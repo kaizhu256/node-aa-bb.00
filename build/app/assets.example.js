@@ -863,18 +863,24 @@ utility2-comment -->\n\
 \n\
 \n\
 \n\
-<!-- utility2-comment\n\
 {{#if isRollup}}\n\
+<!-- utility2-comment\n\
 <script src="assets.app.js"></script>\n\
-{{#unless isRollup}}\n\
 utility2-comment -->\n\
+{{#unless isRollup}}\n\
+<!-- utility2-comment\n\
 <script src="assets.utility2.rollup.js"></script>\n\
 <script>window.utility2_onReadyBefore.counter += 1;</script>\n\
 <script src="jsonp.utility2.stateInit?callback=window.utility2.stateInit"></script>\n\
+utility2-comment -->\n\
 <script src="assets.aa_bb.js"></script>\n\
 <script src="assets.example.js"></script>\n\
 <script src="assets.test.js"></script>\n\
-<script>window.utility2_onReadyBefore();</script>\n\
+<script>\n\
+if(window.utility2_onReadyBefore) {\n\
+    window.utility2_onReadyBefore();\n\
+}\n\
+</script>\n\
 {{/if isRollup}}\n\
 <script>\n\
 /* jslint utility2:true */\n\
@@ -883,10 +889,10 @@ utility2-comment -->\n\
 var htmlTestReport1;\n\
 var local;\n\
 htmlTestReport1 = document.querySelector("#htmlTestReport1");\n\
-if (!htmlTestReport1) {\n\
+local = window.utility2;\n\
+if (!(htmlTestReport1 && local)) {\n\
     return;\n\
 }\n\
-local = window.utility2;\n\
 local.on("utility2.testRunProgressUpdate", function (testReport) {\n\
     htmlTestReport1.innerHTML = local.testReportMerge(testReport, {});\n\
 });\n\
