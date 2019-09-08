@@ -1,9 +1,9 @@
-<svg height="990" width="720" xmlns="http://www.w3.org/2000/svg">
-<rect height="990" fill="#555" width="720"></rect>
+<svg height="1214" width="720" xmlns="http://www.w3.org/2000/svg">
+<rect height="1214" fill="#555" width="720"></rect>
 <text fill="#7f7" font-family="Courier New" font-size="12" xml:space="preserve">
 <tspan x="10" y="26"></tspan>
 
-<tspan x="10" y="42">\x1b[35m[MODE_BUILD=buildApidoc]\x1b[0m - 2019-09-08T19:13:12.759Z - npm-testing /home/travis/bu\</tspan>
+<tspan x="10" y="42">\x1b[35m[MODE_BUILD=buildApidoc]\x1b[0m - 2019-09-08T19:16:35.361Z - npm-testing /home/travis/bu\</tspan>
 <tspan x="10" y="58">ild/kaizhu256/node-aa-bb</tspan>
 
 <tspan x="10" y="74"></tspan>
@@ -13,7 +13,7 @@
 <tspan x="10" y="106">buildApidoc - merged test-report from file /home/travis/build/kaizhu256/node-aa-bb/tmp/build/tes\</tspan>
 <tspan x="10" y="122">t-report.json</tspan>
 
-<tspan x="10" y="138">&gt; http-server listening on port 38488</tspan>
+<tspan x="10" y="138">&gt; http-server listening on port 42391</tspan>
 
 <tspan x="10" y="154">db - dropping database ...</tspan>
 
@@ -52,17 +52,17 @@
 
 <tspan x="10" y="442"></tspan>
 
-<tspan x="10" y="458">testRunDefault - 90443 ms - [node test-case 1 of 1 passed] - testCase_buildApidoc_default</tspan>
+<tspan x="10" y="458">testRunDefault - 292996 ms - [node test-case 1 of 1 passed] - testCase_buildApidoc_default</tspan>
 
-<tspan x="10" y="474">jslint - 196ms /home/travis/build/kaizhu256/node-aa-bb/README.md</tspan>
+<tspan x="10" y="474">jslint - 181ms /home/travis/build/kaizhu256/node-aa-bb/README.md</tspan>
 
-<tspan x="10" y="490">jslint - 42ms /home/travis/build/kaizhu256/node-aa-bb/lib.aa_bb.js</tspan>
+<tspan x="10" y="490">jslint - 2ms /home/travis/build/kaizhu256/node-aa-bb/npm_scripts.sh</tspan>
 
-<tspan x="10" y="506">jslint - 2ms /home/travis/build/kaizhu256/node-aa-bb/npm_scripts.sh</tspan>
+<tspan x="10" y="506">jslint - 0ms /home/travis/build/kaizhu256/node-aa-bb/package.json</tspan>
 
-<tspan x="10" y="522">jslint - 0ms /home/travis/build/kaizhu256/node-aa-bb/package.json</tspan>
+<tspan x="10" y="522">jslint - 41ms /home/travis/build/kaizhu256/node-aa-bb/lib.aa_bb.js</tspan>
 
-<tspan x="10" y="538">jslint - 19ms /home/travis/build/kaizhu256/node-aa-bb/test.js</tspan>
+<tspan x="10" y="538">jslint - 12ms /home/travis/build/kaizhu256/node-aa-bb/test.js</tspan>
 
 <tspan x="10" y="554"></tspan>
 
@@ -75,7 +75,7 @@
 
 <tspan x="10" y="634">| test-report - buildApidoc - node - linux v12.10.0 - 2019-09-08T19:11:42.624Z</tspan>
 
-<tspan x="10" y="650">|   90447 ms            0 failed        1 passed      |</tspan>
+<tspan x="10" y="650">|  293000 ms            0 failed        1 passed      |</tspan>
 
 <tspan x="10" y="666">-------------------------------------------------------</tspan>
 
@@ -85,35 +85,58 @@
 
 <tspan x="10" y="714">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="730">| test-report - npmTest - browser - / - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTM\</tspan>
-<tspan x="10" y="746">L, like Gecko) HeadlessChrome/76.0.3809.132 Safari/537.36 - 2019-09-08T19:11:36.824Z</tspan>
+<tspan x="10" y="730">| test-report - deployGithubTest - browser - /node-aa-bb/build..alpha..travis-ci.org/app/ - Mozi\</tspan>
+<tspan x="10" y="746">lla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/76.0.3809.132 \</tspan>
+<tspan x="10" y="762">Safari/537.36 - 2019-09-08T19:14:07.063Z</tspan>
 
-<tspan x="10" y="762">|    1003 ms            0 failed        1 passed      |</tspan>
+<tspan x="10" y="778">|    1003 ms            0 failed        1 passed      |</tspan>
 
-<tspan x="10" y="778">-------------------------------------------------------</tspan>
+<tspan x="10" y="794">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="794">| test-report - npmTest - browser - / - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTM\</tspan>
-<tspan x="10" y="810">L, like Gecko) HeadlessChrome/76.0.3809.132 Safari/537.36 - 2019-09-08T19:13:06.151Z</tspan>
+<tspan x="10" y="810">| test-report - deployGithubTest - browser - /node-aa-bb/build..alpha..travis-ci.org/app/ - Mozi\</tspan>
+<tspan x="10" y="826">lla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/76.0.3809.132 \</tspan>
+<tspan x="10" y="842">Safari/537.36 - 2019-09-08T19:14:07.312Z</tspan>
 
-<tspan x="10" y="826">|    1005 ms            0 failed        1 passed      |</tspan>
+<tspan x="10" y="858">|    1005 ms            0 failed        1 passed      |</tspan>
 
-<tspan x="10" y="842">-------------------------------------------------------</tspan>
+<tspan x="10" y="874">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="858"></tspan>
+<tspan x="10" y="890">| test-report - npmTest - browser - / - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTM\</tspan>
+<tspan x="10" y="906">L, like Gecko) HeadlessChrome/76.0.3809.132 Safari/537.36 - 2019-09-08T19:11:36.824Z</tspan>
 
-<tspan x="10" y="874">created test-report file /home/travis/build/kaizhu256/node-aa-bb/tmp/build/test-report.html</tspan>
+<tspan x="10" y="922">|    1003 ms            0 failed        1 passed      |</tspan>
 
-<tspan x="10" y="890"></tspan>
+<tspan x="10" y="938">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="906"></tspan>
+<tspan x="10" y="954">| test-report - npmTest - browser - / - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTM\</tspan>
+<tspan x="10" y="970">L, like Gecko) HeadlessChrome/76.0.3809.132 Safari/537.36 - 2019-09-08T19:13:06.151Z</tspan>
 
-<tspan x="10" y="922">buildApidoc - 0 failed tests</tspan>
+<tspan x="10" y="986">|    1005 ms            0 failed        1 passed      |</tspan>
 
-<tspan x="10" y="938"></tspan>
+<tspan x="10" y="1002">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="954"></tspan>
+<tspan x="10" y="1018">| test-report - npmTest - browser - / - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTM\</tspan>
+<tspan x="10" y="1034">L, like Gecko) HeadlessChrome/76.0.3809.132 Safari/537.36 - 2019-09-08T19:16:28.757Z</tspan>
 
-<tspan x="10" y="970">\x1b[35m[MODE_BUILD=buildApidoc]\x1b[0m - 2019-09-08T19:13:14.380Z - EXIT_CODE - 0</tspan>
+<tspan x="10" y="1050">|    1005 ms            0 failed        1 passed      |</tspan>
+
+<tspan x="10" y="1066">-------------------------------------------------------</tspan>
+
+<tspan x="10" y="1082"></tspan>
+
+<tspan x="10" y="1098">created test-report file /home/travis/build/kaizhu256/node-aa-bb/tmp/build/test-report.html</tspan>
+
+<tspan x="10" y="1114"></tspan>
+
+<tspan x="10" y="1130"></tspan>
+
+<tspan x="10" y="1146">buildApidoc - 0 failed tests</tspan>
+
+<tspan x="10" y="1162"></tspan>
+
+<tspan x="10" y="1178"></tspan>
+
+<tspan x="10" y="1194">\x1b[35m[MODE_BUILD=buildApidoc]\x1b[0m - 2019-09-08T19:16:36.950Z - EXIT_CODE - 0</tspan>
 
 </text>
 </svg>
