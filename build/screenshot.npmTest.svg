@@ -1,9 +1,9 @@
-<svg height="1358" width="720" xmlns="http://www.w3.org/2000/svg">
-<rect height="1358" fill="#555" width="720"></rect>
+<svg height="1486" width="720" xmlns="http://www.w3.org/2000/svg">
+<rect height="1486" fill="#555" width="720"></rect>
 <text fill="#7f7" font-family="Courier New" font-size="12" xml:space="preserve">
 <tspan x="10" y="26"></tspan>
 
-<tspan x="10" y="42">\x1b[35m[MODE_BUILD=npmTest]\x1b[0m - 2019-09-08T09:19:01.546Z - npm-testing /home/travis/build/\</tspan>
+<tspan x="10" y="42">\x1b[35m[MODE_BUILD=npmTest]\x1b[0m - 2019-09-08T09:22:22.421Z - npm-testing /home/travis/build/\</tspan>
 <tspan x="10" y="58">kaizhu256/node-aa-bb</tspan>
 
 <tspan x="10" y="74"></tspan>
@@ -23,136 +23,150 @@
 <tspan x="10" y="202">npmTest - merged test-report from file /home/travis/build/kaizhu256/node-aa-bb/tmp/build/test-re\</tspan>
 <tspan x="10" y="218">port.json</tspan>
 
-<tspan x="10" y="234">http-server listening on port 44266</tspan>
+<tspan x="10" y="234">http-server listening on port 35073</tspan>
 
 <tspan x="10" y="250">db - dropping database ...</tspan>
 
-<tspan x="10" y="266">testRunDefault - 80195 ms - [node test-case 1 of 7 passed] - testCase_buildApidoc_default</tspan>
+<tspan x="10" y="266">testRunDefault - 281076 ms - [node test-case 1 of 7 passed] - testCase_buildApidoc_default</tspan>
 
-<tspan x="10" y="282">testRunDefault - 80231 ms - [node test-case 2 of 7 passed] - testCase_buildLib_default</tspan>
+<tspan x="10" y="282">testRunDefault - 281106 ms - [node test-case 2 of 7 passed] - testCase_buildLib_default</tspan>
 
-<tspan x="10" y="298">testRunDefault - 80243 ms - [node test-case 3 of 7 passed] - testCase_buildReadme_default</tspan>
+<tspan x="10" y="298">testRunDefault - 281116 ms - [node test-case 3 of 7 passed] - testCase_buildReadme_default</tspan>
 
-<tspan x="10" y="314">testRunDefault - 80247 ms - [node test-case 4 of 7 passed] - testCase_buildTest_default</tspan>
+<tspan x="10" y="314">testRunDefault - 281117 ms - [node test-case 4 of 7 passed] - testCase_buildTest_default</tspan>
 
-<tspan x="10" y="330">testRunDefault - 80251 ms - [node test-case 5 of 7 passed] - testCase_nop_default</tspan>
+<tspan x="10" y="330">testRunDefault - 281118 ms - [node test-case 5 of 7 passed] - testCase_nop_default</tspan>
 
 <tspan x="10" y="346">Fontconfig warning: "/etc/fonts/fonts.conf", line 86: unknown element "blank"</tspan>
 
 <tspan x="10" y="362"></tspan>
 
-<tspan x="10" y="378">DevTools listening on ws://127.0.0.1:39694/devtools/browser/6eab3133-469e-448c-9365-cd49c366bdc4</tspan>
+<tspan x="10" y="378">DevTools listening on ws://127.0.0.1:42883/devtools/browser/1434ad26-2b0a-4490-bcd2-311430fe51ed</tspan>
 
-<tspan x="10" y="394">jslint - 346ms /home/travis/build/kaizhu256/node-aa-bb/README.md</tspan>
+<tspan x="10" y="394">jslint - 356ms /home/travis/build/kaizhu256/node-aa-bb/README.md</tspan>
 
-<tspan x="10" y="410">jslint - 73ms /home/travis/build/kaizhu256/node-aa-bb/lib.aa_bb.js</tspan>
+<tspan x="10" y="410">jslint - 82ms /home/travis/build/kaizhu256/node-aa-bb/lib.aa_bb.js</tspan>
 
-<tspan x="10" y="426">jslint - 3ms /home/travis/build/kaizhu256/node-aa-bb/npm_scripts.sh</tspan>
+<tspan x="10" y="426">jslint - 1ms /home/travis/build/kaizhu256/node-aa-bb/npm_scripts.sh</tspan>
 
 <tspan x="10" y="442">jslint - 0ms /home/travis/build/kaizhu256/node-aa-bb/package.json</tspan>
 
-<tspan x="10" y="458">jslint - 30ms /home/travis/build/kaizhu256/node-aa-bb/test.js</tspan>
+<tspan x="10" y="458">[0908/092223.247862:ERROR:command_buffer_proxy_impl.cc(126)] ContextResult::kTransientFailure: F\</tspan>
+<tspan x="10" y="474">ailed to send GpuChannelMsg_CreateCommandBuffer.</tspan>
 
-<tspan x="10" y="474">[0908/091902.415791:ERROR:command_buffer_proxy_impl.cc(107)] ContextResult::kTransientFailure: S\</tspan>
-<tspan x="10" y="490">hared memory region is not valid</tspan>
+<tspan x="10" y="490">jslint - 29ms /home/travis/build/kaizhu256/node-aa-bb/test.js</tspan>
 
-<tspan x="10" y="506">[0908/091902.419295:WARNING:ipc_message_attachment_set.cc(49)] MessageAttachmentSet destroyed wi\</tspan>
-<tspan x="10" y="522">th unconsumed attachments: 0/1</tspan>
+<tspan x="10" y="506">http-server listening on port 60526</tspan>
 
-<tspan x="10" y="538">[0908/091902.427021:ERROR:command_buffer_proxy_impl.cc(107)] ContextResult::kTransientFailure: S\</tspan>
-<tspan x="10" y="554">hared memory region is not valid</tspan>
+<tspan x="10" y="522">[0908/092223.760621:INFO:CONSOLE(8)] "db - dropping database ...", source: http://127.0.0.1:3507\</tspan>
+<tspan x="10" y="538">3/assets.example.js (8)</tspan>
 
-<tspan x="10" y="570">[0908/091902.431754:WARNING:ipc_message_attachment_set.cc(49)] MessageAttachmentSet destroyed wi\</tspan>
-<tspan x="10" y="586">th unconsumed attachments: 0/1</tspan>
+<tspan x="10" y="554">[0908/092223.801813:INFO:CONSOLE(8)] "testRunDefault - 6 ms - [browser test-case 1 of 1 passed] \</tspan>
+<tspan x="10" y="570">- testCase_nop_default", source: http://127.0.0.1:35073/assets.example.js (8)</tspan>
 
-<tspan x="10" y="602">http-server listening on port 64652</tspan>
+<tspan x="10" y="586">testRunDefault - 283047 ms - [node test-case 6 of 7 passed] - testCase_webpage_default</tspan>
 
-<tspan x="10" y="618">[0908/091902.867221:INFO:CONSOLE(8)] "db - dropping database ...", source: http://127.0.0.1:4426\</tspan>
-<tspan x="10" y="634">6/assets.example.js (8)</tspan>
+<tspan x="10" y="602">testRunDefault - 285084 ms - testCase pending - testCase_buildApp_default ...</tspan>
 
-<tspan x="10" y="650">[0908/091902.906254:INFO:CONSOLE(8)] "testRunDefault - 5 ms - [browser test-case 1 of 1 passed] \</tspan>
-<tspan x="10" y="666">- testCase_nop_default", source: http://127.0.0.1:44266/assets.example.js (8)</tspan>
+<tspan x="10" y="618">testRunDefault - 286714 ms - [node test-case 7 of 7 passed] - testCase_buildApp_default</tspan>
 
-<tspan x="10" y="682">testRunDefault - 82144 ms - [node test-case 6 of 7 passed] - testCase_webpage_default</tspan>
+<tspan x="10" y="634">-------------------|-----------|-----------|-----------|-----------|</tspan>
 
-<tspan x="10" y="698">testRunDefault - 85208 ms - testCase pending - testCase_buildApp_default ...</tspan>
+<tspan x="10" y="650">File               |   % Stmts |% Branches |   % Funcs |   % Lines |</tspan>
 
-<tspan x="10" y="714">testRunDefault - 85836 ms - [node test-case 7 of 7 passed] - testCase_buildApp_default</tspan>
+<tspan x="10" y="666">-------------------|-----------|-----------|-----------|-----------|</tspan>
 
-<tspan x="10" y="730">-------------------|-----------|-----------|-----------|-----------|</tspan>
+<tspan x="10" y="682">   node-aa-bb/     |       100 |       100 |       100 |       100 |</tspan>
 
-<tspan x="10" y="746">File               |   % Stmts |% Branches |   % Funcs |   % Lines |</tspan>
+<tspan x="10" y="698">      example.js   |       100 |       100 |       100 |       100 |</tspan>
 
-<tspan x="10" y="762">-------------------|-----------|-----------|-----------|-----------|</tspan>
+<tspan x="10" y="714">      lib.aa_bb.js |       100 |       100 |       100 |       100 |</tspan>
 
-<tspan x="10" y="778">   node-aa-bb/     |       100 |       100 |       100 |       100 |</tspan>
+<tspan x="10" y="730">      test.js      |       100 |       100 |       100 |       100 |</tspan>
 
-<tspan x="10" y="794">      example.js   |       100 |       100 |       100 |       100 |</tspan>
+<tspan x="10" y="746">-------------------|-----------|-----------|-----------|-----------|</tspan>
 
-<tspan x="10" y="810">      lib.aa_bb.js |       100 |       100 |       100 |       100 |</tspan>
+<tspan x="10" y="762">All files          |       100 |       100 |       100 |       100 |</tspan>
 
-<tspan x="10" y="826">      test.js      |       100 |       100 |       100 |       100 |</tspan>
+<tspan x="10" y="778">-------------------|-----------|-----------|-----------|-----------|</tspan>
 
-<tspan x="10" y="842">-------------------|-----------|-----------|-----------|-----------|</tspan>
+<tspan x="10" y="794"></tspan>
 
-<tspan x="10" y="858">All files          |       100 |       100 |       100 |       100 |</tspan>
+<tspan x="10" y="810">created coverage file /home/travis/build/kaizhu256/node-aa-bb/tmp/build/coverage.html/index.html</tspan>
 
-<tspan x="10" y="874">-------------------|-----------|-----------|-----------|-----------|</tspan>
+<tspan x="10" y="826"></tspan>
 
-<tspan x="10" y="890"></tspan>
+<tspan x="10" y="842">npmTest - merged test-report from file /home/travis/build/kaizhu256/node-aa-bb/tmp/build/test-re\</tspan>
+<tspan x="10" y="858">port.json</tspan>
 
-<tspan x="10" y="906">created coverage file /home/travis/build/kaizhu256/node-aa-bb/tmp/build/coverage.html/index.html</tspan>
+<tspan x="10" y="874"></tspan>
 
-<tspan x="10" y="922"></tspan>
+<tspan x="10" y="890">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="938">npmTest - merged test-report from file /home/travis/build/kaizhu256/node-aa-bb/tmp/build/test-re\</tspan>
-<tspan x="10" y="954">port.json</tspan>
+<tspan x="10" y="906">| test-report - buildApidoc - node - linux v12.10.0 - 2019-09-08T09:17:41.664Z</tspan>
 
-<tspan x="10" y="970"></tspan>
+<tspan x="10" y="922">|  286715 ms            0 failed        7 passed      |</tspan>
+
+<tspan x="10" y="938">-------------------------------------------------------</tspan>
+
+<tspan x="10" y="954">| test-report - buildApp - node - linux v12.10.0 - 2019-09-08T09:17:23.136Z</tspan>
+
+<tspan x="10" y="970">|   16502 ms            0 failed        7 passed      |</tspan>
 
 <tspan x="10" y="986">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="1002">| test-report - buildApidoc - node - linux v12.10.0 - 2019-09-08T09:17:41.664Z</tspan>
+<tspan x="10" y="1002">| test-report - deployGithubTest - browser - /node-aa-bb/build..alpha..travis-ci.org/app/ - Mozi\</tspan>
+<tspan x="10" y="1018">lla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/76.0.3809.132 \</tspan>
+<tspan x="10" y="1034">Safari/537.36 - 2019-09-08T09:20:02.664Z</tspan>
 
-<tspan x="10" y="1018">|   85836 ms            0 failed        7 passed      |</tspan>
+<tspan x="10" y="1050">|    1006 ms            0 failed        1 passed      |</tspan>
 
-<tspan x="10" y="1034">-------------------------------------------------------</tspan>
+<tspan x="10" y="1066">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="1050">| test-report - buildApp - node - linux v12.10.0 - 2019-09-08T09:17:23.136Z</tspan>
-
-<tspan x="10" y="1066">|   16502 ms            0 failed        7 passed      |</tspan>
-
-<tspan x="10" y="1082">-------------------------------------------------------</tspan>
-
-<tspan x="10" y="1098">| test-report - npmTest - browser - / - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTM\</tspan>
-<tspan x="10" y="1114">L, like Gecko) HeadlessChrome/76.0.3809.132 Safari/537.36 - 2019-09-08T09:17:35.617Z</tspan>
+<tspan x="10" y="1082">| test-report - deployGithubTest - browser - /node-aa-bb/build..alpha..travis-ci.org/app/ - Mozi\</tspan>
+<tspan x="10" y="1098">lla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/76.0.3809.132 \</tspan>
+<tspan x="10" y="1114">Safari/537.36 - 2019-09-08T09:20:02.813Z</tspan>
 
 <tspan x="10" y="1130">|    1004 ms            0 failed        1 passed      |</tspan>
 
 <tspan x="10" y="1146">-------------------------------------------------------</tspan>
 
 <tspan x="10" y="1162">| test-report - npmTest - browser - / - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTM\</tspan>
-<tspan x="10" y="1178">L, like Gecko) HeadlessChrome/76.0.3809.132 Safari/537.36 - 2019-09-08T09:19:02.830Z</tspan>
+<tspan x="10" y="1178">L, like Gecko) HeadlessChrome/76.0.3809.132 Safari/537.36 - 2019-09-08T09:17:35.617Z</tspan>
 
 <tspan x="10" y="1194">|    1004 ms            0 failed        1 passed      |</tspan>
 
 <tspan x="10" y="1210">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="1226"></tspan>
+<tspan x="10" y="1226">| test-report - npmTest - browser - / - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTM\</tspan>
+<tspan x="10" y="1242">L, like Gecko) HeadlessChrome/76.0.3809.132 Safari/537.36 - 2019-09-08T09:19:02.830Z</tspan>
 
-<tspan x="10" y="1242">created test-report file /home/travis/build/kaizhu256/node-aa-bb/tmp/build/test-report.html</tspan>
+<tspan x="10" y="1258">|    1004 ms            0 failed        1 passed      |</tspan>
 
-<tspan x="10" y="1258"></tspan>
+<tspan x="10" y="1274">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="1274"></tspan>
+<tspan x="10" y="1290">| test-report - npmTest - browser - / - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTM\</tspan>
+<tspan x="10" y="1306">L, like Gecko) HeadlessChrome/76.0.3809.132 Safari/537.36 - 2019-09-08T09:22:23.720Z</tspan>
 
-<tspan x="10" y="1290">npmTest - 0 failed tests</tspan>
+<tspan x="10" y="1322">|    1005 ms            0 failed        1 passed      |</tspan>
 
-<tspan x="10" y="1306"></tspan>
+<tspan x="10" y="1338">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="1322"></tspan>
+<tspan x="10" y="1354"></tspan>
 
-<tspan x="10" y="1338">\x1b[35m[MODE_BUILD=npmTest]\x1b[0m - 2019-09-08T09:19:08.810Z - EXIT_CODE - 0</tspan>
+<tspan x="10" y="1370">created test-report file /home/travis/build/kaizhu256/node-aa-bb/tmp/build/test-report.html</tspan>
+
+<tspan x="10" y="1386"></tspan>
+
+<tspan x="10" y="1402"></tspan>
+
+<tspan x="10" y="1418">npmTest - 0 failed tests</tspan>
+
+<tspan x="10" y="1434"></tspan>
+
+<tspan x="10" y="1450"></tspan>
+
+<tspan x="10" y="1466">\x1b[35m[MODE_BUILD=npmTest]\x1b[0m - 2019-09-08T09:22:29.693Z - EXIT_CODE - 0</tspan>
 
 </text>
 </svg>
