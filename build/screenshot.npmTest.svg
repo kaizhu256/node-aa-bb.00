@@ -1,0 +1,133 @@
+<svg height="1118" width="720" xmlns="http://www.w3.org/2000/svg">
+<rect height="1118" fill="#555" width="720"></rect>
+<text fill="#7f7" font-family="Courier New" font-size="12" xml:space="preserve">
+<tspan x="10" y="26"></tspan>
+
+<tspan x="10" y="42">\x1b[35m[MODE_BUILD=npmTest]\x1b[0m - 2019-09-08T19:11:34.607Z - npm-testing /home/travis/build/\</tspan>
+<tspan x="10" y="58">kaizhu256/node-aa-bb</tspan>
+
+<tspan x="10" y="74"></tspan>
+
+<tspan x="10" y="90"></tspan>
+
+<tspan x="10" y="106">covering $ /home/travis/.nvm/versions/node/v12.10.0/bin/node /home/travis/build/kaizhu256/node-a\</tspan>
+<tspan x="10" y="122">a-bb/test.js</tspan>
+
+<tspan x="10" y="138"></tspan>
+
+<tspan x="10" y="154">npmTest - merged test-report from file /home/travis/build/kaizhu256/node-aa-bb/tmp/build/test-re\</tspan>
+<tspan x="10" y="170">port.json</tspan>
+
+<tspan x="10" y="186">&gt; </tspan>
+
+<tspan x="10" y="202">npmTest - merged test-report from file /home/travis/build/kaizhu256/node-aa-bb/tmp/build/test-re\</tspan>
+<tspan x="10" y="218">port.json</tspan>
+
+<tspan x="10" y="234">http-server listening on port 63683</tspan>
+
+<tspan x="10" y="250">db - dropping database ...</tspan>
+
+<tspan x="10" y="266">testRunDefault - 12311 ms - [node test-case 1 of 7 passed] - testCase_buildApidoc_default</tspan>
+
+<tspan x="10" y="282">testRunDefault - 12348 ms - [node test-case 2 of 7 passed] - testCase_buildLib_default</tspan>
+
+<tspan x="10" y="298">testRunDefault - 12361 ms - [node test-case 3 of 7 passed] - testCase_buildReadme_default</tspan>
+
+<tspan x="10" y="314">testRunDefault - 12365 ms - [node test-case 4 of 7 passed] - testCase_buildTest_default</tspan>
+
+<tspan x="10" y="330">testRunDefault - 12370 ms - [node test-case 5 of 7 passed] - testCase_nop_default</tspan>
+
+<tspan x="10" y="346">jslint - 344ms /home/travis/build/kaizhu256/node-aa-bb/README.md</tspan>
+
+<tspan x="10" y="362">jslint - 60ms /home/travis/build/kaizhu256/node-aa-bb/lib.aa_bb.js</tspan>
+
+<tspan x="10" y="378">jslint - 1ms /home/travis/build/kaizhu256/node-aa-bb/npm_scripts.sh</tspan>
+
+<tspan x="10" y="394">jslint - 0ms /home/travis/build/kaizhu256/node-aa-bb/package.json</tspan>
+
+<tspan x="10" y="410">Fontconfig warning: "/etc/fonts/fonts.conf", line 86: unknown element "blank"</tspan>
+
+<tspan x="10" y="426">jslint - 30ms /home/travis/build/kaizhu256/node-aa-bb/test.js</tspan>
+
+<tspan x="10" y="442">http-server listening on port 38138</tspan>
+
+<tspan x="10" y="458"></tspan>
+
+<tspan x="10" y="474">DevTools listening on ws://127.0.0.1:35666/devtools/browser/72b21110-1097-441d-9d22-972f9696f980</tspan>
+
+<tspan x="10" y="490">[0908/191136.853650:INFO:CONSOLE(8)] "db - dropping database ...", source: http://127.0.0.1:6368\</tspan>
+<tspan x="10" y="506">3/assets.example.js (8)</tspan>
+
+<tspan x="10" y="522">[0908/191136.883221:INFO:CONSOLE(8)] "testRunDefault - 3 ms - [browser test-case 1 of 1 passed] \</tspan>
+<tspan x="10" y="538">- testCase_nop_default", source: http://127.0.0.1:63683/assets.example.js (8)</tspan>
+
+<tspan x="10" y="554">testRunDefault - 15128 ms - [node test-case 6 of 7 passed] - testCase_webpage_default</tspan>
+
+<tspan x="10" y="570">testRunDefault - 15310 ms - testCase pending - testCase_buildApp_default ...</tspan>
+
+<tspan x="10" y="586">testRunDefault - 17833 ms - [node test-case 7 of 7 passed] - testCase_buildApp_default</tspan>
+
+<tspan x="10" y="602">-------------------|-----------|-----------|-----------|-----------|</tspan>
+
+<tspan x="10" y="618">File               |   % Stmts |% Branches |   % Funcs |   % Lines |</tspan>
+
+<tspan x="10" y="634">-------------------|-----------|-----------|-----------|-----------|</tspan>
+
+<tspan x="10" y="650">   node-aa-bb/     |       100 |       100 |       100 |       100 |</tspan>
+
+<tspan x="10" y="666">      example.js   |       100 |       100 |       100 |       100 |</tspan>
+
+<tspan x="10" y="682">      lib.aa_bb.js |       100 |       100 |       100 |       100 |</tspan>
+
+<tspan x="10" y="698">      test.js      |       100 |       100 |       100 |       100 |</tspan>
+
+<tspan x="10" y="714">-------------------|-----------|-----------|-----------|-----------|</tspan>
+
+<tspan x="10" y="730">All files          |       100 |       100 |       100 |       100 |</tspan>
+
+<tspan x="10" y="746">-------------------|-----------|-----------|-----------|-----------|</tspan>
+
+<tspan x="10" y="762"></tspan>
+
+<tspan x="10" y="778">created coverage file /home/travis/build/kaizhu256/node-aa-bb/tmp/build/coverage.html/index.html</tspan>
+
+<tspan x="10" y="794"></tspan>
+
+<tspan x="10" y="810">npmTest - merged test-report from file /home/travis/build/kaizhu256/node-aa-bb/tmp/build/test-re\</tspan>
+<tspan x="10" y="826">port.json</tspan>
+
+<tspan x="10" y="842"></tspan>
+
+<tspan x="10" y="858">-------------------------------------------------------</tspan>
+
+<tspan x="10" y="874">| test-report - buildApp - node - linux v12.10.0 - 2019-09-08T19:11:22.653Z</tspan>
+
+<tspan x="10" y="890">|   17834 ms            0 failed        7 passed      |</tspan>
+
+<tspan x="10" y="906">-------------------------------------------------------</tspan>
+
+<tspan x="10" y="922">| test-report - npmTest - browser - / - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTM\</tspan>
+<tspan x="10" y="938">L, like Gecko) HeadlessChrome/76.0.3809.132 Safari/537.36 - 2019-09-08T19:11:36.824Z</tspan>
+
+<tspan x="10" y="954">|    1003 ms            0 failed        1 passed      |</tspan>
+
+<tspan x="10" y="970">-------------------------------------------------------</tspan>
+
+<tspan x="10" y="986"></tspan>
+
+<tspan x="10" y="1002">created test-report file /home/travis/build/kaizhu256/node-aa-bb/tmp/build/test-report.html</tspan>
+
+<tspan x="10" y="1018"></tspan>
+
+<tspan x="10" y="1034"></tspan>
+
+<tspan x="10" y="1050">npmTest - 0 failed tests</tspan>
+
+<tspan x="10" y="1066"></tspan>
+
+<tspan x="10" y="1082"></tspan>
+
+<tspan x="10" y="1098">\x1b[35m[MODE_BUILD=npmTest]\x1b[0m - 2019-09-08T19:11:41.821Z - EXIT_CODE - 0</tspan>
+
+</text>
+</svg>
