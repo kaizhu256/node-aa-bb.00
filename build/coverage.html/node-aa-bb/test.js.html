@@ -270,7 +270,7 @@
             evt.preventDefault();
         }
     };
-    // init event-handling
+    // handle evt
     document.addEventListener(
         "keydown",
         window.domOnEventSelectAllWithinPre
@@ -293,11 +293,11 @@
     </tr>
     </thead>
     <tbody>
-        <td>statements: 34<br>branches: 25<br>functions: 10</td>
-        <td>100%<br>(85 / 85)</td>
-        <td>100%<br>(36 / 36)</td>
-        <td>100%<br>(14 / 14)</td>
-        <td>100%<br>(85 / 85)</td>
+        <td>statements: 121<br>branches: 74<br>functions: 19</td>
+        <td>100%<br>(195 / 195)</td>
+        <td>100%<br>(95 / 95)</td>
+        <td>100%<br>(24 / 24)</td>
+        <td>100%<br>(195 / 195)</td>
     </tbody>
     </table>
     <div class="path"><a href="../index.html">All files</a> &#187; <a href="index.html">node-aa-bb/</a> &#187; test.js</div>
@@ -514,11 +514,210 @@
 <a href="#L208" id="L208">208</a>
 <a href="#L209" id="L209">209</a>
 <a href="#L210" id="L210">210</a>
+<a href="#L211" id="L211">211</a>
+<a href="#L212" id="L212">212</a>
+<a href="#L213" id="L213">213</a>
+<a href="#L214" id="L214">214</a>
+<a href="#L215" id="L215">215</a>
+<a href="#L216" id="L216">216</a>
+<a href="#L217" id="L217">217</a>
+<a href="#L218" id="L218">218</a>
+<a href="#L219" id="L219">219</a>
+<a href="#L220" id="L220">220</a>
+<a href="#L221" id="L221">221</a>
+<a href="#L222" id="L222">222</a>
+<a href="#L223" id="L223">223</a>
+<a href="#L224" id="L224">224</a>
+<a href="#L225" id="L225">225</a>
+<a href="#L226" id="L226">226</a>
+<a href="#L227" id="L227">227</a>
+<a href="#L228" id="L228">228</a>
+<a href="#L229" id="L229">229</a>
+<a href="#L230" id="L230">230</a>
+<a href="#L231" id="L231">231</a>
+<a href="#L232" id="L232">232</a>
+<a href="#L233" id="L233">233</a>
+<a href="#L234" id="L234">234</a>
+<a href="#L235" id="L235">235</a>
+<a href="#L236" id="L236">236</a>
+<a href="#L237" id="L237">237</a>
+<a href="#L238" id="L238">238</a>
+<a href="#L239" id="L239">239</a>
+<a href="#L240" id="L240">240</a>
+<a href="#L241" id="L241">241</a>
+<a href="#L242" id="L242">242</a>
+<a href="#L243" id="L243">243</a>
+<a href="#L244" id="L244">244</a>
+<a href="#L245" id="L245">245</a>
+<a href="#L246" id="L246">246</a>
+<a href="#L247" id="L247">247</a>
+<a href="#L248" id="L248">248</a>
+<a href="#L249" id="L249">249</a>
+<a href="#L250" id="L250">250</a>
+<a href="#L251" id="L251">251</a>
+<a href="#L252" id="L252">252</a>
+<a href="#L253" id="L253">253</a>
+<a href="#L254" id="L254">254</a>
+<a href="#L255" id="L255">255</a>
+<a href="#L256" id="L256">256</a>
+<a href="#L257" id="L257">257</a>
+<a href="#L258" id="L258">258</a>
+<a href="#L259" id="L259">259</a>
+<a href="#L260" id="L260">260</a>
+<a href="#L261" id="L261">261</a>
+<a href="#L262" id="L262">262</a>
+<a href="#L263" id="L263">263</a>
+<a href="#L264" id="L264">264</a>
+<a href="#L265" id="L265">265</a>
+<a href="#L266" id="L266">266</a>
+<a href="#L267" id="L267">267</a>
+<a href="#L268" id="L268">268</a>
+<a href="#L269" id="L269">269</a>
+<a href="#L270" id="L270">270</a>
+<a href="#L271" id="L271">271</a>
+<a href="#L272" id="L272">272</a>
+<a href="#L273" id="L273">273</a>
+<a href="#L274" id="L274">274</a>
+<a href="#L275" id="L275">275</a>
+<a href="#L276" id="L276">276</a>
+<a href="#L277" id="L277">277</a>
+<a href="#L278" id="L278">278</a>
+<a href="#L279" id="L279">279</a>
+<a href="#L280" id="L280">280</a>
+<a href="#L281" id="L281">281</a>
+<a href="#L282" id="L282">282</a>
+<a href="#L283" id="L283">283</a>
+<a href="#L284" id="L284">284</a>
+<a href="#L285" id="L285">285</a>
+<a href="#L286" id="L286">286</a>
+<a href="#L287" id="L287">287</a>
+<a href="#L288" id="L288">288</a>
+<a href="#L289" id="L289">289</a>
+<a href="#L290" id="L290">290</a>
+<a href="#L291" id="L291">291</a>
+<a href="#L292" id="L292">292</a>
+<a href="#L293" id="L293">293</a>
+<a href="#L294" id="L294">294</a>
+<a href="#L295" id="L295">295</a>
+<a href="#L296" id="L296">296</a>
+<a href="#L297" id="L297">297</a>
+<a href="#L298" id="L298">298</a>
+<a href="#L299" id="L299">299</a>
+<a href="#L300" id="L300">300</a>
+<a href="#L301" id="L301">301</a>
+<a href="#L302" id="L302">302</a>
+<a href="#L303" id="L303">303</a>
+<a href="#L304" id="L304">304</a>
+<a href="#L305" id="L305">305</a>
+<a href="#L306" id="L306">306</a>
+<a href="#L307" id="L307">307</a>
+<a href="#L308" id="L308">308</a>
+<a href="#L309" id="L309">309</a>
+<a href="#L310" id="L310">310</a>
+<a href="#L311" id="L311">311</a>
+<a href="#L312" id="L312">312</a>
+<a href="#L313" id="L313">313</a>
+<a href="#L314" id="L314">314</a>
+<a href="#L315" id="L315">315</a>
+<a href="#L316" id="L316">316</a>
+<a href="#L317" id="L317">317</a>
+<a href="#L318" id="L318">318</a>
+<a href="#L319" id="L319">319</a>
+<a href="#L320" id="L320">320</a>
+<a href="#L321" id="L321">321</a>
+<a href="#L322" id="L322">322</a>
+<a href="#L323" id="L323">323</a>
+<a href="#L324" id="L324">324</a>
+<a href="#L325" id="L325">325</a>
+<a href="#L326" id="L326">326</a>
+<a href="#L327" id="L327">327</a>
+<a href="#L328" id="L328">328</a>
+<a href="#L329" id="L329">329</a>
+<a href="#L330" id="L330">330</a>
+<a href="#L331" id="L331">331</a>
+<a href="#L332" id="L332">332</a>
+<a href="#L333" id="L333">333</a>
+<a href="#L334" id="L334">334</a>
+<a href="#L335" id="L335">335</a>
+<a href="#L336" id="L336">336</a>
+<a href="#L337" id="L337">337</a>
+<a href="#L338" id="L338">338</a>
+<a href="#L339" id="L339">339</a>
+<a href="#L340" id="L340">340</a>
+<a href="#L341" id="L341">341</a>
+<a href="#L342" id="L342">342</a>
+<a href="#L343" id="L343">343</a>
+<a href="#L344" id="L344">344</a>
+<a href="#L345" id="L345">345</a>
+<a href="#L346" id="L346">346</a>
+<a href="#L347" id="L347">347</a>
+<a href="#L348" id="L348">348</a>
+<a href="#L349" id="L349">349</a>
+<a href="#L350" id="L350">350</a>
+<a href="#L351" id="L351">351</a>
+<a href="#L352" id="L352">352</a>
+<a href="#L353" id="L353">353</a>
+<a href="#L354" id="L354">354</a>
+<a href="#L355" id="L355">355</a>
+<a href="#L356" id="L356">356</a>
+<a href="#L357" id="L357">357</a>
+<a href="#L358" id="L358">358</a>
+<a href="#L359" id="L359">359</a>
+<a href="#L360" id="L360">360</a>
+<a href="#L361" id="L361">361</a>
+<a href="#L362" id="L362">362</a>
+<a href="#L363" id="L363">363</a>
+<a href="#L364" id="L364">364</a>
+<a href="#L365" id="L365">365</a>
+<a href="#L366" id="L366">366</a>
+<a href="#L367" id="L367">367</a>
+<a href="#L368" id="L368">368</a>
+<a href="#L369" id="L369">369</a>
+<a href="#L370" id="L370">370</a>
+<a href="#L371" id="L371">371</a>
+<a href="#L372" id="L372">372</a>
+<a href="#L373" id="L373">373</a>
+<a href="#L374" id="L374">374</a>
+<a href="#L375" id="L375">375</a>
+<a href="#L376" id="L376">376</a>
+<a href="#L377" id="L377">377</a>
+<a href="#L378" id="L378">378</a>
+<a href="#L379" id="L379">379</a>
+<a href="#L380" id="L380">380</a>
+<a href="#L381" id="L381">381</a>
+<a href="#L382" id="L382">382</a>
+<a href="#L383" id="L383">383</a>
+<a href="#L384" id="L384">384</a>
+<a href="#L385" id="L385">385</a>
+<a href="#L386" id="L386">386</a>
+<a href="#L387" id="L387">387</a>
+<a href="#L388" id="L388">388</a>
+<a href="#L389" id="L389">389</a>
+<a href="#L390" id="L390">390</a>
+<a href="#L391" id="L391">391</a>
+<a href="#L392" id="L392">392</a>
+<a href="#L393" id="L393">393</a>
+<a href="#L394" id="L394">394</a>
+<a href="#L395" id="L395">395</a>
+<a href="#L396" id="L396">396</a>
+<a href="#L397" id="L397">397</a>
+<a href="#L398" id="L398">398</a>
+<a href="#L399" id="L399">399</a>
+<a href="#L400" id="L400">400</a>
+<a href="#L401" id="L401">401</a>
+<a href="#L402" id="L402">402</a>
+<a href="#L403" id="L403">403</a>
+<a href="#L404" id="L404">404</a>
 </td><td class="line-coverage"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -531,23 +730,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -555,77 +742,28 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -636,6 +774,229 @@
 <span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -649,6 +1010,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
@@ -662,6 +1028,26 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2</span>
@@ -699,6 +1085,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -708,8 +1097,7 @@
 <span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2</span>
@@ -724,31 +1112,184 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js" tabIndex="0">/* istanbul instrument in package aa_bb */
+// assets.utility2.header.js - start
 /* istanbul ignore next */
 /* jslint utility2:true */
 (function (globalThis) {
     "use strict";
-    var consoleError;
-    var local;
+    let ArrayPrototypeFlat;
+    let TextXxcoder;
+    let consoleError;
+    let debugName;
+    let local;
+    debugName = "debug" + String("Inline");
     // init globalThis
     globalThis.globalThis = globalThis.globalThis || <span class="branch-1 cbranch-skip" title="branch not covered" >globalThis;</span>
     // init debug_inline
-    <span class="skip-if-branch" title="if path not taken" >I</span>if (!globalThis["debug\u0049nline"]) {
+    <span class="skip-if-branch" title="if path not taken" >I</span>if (!globalThis[debugName]) {
 <span class="cstat-skip" title="statement not covered" >        consoleError = console.error;</span>
-<span class="cstat-skip" title="statement not covered" >        globalThis["debug\u0049nline"] = <span class="fstat-skip" title="function not covered" >function (...argList) {</span></span>
+<span class="cstat-skip" title="statement not covered" >        globalThis[debugName] = <span class="fstat-skip" title="function not covered" >function (...argList) {</span></span>
         /*
          * this function will both print &lt;argList&gt; to stderr
          * and return &lt;argList&gt;[0]
          */
-            // debug argList
-<span class="cstat-skip" title="statement not covered" >            globalThis["debug\u0049nlineArgList"] = argList;</span>
-<span class="cstat-skip" title="statement not covered" >            consoleError("\n\ndebug\u0049nline");</span>
+<span class="cstat-skip" title="statement not covered" >            consoleError("\n\n" + debugName);</span>
 <span class="cstat-skip" title="statement not covered" >            consoleError.apply(console, argList);</span>
 <span class="cstat-skip" title="statement not covered" >            consoleError("\n");</span>
             // return arg0 for inspection
 <span class="cstat-skip" title="statement not covered" >            return argList[0];</span>
         };
     }
+    // polyfill
+    ArrayPrototypeFlat = <span class="fstat-skip" title="function not covered" >function (depth) {</span>
+    /*
+     * this function will polyfill Array.prototype.flat
+     * https://github.com/jonathantneal/array-flat-polyfill
+     */
+<span class="cstat-skip" title="statement not covered" >        depth = (</span>
+            globalThis.isNaN(depth)
+            ? 1
+            : Number(depth)
+        );
+<span class="cstat-skip" title="statement not covered" >        if (!depth) {</span>
+<span class="cstat-skip" title="statement not covered" >            return Array.prototype.slice.call(this);</span>
+        }
+<span class="cstat-skip" title="statement not covered" >        return Array.prototype.reduce.call(this, <span class="fstat-skip" title="function not covered" >function (acc, cur) {</span></span>
+<span class="cstat-skip" title="statement not covered" >            if (Array.isArray(cur)) {</span>
+                // recurse
+<span class="cstat-skip" title="statement not covered" >                acc.push.apply(acc, ArrayPrototypeFlat.call(cur, depth - 1));</span>
+            } else {
+<span class="cstat-skip" title="statement not covered" >                acc.push(cur);</span>
+            }
+<span class="cstat-skip" title="statement not covered" >            return acc;</span>
+        }, []);
+    };
+    Array.prototype.flat = Array.prototype.flat || <span class="branch-1 cbranch-skip" title="branch not covered" >ArrayPrototypeFlat;</span>
+    Array.prototype.flatMap = Array.prototype.flatMap || <span class="fstat-skip" title="function not covered" ><span class="branch-1 cbranch-skip" title="branch not covered" >function flatMap(</span></span>
+        ...argList
+    ) {
+    /*
+     * this function will polyfill Array.prototype.flatMap
+     * https://github.com/jonathantneal/array-flat-polyfill
+     */
+<span class="cstat-skip" title="statement not covered" >        return this.map(...argList).flat();</span>
+    };
+    String.prototype.trimEnd = (
+        String.prototype.trimEnd || <span class="branch-1 cbranch-skip" title="branch not covered" >String.prototype.trimRight</span>
+    );
+    String.prototype.trimStart = (
+        String.prototype.trimStart || <span class="branch-1 cbranch-skip" title="branch not covered" >String.prototype.trimLeft</span>
+    );
+    (function () {
+        try {
+            globalThis.TextDecoder = (
+                globalThis.TextDecoder || <span class="branch-1 cbranch-skip" title="branch not covered" >require("util").TextDecoder</span>
+            );
+            globalThis.TextEncoder = (
+                globalThis.TextEncoder || <span class="branch-1 cbranch-skip" title="branch not covered" >require("util").TextEncoder</span>
+            );
+        } catch (ignore) {}
+    }());
+    TextXxcoder = <span class="fstat-skip" title="function not covered" >function () {</span>
+    /*
+     * this function will polyfill TextDecoder/TextEncoder
+     * https://gist.github.com/Yaffle/5458286
+     */
+<span class="cstat-skip" title="statement not covered" >        return;</span>
+    };
+    TextXxcoder.prototype.decode = <span class="fstat-skip" title="function not covered" >function (octets) {</span>
+    /*
+     * this function will polyfill TextDecoder.prototype.decode
+     * https://gist.github.com/Yaffle/5458286
+     */
+<span class="cstat-skip" title="statement not covered" >        let bytesNeeded;</span>
+<span class="cstat-skip" title="statement not covered" >        let codePoint;</span>
+<span class="cstat-skip" title="statement not covered" >        let ii;</span>
+<span class="cstat-skip" title="statement not covered" >        let kk;</span>
+<span class="cstat-skip" title="statement not covered" >        let octet;</span>
+<span class="cstat-skip" title="statement not covered" >        let string;</span>
+<span class="cstat-skip" title="statement not covered" >        string = "";</span>
+<span class="cstat-skip" title="statement not covered" >        ii = 0;</span>
+<span class="cstat-skip" title="statement not covered" >        while (ii &lt; octets.length) {</span>
+<span class="cstat-skip" title="statement not covered" >            octet = octets[ii];</span>
+<span class="cstat-skip" title="statement not covered" >            bytesNeeded = 0;</span>
+<span class="cstat-skip" title="statement not covered" >            codePoint = 0;</span>
+<span class="cstat-skip" title="statement not covered" >            if (octet &lt;= 0x7F) {</span>
+<span class="cstat-skip" title="statement not covered" >                bytesNeeded = 0;</span>
+<span class="cstat-skip" title="statement not covered" >                codePoint = octet &amp; 0xFF;</span>
+            } else <span class="cstat-skip" title="statement not covered" >if (octet &lt;= 0xDF) {</span>
+<span class="cstat-skip" title="statement not covered" >                bytesNeeded = 1;</span>
+<span class="cstat-skip" title="statement not covered" >                codePoint = octet &amp; 0x1F;</span>
+            } else <span class="cstat-skip" title="statement not covered" >if (octet &lt;= 0xEF) {</span>
+<span class="cstat-skip" title="statement not covered" >                bytesNeeded = 2;</span>
+<span class="cstat-skip" title="statement not covered" >                codePoint = octet &amp; 0x0F;</span>
+            } else <span class="cstat-skip" title="statement not covered" >if (octet &lt;= 0xF4) {</span>
+<span class="cstat-skip" title="statement not covered" >                bytesNeeded = 3;</span>
+<span class="cstat-skip" title="statement not covered" >                codePoint = octet &amp; 0x07;</span>
+            }
+<span class="cstat-skip" title="statement not covered" >            if (octets.length - ii - bytesNeeded &gt; 0) {</span>
+<span class="cstat-skip" title="statement not covered" >                kk = 0;</span>
+<span class="cstat-skip" title="statement not covered" >                while (kk &lt; bytesNeeded) {</span>
+<span class="cstat-skip" title="statement not covered" >                    octet = octets[ii + kk + 1];</span>
+<span class="cstat-skip" title="statement not covered" >                    codePoint = (codePoint &lt;&lt; 6) | (octet &amp; 0x3F);</span>
+<span class="cstat-skip" title="statement not covered" >                    kk += 1;</span>
+                }
+            } else {
+<span class="cstat-skip" title="statement not covered" >                codePoint = 0xFFFD;</span>
+<span class="cstat-skip" title="statement not covered" >                bytesNeeded = octets.length - ii;</span>
+            }
+<span class="cstat-skip" title="statement not covered" >            string += String.fromCodePoint(codePoint);</span>
+<span class="cstat-skip" title="statement not covered" >            ii += bytesNeeded + 1;</span>
+        }
+<span class="cstat-skip" title="statement not covered" >        return string;</span>
+    };
+    TextXxcoder.prototype.encode = <span class="fstat-skip" title="function not covered" >function (string) {</span>
+    /*
+     * this function will polyfill TextEncoder.prototype.encode
+     * https://gist.github.com/Yaffle/5458286
+     */
+<span class="cstat-skip" title="statement not covered" >        let bits;</span>
+<span class="cstat-skip" title="statement not covered" >        let cc;</span>
+<span class="cstat-skip" title="statement not covered" >        let codePoint;</span>
+<span class="cstat-skip" title="statement not covered" >        let ii;</span>
+<span class="cstat-skip" title="statement not covered" >        let length;</span>
+<span class="cstat-skip" title="statement not covered" >        let octets;</span>
+<span class="cstat-skip" title="statement not covered" >        octets = [];</span>
+<span class="cstat-skip" title="statement not covered" >        length = string.length;</span>
+<span class="cstat-skip" title="statement not covered" >        ii = 0;</span>
+<span class="cstat-skip" title="statement not covered" >        while (ii &lt; length) {</span>
+<span class="cstat-skip" title="statement not covered" >            codePoint = string.codePointAt(ii);</span>
+<span class="cstat-skip" title="statement not covered" >            cc = 0;</span>
+<span class="cstat-skip" title="statement not covered" >            bits = 0;</span>
+<span class="cstat-skip" title="statement not covered" >            if (codePoint &lt;= 0x0000007F) {</span>
+<span class="cstat-skip" title="statement not covered" >                cc = 0;</span>
+<span class="cstat-skip" title="statement not covered" >                bits = 0x00;</span>
+            } else <span class="cstat-skip" title="statement not covered" >if (codePoint &lt;= 0x000007FF) {</span>
+<span class="cstat-skip" title="statement not covered" >                cc = 6;</span>
+<span class="cstat-skip" title="statement not covered" >                bits = 0xC0;</span>
+            } else <span class="cstat-skip" title="statement not covered" >if (codePoint &lt;= 0x0000FFFF) {</span>
+<span class="cstat-skip" title="statement not covered" >                cc = 12;</span>
+<span class="cstat-skip" title="statement not covered" >                bits = 0xE0;</span>
+            } else <span class="cstat-skip" title="statement not covered" >if (codePoint &lt;= 0x001FFFFF) {</span>
+<span class="cstat-skip" title="statement not covered" >                cc = 18;</span>
+<span class="cstat-skip" title="statement not covered" >                bits = 0xF0;</span>
+            }
+<span class="cstat-skip" title="statement not covered" >            octets.push(bits | (codePoint &gt;&gt; cc));</span>
+<span class="cstat-skip" title="statement not covered" >            cc -= 6;</span>
+<span class="cstat-skip" title="statement not covered" >            while (cc &gt;= 0) {</span>
+<span class="cstat-skip" title="statement not covered" >                octets.push(0x80 | ((codePoint &gt;&gt; cc) &amp; 0x3F));</span>
+<span class="cstat-skip" title="statement not covered" >                cc -= 6;</span>
+            }
+<span class="cstat-skip" title="statement not covered" >            ii += (</span>
+                codePoint &gt;= 0x10000
+                ? 2
+                : 1
+            );
+        }
+<span class="cstat-skip" title="statement not covered" >        return octets;</span>
+    };
+    globalThis.TextDecoder = globalThis.TextDecoder || <span class="branch-1 cbranch-skip" title="branch not covered" >TextXxcoder;</span>
+    globalThis.TextEncoder = globalThis.TextEncoder || <span class="branch-1 cbranch-skip" title="branch not covered" >TextXxcoder;</span>
     // init local
     local = {};
     local.local = local;
@@ -759,12 +1300,16 @@
         &amp;&amp; globalThis.navigator
         &amp;&amp; typeof globalThis.navigator.userAgent === "string"
     );
+    // init isWebWorker
+    local.isWebWorker = (
+        local.isBrowser &amp;&amp; typeof globalThis.importScript === "function"
+    );
     // init function
     local.assertOrThrow = <span class="fstat-skip" title="function not covered" >function (passed, message) {</span>
     /*
      * this function will throw err.&lt;message&gt; if &lt;passed&gt; is falsy
      */
-<span class="cstat-skip" title="statement not covered" >        var err;</span>
+<span class="cstat-skip" title="statement not covered" >        let err;</span>
 <span class="cstat-skip" title="statement not covered" >        if (passed) {</span>
 <span class="cstat-skip" title="statement not covered" >            return;</span>
         }
@@ -781,16 +1326,32 @@
                 // if message is a string, then leave as is
                 ? message
                 // else JSON.stringify message
-                : JSON.stringify(message, null, 4)
+                : JSON.stringify(message, undefined, 4)
             )
         );
 <span class="cstat-skip" title="statement not covered" >        throw err;</span>
+    };
+    local.coalesce = <span class="fstat-skip" title="function not covered" >function (...argList) {</span>
+    /*
+     * this function will coalesce null, undefined, or "" in &lt;argList&gt;
+     */
+<span class="cstat-skip" title="statement not covered" >        let arg;</span>
+<span class="cstat-skip" title="statement not covered" >        let ii;</span>
+<span class="cstat-skip" title="statement not covered" >        ii = 0;</span>
+<span class="cstat-skip" title="statement not covered" >        while (ii &lt; argList.length) {</span>
+<span class="cstat-skip" title="statement not covered" >            arg = argList[ii];</span>
+<span class="cstat-skip" title="statement not covered" >            if (arg !== null &amp;&amp; arg !== undefined &amp;&amp; arg !== "") {</span>
+<span class="cstat-skip" title="statement not covered" >                break;</span>
+            }
+<span class="cstat-skip" title="statement not covered" >            ii += 1;</span>
+        }
+<span class="cstat-skip" title="statement not covered" >        return arg;</span>
     };
     local.fsRmrfSync = <span class="fstat-skip" title="function not covered" >function (dir) {</span>
     /*
      * this function will sync "rm -rf" &lt;dir&gt;
      */
-<span class="cstat-skip" title="statement not covered" >        var child_process;</span>
+<span class="cstat-skip" title="statement not covered" >        let child_process;</span>
 <span class="cstat-skip" title="statement not covered" >        try {</span>
 <span class="cstat-skip" title="statement not covered" >            child_process = require("child_process");</span>
         } catch (ignore) {
@@ -808,7 +1369,7 @@
     /*
      * this function will sync write &lt;data&gt; to &lt;file&gt; with "mkdir -p"
      */
-<span class="cstat-skip" title="statement not covered" >        var fs;</span>
+<span class="cstat-skip" title="statement not covered" >        let fs;</span>
 <span class="cstat-skip" title="statement not covered" >        try {</span>
 <span class="cstat-skip" title="statement not covered" >            fs = require("fs");</span>
         } catch (ignore) {
@@ -837,16 +1398,16 @@
     local.functionOrNop = <span class="fstat-skip" title="function not covered" >function (fnc) {</span>
     /*
      * this function will if &lt;fnc&gt; exists,
-     * them return &lt;fnc&gt;,
+     * return &lt;fnc&gt;,
      * else return &lt;nop&gt;
      */
 <span class="cstat-skip" title="statement not covered" >        return fnc || local.nop;</span>
     };
-    local.identity = <span class="fstat-skip" title="function not covered" >function (value) {</span>
+    local.identity = <span class="fstat-skip" title="function not covered" >function (val) {</span>
     /*
-     * this function will return &lt;value&gt;
+     * this function will return &lt;val&gt;
      */
-<span class="cstat-skip" title="statement not covered" >        return value;</span>
+<span class="cstat-skip" title="statement not covered" >        return val;</span>
     };
     local.nop = <span class="fstat-skip" title="function not covered" >function () {</span>
     /*
@@ -856,8 +1417,7 @@
     };
     local.objectAssignDefault = <span class="fstat-skip" title="function not covered" >function (target, source) {</span>
     /*
-     * this function will if items from &lt;target&gt; are
-     * null, undefined, or empty-string,
+     * this function will if items from &lt;target&gt; are null, undefined, or "",
      * then overwrite them with items from &lt;source&gt;
      */
 <span class="cstat-skip" title="statement not covered" >        target = target || {};</span>
@@ -871,6 +1431,26 @@
             }
         });
 <span class="cstat-skip" title="statement not covered" >        return target;</span>
+    };
+    local.querySelector = <span class="fstat-skip" title="function not covered" >function (selectors) {</span>
+    /*
+     * this function will return first dom-elem that match &lt;selectors&gt;
+     */
+<span class="cstat-skip" title="statement not covered" >        return (</span>
+            typeof document === "object" &amp;&amp; document
+            &amp;&amp; typeof document.querySelector === "function"
+            &amp;&amp; document.querySelector(selectors)
+        ) || {};
+    };
+    local.querySelectorAll = <span class="fstat-skip" title="function not covered" >function (selectors) {</span>
+    /*
+     * this function will return dom-elem-list that match &lt;selectors&gt;
+     */
+<span class="cstat-skip" title="statement not covered" >        return (</span>
+            typeof document === "object" &amp;&amp; document
+            &amp;&amp; typeof document.querySelectorAll === "function"
+            &amp;&amp; Array.from(document.querySelectorAll(selectors))
+        ) || [];
     };
     // require builtin
     if (!local.isBrowser) {
@@ -905,9 +1485,12 @@
 }((typeof globalThis === "object" &amp;&amp; globalThis) || (<span class="fstat-skip" title="function not covered" ><span class="branch-2 cbranch-skip" title="branch not covered" >function () {</span></span>
 <span class="cstat-skip" title="statement not covered" >    return Function("return this")(); </span>// jslint ignore:line
 }())));
+// assets.utility2.header.js - end
 &nbsp;
 &nbsp;
 &nbsp;
+/* istanbul ignore next */
+/* jslint utility2:true */
 (function (local) {
 "use strict";
 &nbsp;
@@ -916,9 +1499,8 @@
 // run shared js-env code - init-before
 (function () {
 // init local
-local = (
-    globalThis.utility2 || require("utility2")
-).requireReadme();
+local = globalThis.utility2 || require("utility2");
+local = local.requireReadme();
 globalThis.local = local;
 // init test
 local.testRunDefault(local);
@@ -936,7 +1518,7 @@ return;
 </table></pre>
 </div>
 <div class="footer">
-    <div class="meta">Generated by <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a> at Sun, 08 Sep 2019 19:16:34 GMT</div>
+    <div class="meta">Generated by <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a> at Tue, 15 Oct 2019 19:18:40 GMT</div>
 </div>
 </body>
 </html>
