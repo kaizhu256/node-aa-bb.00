@@ -3,7 +3,7 @@
 <text fill="#7f7" font-family="Courier New" font-size="12" xml:space="preserve">
 <tspan x="10" y="26"></tspan>
 
-<tspan x="10" y="42">\x1b[35m[MODE_BUILD=buildApidoc]\x1b[0m - 2019-10-15T19:37:59.930Z - npm-testing /home/travis/bu\</tspan>
+<tspan x="10" y="42">\x1b[35m[MODE_BUILD=buildApidoc]\x1b[0m - 2019-10-15T21:53:33.741Z - npm-testing /home/travis/bu\</tspan>
 <tspan x="10" y="58">ild/kaizhu256/node-aa-bb</tspan>
 
 <tspan x="10" y="74"></tspan>
@@ -13,7 +13,7 @@
 <tspan x="10" y="106">buildApidoc - merged test-report from file /home/travis/build/kaizhu256/node-aa-bb/tmp/build/tes\</tspan>
 <tspan x="10" y="122">t-report.json</tspan>
 
-<tspan x="10" y="138">&gt; http-server listening on port 45480</tspan>
+<tspan x="10" y="138">&gt; http-server listening on port 45942</tspan>
 
 <tspan x="10" y="154">apidocCreate - readExample /home/travis/build/kaizhu256/node-aa-bb/package.json</tspan>
 
@@ -48,7 +48,7 @@
 
 <tspan x="10" y="410"></tspan>
 
-<tspan x="10" y="426">testRunDefault - 173 ms - [node test-case 1 of 1 passed] - testCase_buildApidoc_default</tspan>
+<tspan x="10" y="426">testRunDefault - 178 ms - [node test-case 1 of 1 passed] - testCase_buildApidoc_default</tspan>
 
 <tspan x="10" y="442"></tspan>
 
@@ -59,22 +59,22 @@
 
 <tspan x="10" y="506">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="522">| test-report - buildApidoc - node - linux v12.12.0 - 2019-10-15T19:38:00.056Z</tspan>
+<tspan x="10" y="522">| test-report - buildApidoc - node - linux v12.12.0 - 2019-10-15T21:53:33.862Z</tspan>
 
-<tspan x="10" y="538">|     176 ms            0 failed        1 passed      |</tspan>
+<tspan x="10" y="538">|     180 ms            0 failed        1 passed      |</tspan>
 
 <tspan x="10" y="554">-------------------------------------------------------</tspan>
 
 <tspan x="10" y="570">| test-report - npmTest - browser - / - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTM\</tspan>
-<tspan x="10" y="586">L, like Gecko) HeadlessChrome/77.0.3865.120 Safari/537.36 - 2019-10-15T19:37:53.979Z</tspan>
+<tspan x="10" y="586">L, like Gecko) HeadlessChrome/77.0.3865.120 Safari/537.36 - 2019-10-15T21:53:27.801Z</tspan>
 
-<tspan x="10" y="602">|      21 ms            0 failed        1 passed      |</tspan>
+<tspan x="10" y="602">|      17 ms            0 failed        1 passed      |</tspan>
 
 <tspan x="10" y="618">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="634">| test-report - npmTest - node - linux v12.12.0 - 2019-10-15T19:37:52.696Z</tspan>
+<tspan x="10" y="634">| test-report - npmTest - node - linux v12.12.0 - 2019-10-15T21:53:26.515Z</tspan>
 
-<tspan x="10" y="650">|    5874 ms            0 failed        7 passed      |</tspan>
+<tspan x="10" y="650">|    5871 ms            0 failed        7 passed      |</tspan>
 
 <tspan x="10" y="666">-------------------------------------------------------</tspan>
 
@@ -92,19 +92,19 @@
 
 <tspan x="10" y="778"></tspan>
 
-<tspan x="10" y="794">\x1b[35m[MODE_BUILD=buildApidoc]\x1b[0m - 2019-10-15T19:38:00.654Z - EXIT_CODE - 0</tspan>
+<tspan x="10" y="794">\x1b[35m[MODE_BUILD=buildApidoc]\x1b[0m - 2019-10-15T21:53:34.436Z - EXIT_CODE - 0</tspan>
 
 <tspan x="10" y="810"></tspan>
 
-<tspan x="10" y="826">jslint - 322ms /home/travis/build/kaizhu256/node-aa-bb/README.md</tspan>
+<tspan x="10" y="826">jslint - 331ms /home/travis/build/kaizhu256/node-aa-bb/README.md</tspan>
 
-<tspan x="10" y="842">jslint - 39ms /home/travis/build/kaizhu256/node-aa-bb/lib.aa_bb.js</tspan>
+<tspan x="10" y="842">jslint - 38ms /home/travis/build/kaizhu256/node-aa-bb/lib.aa_bb.js</tspan>
 
-<tspan x="10" y="858">jslint - 2ms /home/travis/build/kaizhu256/node-aa-bb/npm_scripts.sh</tspan>
+<tspan x="10" y="858">jslint - 1ms /home/travis/build/kaizhu256/node-aa-bb/npm_scripts.sh</tspan>
 
 <tspan x="10" y="874">jslint - 0ms /home/travis/build/kaizhu256/node-aa-bb/package.json</tspan>
 
-<tspan x="10" y="890">jslint - 24ms /home/travis/build/kaizhu256/node-aa-bb/test.js</tspan>
+<tspan x="10" y="890">jslint - 22ms /home/travis/build/kaizhu256/node-aa-bb/test.js</tspan>
 
 </text>
 </svg>
