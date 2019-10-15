@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * lib.aa_bb.js (2019.9.8)
+ * lib.aa_bb.js (0.0.1)
  * https://github.com/kaizhu256/node-aa-bb
  * the greatest app in the world!
  *
@@ -9,31 +9,184 @@
 
 
 /* istanbul instrument in package aa_bb */
+// assets.utility2.header.js - start
 /* istanbul ignore next */
 /* jslint utility2:true */
 (function (globalThis) {
     "use strict";
-    var consoleError;
-    var local;
+    let ArrayPrototypeFlat;
+    let TextXxcoder;
+    let consoleError;
+    let debugName;
+    let local;
+    debugName = "debug" + String("Inline");
     // init globalThis
     globalThis.globalThis = globalThis.globalThis || globalThis;
     // init debug_inline
-    if (!globalThis["debug\u0049nline"]) {
+    if (!globalThis[debugName]) {
         consoleError = console.error;
-        globalThis["debug\u0049nline"] = function (...argList) {
+        globalThis[debugName] = function (...argList) {
         /*
          * this function will both print <argList> to stderr
          * and return <argList>[0]
          */
-            // debug argList
-            globalThis["debug\u0049nlineArgList"] = argList;
-            consoleError("\n\ndebug\u0049nline");
+            consoleError("\n\n" + debugName);
             consoleError.apply(console, argList);
             consoleError("\n");
             // return arg0 for inspection
             return argList[0];
         };
     }
+    // polyfill
+    ArrayPrototypeFlat = function (depth) {
+    /*
+     * this function will polyfill Array.prototype.flat
+     * https://github.com/jonathantneal/array-flat-polyfill
+     */
+        depth = (
+            globalThis.isNaN(depth)
+            ? 1
+            : Number(depth)
+        );
+        if (!depth) {
+            return Array.prototype.slice.call(this);
+        }
+        return Array.prototype.reduce.call(this, function (acc, cur) {
+            if (Array.isArray(cur)) {
+                // recurse
+                acc.push.apply(acc, ArrayPrototypeFlat.call(cur, depth - 1));
+            } else {
+                acc.push(cur);
+            }
+            return acc;
+        }, []);
+    };
+    Array.prototype.flat = Array.prototype.flat || ArrayPrototypeFlat;
+    Array.prototype.flatMap = Array.prototype.flatMap || function flatMap(
+        ...argList
+    ) {
+    /*
+     * this function will polyfill Array.prototype.flatMap
+     * https://github.com/jonathantneal/array-flat-polyfill
+     */
+        return this.map(...argList).flat();
+    };
+    String.prototype.trimEnd = (
+        String.prototype.trimEnd || String.prototype.trimRight
+    );
+    String.prototype.trimStart = (
+        String.prototype.trimStart || String.prototype.trimLeft
+    );
+    (function () {
+        try {
+            globalThis.TextDecoder = (
+                globalThis.TextDecoder || require("util").TextDecoder
+            );
+            globalThis.TextEncoder = (
+                globalThis.TextEncoder || require("util").TextEncoder
+            );
+        } catch (ignore) {}
+    }());
+    TextXxcoder = function () {
+    /*
+     * this function will polyfill TextDecoder/TextEncoder
+     * https://gist.github.com/Yaffle/5458286
+     */
+        return;
+    };
+    TextXxcoder.prototype.decode = function (octets) {
+    /*
+     * this function will polyfill TextDecoder.prototype.decode
+     * https://gist.github.com/Yaffle/5458286
+     */
+        let bytesNeeded;
+        let codePoint;
+        let ii;
+        let kk;
+        let octet;
+        let string;
+        string = "";
+        ii = 0;
+        while (ii < octets.length) {
+            octet = octets[ii];
+            bytesNeeded = 0;
+            codePoint = 0;
+            if (octet <= 0x7F) {
+                bytesNeeded = 0;
+                codePoint = octet & 0xFF;
+            } else if (octet <= 0xDF) {
+                bytesNeeded = 1;
+                codePoint = octet & 0x1F;
+            } else if (octet <= 0xEF) {
+                bytesNeeded = 2;
+                codePoint = octet & 0x0F;
+            } else if (octet <= 0xF4) {
+                bytesNeeded = 3;
+                codePoint = octet & 0x07;
+            }
+            if (octets.length - ii - bytesNeeded > 0) {
+                kk = 0;
+                while (kk < bytesNeeded) {
+                    octet = octets[ii + kk + 1];
+                    codePoint = (codePoint << 6) | (octet & 0x3F);
+                    kk += 1;
+                }
+            } else {
+                codePoint = 0xFFFD;
+                bytesNeeded = octets.length - ii;
+            }
+            string += String.fromCodePoint(codePoint);
+            ii += bytesNeeded + 1;
+        }
+        return string;
+    };
+    TextXxcoder.prototype.encode = function (string) {
+    /*
+     * this function will polyfill TextEncoder.prototype.encode
+     * https://gist.github.com/Yaffle/5458286
+     */
+        let bits;
+        let cc;
+        let codePoint;
+        let ii;
+        let length;
+        let octets;
+        octets = [];
+        length = string.length;
+        ii = 0;
+        while (ii < length) {
+            codePoint = string.codePointAt(ii);
+            cc = 0;
+            bits = 0;
+            if (codePoint <= 0x0000007F) {
+                cc = 0;
+                bits = 0x00;
+            } else if (codePoint <= 0x000007FF) {
+                cc = 6;
+                bits = 0xC0;
+            } else if (codePoint <= 0x0000FFFF) {
+                cc = 12;
+                bits = 0xE0;
+            } else if (codePoint <= 0x001FFFFF) {
+                cc = 18;
+                bits = 0xF0;
+            }
+            octets.push(bits | (codePoint >> cc));
+            cc -= 6;
+            while (cc >= 0) {
+                octets.push(0x80 | ((codePoint >> cc) & 0x3F));
+                cc -= 6;
+            }
+            ii += (
+                codePoint >= 0x10000
+                ? 2
+                : 1
+            );
+        }
+        return octets;
+    };
+    globalThis.TextDecoder = globalThis.TextDecoder || TextXxcoder;
+    globalThis.TextEncoder = globalThis.TextEncoder || TextXxcoder;
     // init local
     local = {};
     local.local = local;
@@ -44,12 +197,16 @@
         && globalThis.navigator
         && typeof globalThis.navigator.userAgent === "string"
     );
+    // init isWebWorker
+    local.isWebWorker = (
+        local.isBrowser && typeof globalThis.importScript === "function"
+    );
     // init function
     local.assertOrThrow = function (passed, message) {
     /*
      * this function will throw err.<message> if <passed> is falsy
      */
-        var err;
+        let err;
         if (passed) {
             return;
         }
@@ -66,16 +223,32 @@
                 // if message is a string, then leave as is
                 ? message
                 // else JSON.stringify message
-                : JSON.stringify(message, null, 4)
+                : JSON.stringify(message, undefined, 4)
             )
         );
         throw err;
+    };
+    local.coalesce = function (...argList) {
+    /*
+     * this function will coalesce null, undefined, or "" in <argList>
+     */
+        let arg;
+        let ii;
+        ii = 0;
+        while (ii < argList.length) {
+            arg = argList[ii];
+            if (arg !== null && arg !== undefined && arg !== "") {
+                break;
+            }
+            ii += 1;
+        }
+        return arg;
     };
     local.fsRmrfSync = function (dir) {
     /*
      * this function will sync "rm -rf" <dir>
      */
-        var child_process;
+        let child_process;
         try {
             child_process = require("child_process");
         } catch (ignore) {
@@ -93,7 +266,7 @@
     /*
      * this function will sync write <data> to <file> with "mkdir -p"
      */
-        var fs;
+        let fs;
         try {
             fs = require("fs");
         } catch (ignore) {
@@ -122,16 +295,16 @@
     local.functionOrNop = function (fnc) {
     /*
      * this function will if <fnc> exists,
-     * them return <fnc>,
+     * return <fnc>,
      * else return <nop>
      */
         return fnc || local.nop;
     };
-    local.identity = function (value) {
+    local.identity = function (val) {
     /*
-     * this function will return <value>
+     * this function will return <val>
      */
-        return value;
+        return val;
     };
     local.nop = function () {
     /*
@@ -141,8 +314,7 @@
     };
     local.objectAssignDefault = function (target, source) {
     /*
-     * this function will if items from <target> are
-     * null, undefined, or empty-string,
+     * this function will if items from <target> are null, undefined, or "",
      * then overwrite them with items from <source>
      */
         target = target || {};
@@ -156,6 +328,26 @@
             }
         });
         return target;
+    };
+    local.querySelector = function (selectors) {
+    /*
+     * this function will return first dom-elem that match <selectors>
+     */
+        return (
+            typeof document === "object" && document
+            && typeof document.querySelector === "function"
+            && document.querySelector(selectors)
+        ) || {};
+    };
+    local.querySelectorAll = function (selectors) {
+    /*
+     * this function will return dom-elem-list that match <selectors>
+     */
+        return (
+            typeof document === "object" && document
+            && typeof document.querySelectorAll === "function"
+            && Array.from(document.querySelectorAll(selectors))
+        ) || [];
     };
     // require builtin
     if (!local.isBrowser) {
@@ -190,6 +382,7 @@
 }((typeof globalThis === "object" && globalThis) || (function () {
     return Function("return this")(); // jslint ignore:line
 }())));
+// assets.utility2.header.js - end
 
 
 
