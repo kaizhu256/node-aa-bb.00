@@ -1,27 +1,33 @@
-<svg height="206" width="720" xmlns="http://www.w3.org/2000/svg">
-<rect height="206" fill="#555" width="720"></rect>
+<svg height="254" width="720" xmlns="http://www.w3.org/2000/svg">
+<rect height="254" fill="#555" width="720"></rect>
 <text fill="#7f7" font-family="Courier New" font-size="12" xml:space="preserve">
-<tspan x="10" y="26">2019-10-15 14:16:39 -0500</tspan>
+<tspan x="10" y="26">2019-10-15 19:31:30 +0000</tspan>
 
-<tspan x="10" y="42">udpate.build</tspan>
+<tspan x="10" y="42">update</tspan>
 
 <tspan x="10" y="58"></tspan>
 
-<tspan x="10" y="74">2019-09-08 19:19:12 +0000</tspan>
+<tspan x="10" y="74">2019-10-15 14:16:39 -0500</tspan>
 
-<tspan x="10" y="90">[ci skip] [npm published 2019.9.8]</tspan>
+<tspan x="10" y="90">udpate.build</tspan>
 
 <tspan x="10" y="106"></tspan>
 
-<tspan x="10" y="122">2019-09-08 07:39:55 +0000</tspan>
+<tspan x="10" y="122">2019-09-08 19:19:12 +0000</tspan>
 
-<tspan x="10" y="138">[npm publishAfterCommitAfterBuild]</tspan>
+<tspan x="10" y="138">[ci skip] [npm published 2019.9.8]</tspan>
 
 <tspan x="10" y="154"></tspan>
 
-<tspan x="10" y="170">2014-03-26 02:31:50 +0700</tspan>
+<tspan x="10" y="170">2019-09-08 07:39:55 +0000</tspan>
 
-<tspan x="10" y="186">add blank README.md</tspan>
+<tspan x="10" y="186">[npm publishAfterCommitAfterBuild]</tspan>
+
+<tspan x="10" y="202"></tspan>
+
+<tspan x="10" y="218">2014-03-26 02:31:50 +0700</tspan>
+
+<tspan x="10" y="234">add blank README.md</tspan>
 
 </text>
 </svg>
