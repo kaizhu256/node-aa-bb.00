@@ -91,6 +91,8 @@
 
 
 
+
+
 /*
 example.js
 
@@ -504,7 +506,6 @@ globalThis.local = local;
 
 
 
-/* istanbul ignore next */
 // run browser js-env code - init-test
 (function () {
 if (!local.isBrowser) {
@@ -967,7 +968,7 @@ utility2-comment -->\n\
 \n\
 <!-- custom-html-start -->\n\
 <label>stderr and stdout</label>\n\
-<pre class="onevent-reset-output readonly textarea" id="outputStdout1" tabIndex="0"></pre>\n\
+<textarea class="onevent-reset-output readonly textarea" id="outputStdout1" readonly></textarea>\n\
 <!-- custom-html-end -->\n\
 \n\
 \n\
