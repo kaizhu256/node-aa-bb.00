@@ -52434,13 +52434,13 @@ local.buildReadme = function (opt, onError) {
     if (local.env.npm_package_private) {
         opt.dataTo = opt.dataTo.replace((
             /\n\[!\[NPM\]\(https:\/\/nodei.co\/npm\/.*?\n/
-        ), "\n");
+        ), "");
         opt.dataTo = opt.dataTo.replace("$ npm install ", (
-            "$ git clone "
+            "$ git clone \\\n"
             + local.env.npm_package_repository_url.replace(
                 "git+https://github.com/",
                 "git@github.com:"
-            ) + " --single-branch -b beta node_modules/"
+            ) + " \\\n--single-branch -b beta node_modules/"
         ));
     }
     // customize version
