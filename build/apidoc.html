@@ -73,6 +73,15 @@
 
         <li>
 
+            <a class="apidocElementLiA" href="#apidoc.elem.aa-bb.coalesce">
+            function <span class="apidocSignatureSpan">aa-bb.</span>coalesce
+            <span class="apidocSignatureSpan">(...argList)</span>
+            </a>
+
+        </li>
+
+        <li>
+
             <a class="apidocElementLiA" href="#apidoc.elem.aa-bb.fsRmrfSync">
             function <span class="apidocSignatureSpan">aa-bb.</span>fsRmrfSync
             <span class="apidocSignatureSpan">(dir)</span>
@@ -102,7 +111,7 @@
 
             <a class="apidocElementLiA" href="#apidoc.elem.aa-bb.identity">
             function <span class="apidocSignatureSpan">aa-bb.</span>identity
-            <span class="apidocSignatureSpan">(value)</span>
+            <span class="apidocSignatureSpan">(val)</span>
             </a>
 
         </li>
@@ -121,6 +130,24 @@
             <a class="apidocElementLiA" href="#apidoc.elem.aa-bb.objectAssignDefault">
             function <span class="apidocSignatureSpan">aa-bb.</span>objectAssignDefault
             <span class="apidocSignatureSpan">(target, source)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.elem.aa-bb.querySelector">
+            function <span class="apidocSignatureSpan">aa-bb.</span>querySelector
+            <span class="apidocSignatureSpan">(selectors)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.elem.aa-bb.querySelectorAll">
+            function <span class="apidocSignatureSpan">aa-bb.</span>querySelectorAll
+            <span class="apidocSignatureSpan">(selectors)</span>
             </a>
 
         </li>
@@ -168,7 +195,7 @@
 <span class="apidocCodeCommentSpan">/*
  * this function will throw err.&lt;message&gt; if &lt;passed&gt; is falsy
  */
-</span>    var err;
+</span>    let err;
     if (passed) {
         return;
     }
@@ -185,10 +212,38 @@
             // if message is a string, then leave as is
             ? message
             // else JSON.stringify message
-            : JSON.stringify(message, null, 4)
+            : JSON.stringify(message, undefined, 4)
         )
     );
     throw err;
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.elem.aa-bb.coalesce" id="apidoc.elem.aa-bb.coalesce">
+        function <span class="apidocSignatureSpan">aa-bb.</span>coalesce
+        <span class="apidocSignatureSpan">(...argList)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">coalesce = function (...argList) {
+<span class="apidocCodeCommentSpan">/*
+ * this function will coalesce null, undefined, or &quot;&quot; in &lt;argList&gt;
+ */
+</span>    let arg;
+    let ii;
+    ii = 0;
+    while (ii &lt; argList.length) {
+        arg = argList[ii];
+        if (arg !== null &amp;&amp; arg !== undefined &amp;&amp; arg !== &quot;&quot;) {
+            break;
+        }
+        ii += 1;
+    }
+    return arg;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
@@ -206,7 +261,7 @@
 <span class="apidocCodeCommentSpan">/*
  * this function will sync &quot;rm -rf&quot; &lt;dir&gt;
  */
-</span>    var child_process;
+</span>    let child_process;
     try {
         child_process = require(&quot;child_process&quot;);
     } catch (ignore) {
@@ -236,7 +291,7 @@
 <span class="apidocCodeCommentSpan">/*
  * this function will sync write &lt;data&gt; to &lt;file&gt; with &quot;mkdir -p&quot;
  */
-</span>    var fs;
+</span>    let fs;
     try {
         fs = require(&quot;fs&quot;);
     } catch (ignore) {
@@ -277,7 +332,7 @@
     <li>description and source-code<pre class="apidocCodePre">functionOrNop = function (fnc) {
 <span class="apidocCodeCommentSpan">/*
  * this function will if &lt;fnc&gt; exists,
- * them return &lt;fnc&gt;,
+ * return &lt;fnc&gt;,
  * else return &lt;nop&gt;
  */
 </span>    return fnc || local.nop;
@@ -290,15 +345,15 @@
     <h2>
         <a href="#apidoc.elem.aa-bb.identity" id="apidoc.elem.aa-bb.identity">
         function <span class="apidocSignatureSpan">aa-bb.</span>identity
-        <span class="apidocSignatureSpan">(value)</span>
+        <span class="apidocSignatureSpan">(val)</span>
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">identity = function (value) {
+    <li>description and source-code<pre class="apidocCodePre">identity = function (val) {
 <span class="apidocCodeCommentSpan">/*
- * this function will return &lt;value&gt;
+ * this function will return &lt;val&gt;
  */
-</span>    return value;
+</span>    return val;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
@@ -332,8 +387,7 @@
     <ul>
     <li>description and source-code<pre class="apidocCodePre">objectAssignDefault = function (target, source) {
 <span class="apidocCodeCommentSpan">/*
- * this function will if items from &lt;target&gt; are
- * null, undefined, or empty-string,
+ * this function will if items from &lt;target&gt; are null, undefined, or &quot;&quot;,
  * then overwrite them with items from &lt;source&gt;
  */
 </span>    target = target || {};
@@ -349,21 +403,97 @@
     return target;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-       }).join(&quot; &quot;).replace((
-           /\u001b\[\d*m/g
-       ), &quot;&quot;) + &quot;\n&quot;;
-       // scroll textarea to bottom
-       elem.scrollTop = elem.scrollHeight;
-   };
+        }).join(&quot; &quot;).replace((
+            /\u001b\[\d*m/g
+        ), &quot;&quot;) + &quot;\n&quot;;
+        // scroll textarea to bottom
+        elem.scrollTop = elem.scrollHeight;
+    };
 });
 local.<span class="apidocCodeKeywordSpan">objectAssignDefault</span>(local, globalThis.domOnEventDelegateDict);
 globalThis.domOnEventDelegateDict = local;
-local.onEventDomDb = local.db &amp;&amp; local.db.onEventDomDb;
-local.testRunBrowser = function (evt) {
+if ((
+    /\bmodeTest=1\b/
+).test(location.search)) {
+    local.testRunBrowser();
+}
+}());
+...</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.elem.aa-bb.querySelector" id="apidoc.elem.aa-bb.querySelector">
+        function <span class="apidocSignatureSpan">aa-bb.</span>querySelector
+        <span class="apidocSignatureSpan">(selectors)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">querySelector = function (selectors) {
+<span class="apidocCodeCommentSpan">/*
+ * this function will return first dom-elem that match &lt;selectors&gt;
+ */
+</span>    return (
+        typeof document === &quot;object&quot; &amp;&amp; document
+        &amp;&amp; typeof document.querySelector === &quot;function&quot;
+        &amp;&amp; document.querySelector(selectors)
+    ) || {};
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+local.querySelector = function (selectors) {
 /*
-* this function will run browser-tests
-*/
-   switch (
+ * this function will return first dom-elem that match &lt;selectors&gt;
+ */
+    return (
+        typeof document === &quot;object&quot; &amp;&amp; document
+        &amp;&amp; typeof document.querySelector === &quot;function&quot;
+        &amp;&amp; document.<span class="apidocCodeKeywordSpan">querySelector</span>(selectors)
+    ) || {};
+};
+local.querySelectorAll = function (selectors) {
+/*
+ * this function will return dom-elem-list that match &lt;selectors&gt;
+ */
+    return (
+...</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.elem.aa-bb.querySelectorAll" id="apidoc.elem.aa-bb.querySelectorAll">
+        function <span class="apidocSignatureSpan">aa-bb.</span>querySelectorAll
+        <span class="apidocSignatureSpan">(selectors)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">querySelectorAll = function (selectors) {
+<span class="apidocCodeCommentSpan">/*
+ * this function will return dom-elem-list that match &lt;selectors&gt;
+ */
+</span>    return (
+        typeof document === &quot;object&quot; &amp;&amp; document
+        &amp;&amp; typeof document.querySelectorAll === &quot;function&quot;
+        &amp;&amp; Array.from(document.querySelectorAll(selectors))
+    ) || [];
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+local.querySelectorAll = function (selectors) {
+/*
+ * this function will return dom-elem-list that match &lt;selectors&gt;
+ */
+    return (
+        typeof document === &quot;object&quot; &amp;&amp; document
+        &amp;&amp; typeof document.querySelectorAll === &quot;function&quot;
+        &amp;&amp; Array.from(document.<span class="apidocCodeKeywordSpan">querySelectorAll</span>(selectors))
+    ) || [];
+};
+// require builtin
+if (!local.isBrowser) {
+    local.assert = require(&quot;assert&quot;);
+    local.buffer = require(&quot;buffer&quot;);
+    local.child_process = require(&quot;child_process&quot;);
 ...</pre></li>
     </ul>
 

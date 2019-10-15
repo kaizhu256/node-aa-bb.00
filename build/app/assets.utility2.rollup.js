@@ -4,33 +4,187 @@
 
 
 
-/* script-begin /assets.utility2.rollup.begin.js */
+/* script-begin /assets.utility2.rollup.start.js */
 /* utility2.rollup.js begin */
 /* istanbul ignore all */
+// assets.utility2.header.js - start
+/* istanbul ignore next */
 /* jslint utility2:true */
 (function (globalThis) {
     "use strict";
-    var consoleError;
-    var local;
+    let ArrayPrototypeFlat;
+    let TextXxcoder;
+    let consoleError;
+    let debugName;
+    let local;
+    debugName = "debug" + String("Inline");
     // init globalThis
     globalThis.globalThis = globalThis.globalThis || globalThis;
     // init debug_inline
-    if (!globalThis["debug\u0049nline"]) {
+    if (!globalThis[debugName]) {
         consoleError = console.error;
-        globalThis["debug\u0049nline"] = function (...argList) {
+        globalThis[debugName] = function (...argList) {
         /*
          * this function will both print <argList> to stderr
          * and return <argList>[0]
          */
-            // debug argList
-            globalThis["debug\u0049nlineArgList"] = argList;
-            consoleError("\n\ndebug\u0049nline");
+            consoleError("\n\n" + debugName);
             consoleError.apply(console, argList);
             consoleError("\n");
             // return arg0 for inspection
             return argList[0];
         };
     }
+    // polyfill
+    ArrayPrototypeFlat = function (depth) {
+    /*
+     * this function will polyfill Array.prototype.flat
+     * https://github.com/jonathantneal/array-flat-polyfill
+     */
+        depth = (
+            globalThis.isNaN(depth)
+            ? 1
+            : Number(depth)
+        );
+        if (!depth) {
+            return Array.prototype.slice.call(this);
+        }
+        return Array.prototype.reduce.call(this, function (acc, cur) {
+            if (Array.isArray(cur)) {
+                // recurse
+                acc.push.apply(acc, ArrayPrototypeFlat.call(cur, depth - 1));
+            } else {
+                acc.push(cur);
+            }
+            return acc;
+        }, []);
+    };
+    Array.prototype.flat = Array.prototype.flat || ArrayPrototypeFlat;
+    Array.prototype.flatMap = Array.prototype.flatMap || function flatMap(
+        ...argList
+    ) {
+    /*
+     * this function will polyfill Array.prototype.flatMap
+     * https://github.com/jonathantneal/array-flat-polyfill
+     */
+        return this.map(...argList).flat();
+    };
+    String.prototype.trimEnd = (
+        String.prototype.trimEnd || String.prototype.trimRight
+    );
+    String.prototype.trimStart = (
+        String.prototype.trimStart || String.prototype.trimLeft
+    );
+    (function () {
+        try {
+            globalThis.TextDecoder = (
+                globalThis.TextDecoder || require("util").TextDecoder
+            );
+            globalThis.TextEncoder = (
+                globalThis.TextEncoder || require("util").TextEncoder
+            );
+        } catch (ignore) {}
+    }());
+    TextXxcoder = function () {
+    /*
+     * this function will polyfill TextDecoder/TextEncoder
+     * https://gist.github.com/Yaffle/5458286
+     */
+        return;
+    };
+    TextXxcoder.prototype.decode = function (octets) {
+    /*
+     * this function will polyfill TextDecoder.prototype.decode
+     * https://gist.github.com/Yaffle/5458286
+     */
+        let bytesNeeded;
+        let codePoint;
+        let ii;
+        let kk;
+        let octet;
+        let string;
+        string = "";
+        ii = 0;
+        while (ii < octets.length) {
+            octet = octets[ii];
+            bytesNeeded = 0;
+            codePoint = 0;
+            if (octet <= 0x7F) {
+                bytesNeeded = 0;
+                codePoint = octet & 0xFF;
+            } else if (octet <= 0xDF) {
+                bytesNeeded = 1;
+                codePoint = octet & 0x1F;
+            } else if (octet <= 0xEF) {
+                bytesNeeded = 2;
+                codePoint = octet & 0x0F;
+            } else if (octet <= 0xF4) {
+                bytesNeeded = 3;
+                codePoint = octet & 0x07;
+            }
+            if (octets.length - ii - bytesNeeded > 0) {
+                kk = 0;
+                while (kk < bytesNeeded) {
+                    octet = octets[ii + kk + 1];
+                    codePoint = (codePoint << 6) | (octet & 0x3F);
+                    kk += 1;
+                }
+            } else {
+                codePoint = 0xFFFD;
+                bytesNeeded = octets.length - ii;
+            }
+            string += String.fromCodePoint(codePoint);
+            ii += bytesNeeded + 1;
+        }
+        return string;
+    };
+    TextXxcoder.prototype.encode = function (string) {
+    /*
+     * this function will polyfill TextEncoder.prototype.encode
+     * https://gist.github.com/Yaffle/5458286
+     */
+        let bits;
+        let cc;
+        let codePoint;
+        let ii;
+        let length;
+        let octets;
+        octets = [];
+        length = string.length;
+        ii = 0;
+        while (ii < length) {
+            codePoint = string.codePointAt(ii);
+            cc = 0;
+            bits = 0;
+            if (codePoint <= 0x0000007F) {
+                cc = 0;
+                bits = 0x00;
+            } else if (codePoint <= 0x000007FF) {
+                cc = 6;
+                bits = 0xC0;
+            } else if (codePoint <= 0x0000FFFF) {
+                cc = 12;
+                bits = 0xE0;
+            } else if (codePoint <= 0x001FFFFF) {
+                cc = 18;
+                bits = 0xF0;
+            }
+            octets.push(bits | (codePoint >> cc));
+            cc -= 6;
+            while (cc >= 0) {
+                octets.push(0x80 | ((codePoint >> cc) & 0x3F));
+                cc -= 6;
+            }
+            ii += (
+                codePoint >= 0x10000
+                ? 2
+                : 1
+            );
+        }
+        return octets;
+    };
+    globalThis.TextDecoder = globalThis.TextDecoder || TextXxcoder;
+    globalThis.TextEncoder = globalThis.TextEncoder || TextXxcoder;
     // init local
     local = {};
     local.local = local;
@@ -41,12 +195,16 @@
         && globalThis.navigator
         && typeof globalThis.navigator.userAgent === "string"
     );
+    // init isWebWorker
+    local.isWebWorker = (
+        local.isBrowser && typeof globalThis.importScript === "function"
+    );
     // init function
     local.assertOrThrow = function (passed, message) {
     /*
      * this function will throw err.<message> if <passed> is falsy
      */
-        var err;
+        let err;
         if (passed) {
             return;
         }
@@ -63,16 +221,32 @@
                 // if message is a string, then leave as is
                 ? message
                 // else JSON.stringify message
-                : JSON.stringify(message, null, 4)
+                : JSON.stringify(message, undefined, 4)
             )
         );
         throw err;
+    };
+    local.coalesce = function (...argList) {
+    /*
+     * this function will coalesce null, undefined, or "" in <argList>
+     */
+        let arg;
+        let ii;
+        ii = 0;
+        while (ii < argList.length) {
+            arg = argList[ii];
+            if (arg !== null && arg !== undefined && arg !== "") {
+                break;
+            }
+            ii += 1;
+        }
+        return arg;
     };
     local.fsRmrfSync = function (dir) {
     /*
      * this function will sync "rm -rf" <dir>
      */
-        var child_process;
+        let child_process;
         try {
             child_process = require("child_process");
         } catch (ignore) {
@@ -90,7 +264,7 @@
     /*
      * this function will sync write <data> to <file> with "mkdir -p"
      */
-        var fs;
+        let fs;
         try {
             fs = require("fs");
         } catch (ignore) {
@@ -119,16 +293,16 @@
     local.functionOrNop = function (fnc) {
     /*
      * this function will if <fnc> exists,
-     * them return <fnc>,
+     * return <fnc>,
      * else return <nop>
      */
         return fnc || local.nop;
     };
-    local.identity = function (value) {
+    local.identity = function (val) {
     /*
-     * this function will return <value>
+     * this function will return <val>
      */
-        return value;
+        return val;
     };
     local.nop = function () {
     /*
@@ -138,8 +312,7 @@
     };
     local.objectAssignDefault = function (target, source) {
     /*
-     * this function will if items from <target> are
-     * null, undefined, or empty-string,
+     * this function will if items from <target> are null, undefined, or "",
      * then overwrite them with items from <source>
      */
         target = target || {};
@@ -153,6 +326,26 @@
             }
         });
         return target;
+    };
+    local.querySelector = function (selectors) {
+    /*
+     * this function will return first dom-elem that match <selectors>
+     */
+        return (
+            typeof document === "object" && document
+            && typeof document.querySelector === "function"
+            && document.querySelector(selectors)
+        ) || {};
+    };
+    local.querySelectorAll = function (selectors) {
+    /*
+     * this function will return dom-elem-list that match <selectors>
+     */
+        return (
+            typeof document === "object" && document
+            && typeof document.querySelectorAll === "function"
+            && Array.from(document.querySelectorAll(selectors))
+        ) || [];
     };
     // require builtin
     if (!local.isBrowser) {
@@ -187,9 +380,11 @@
 }((typeof globalThis === "object" && globalThis) || (function () {
     return Function("return this")(); // jslint ignore:line
 }())));
+// assets.utility2.header.js - end
 
 
 
+/* jslint utility2:true */
 (function () {
     "use strict";
     // init utility2_rollup
@@ -200,7 +395,7 @@
     globalThis.utility2_rollup.local = globalThis.utility2_rollup;
     globalThis.utility2_rollup_old = null;
 }());
-/* script-end /assets.utility2.rollup.begin.js */
+/* script-end /assets.utility2.rollup.start.js */
 
 
 
@@ -216,31 +411,184 @@
 
 
 /* istanbul instrument in package apidoc */
+// assets.utility2.header.js - start
 /* istanbul ignore next */
 /* jslint utility2:true */
 (function (globalThis) {
     "use strict";
-    var consoleError;
-    var local;
+    let ArrayPrototypeFlat;
+    let TextXxcoder;
+    let consoleError;
+    let debugName;
+    let local;
+    debugName = "debug" + String("Inline");
     // init globalThis
     globalThis.globalThis = globalThis.globalThis || globalThis;
     // init debug_inline
-    if (!globalThis["debug\u0049nline"]) {
+    if (!globalThis[debugName]) {
         consoleError = console.error;
-        globalThis["debug\u0049nline"] = function (...argList) {
+        globalThis[debugName] = function (...argList) {
         /*
          * this function will both print <argList> to stderr
          * and return <argList>[0]
          */
-            // debug argList
-            globalThis["debug\u0049nlineArgList"] = argList;
-            consoleError("\n\ndebug\u0049nline");
+            consoleError("\n\n" + debugName);
             consoleError.apply(console, argList);
             consoleError("\n");
             // return arg0 for inspection
             return argList[0];
         };
     }
+    // polyfill
+    ArrayPrototypeFlat = function (depth) {
+    /*
+     * this function will polyfill Array.prototype.flat
+     * https://github.com/jonathantneal/array-flat-polyfill
+     */
+        depth = (
+            globalThis.isNaN(depth)
+            ? 1
+            : Number(depth)
+        );
+        if (!depth) {
+            return Array.prototype.slice.call(this);
+        }
+        return Array.prototype.reduce.call(this, function (acc, cur) {
+            if (Array.isArray(cur)) {
+                // recurse
+                acc.push.apply(acc, ArrayPrototypeFlat.call(cur, depth - 1));
+            } else {
+                acc.push(cur);
+            }
+            return acc;
+        }, []);
+    };
+    Array.prototype.flat = Array.prototype.flat || ArrayPrototypeFlat;
+    Array.prototype.flatMap = Array.prototype.flatMap || function flatMap(
+        ...argList
+    ) {
+    /*
+     * this function will polyfill Array.prototype.flatMap
+     * https://github.com/jonathantneal/array-flat-polyfill
+     */
+        return this.map(...argList).flat();
+    };
+    String.prototype.trimEnd = (
+        String.prototype.trimEnd || String.prototype.trimRight
+    );
+    String.prototype.trimStart = (
+        String.prototype.trimStart || String.prototype.trimLeft
+    );
+    (function () {
+        try {
+            globalThis.TextDecoder = (
+                globalThis.TextDecoder || require("util").TextDecoder
+            );
+            globalThis.TextEncoder = (
+                globalThis.TextEncoder || require("util").TextEncoder
+            );
+        } catch (ignore) {}
+    }());
+    TextXxcoder = function () {
+    /*
+     * this function will polyfill TextDecoder/TextEncoder
+     * https://gist.github.com/Yaffle/5458286
+     */
+        return;
+    };
+    TextXxcoder.prototype.decode = function (octets) {
+    /*
+     * this function will polyfill TextDecoder.prototype.decode
+     * https://gist.github.com/Yaffle/5458286
+     */
+        let bytesNeeded;
+        let codePoint;
+        let ii;
+        let kk;
+        let octet;
+        let string;
+        string = "";
+        ii = 0;
+        while (ii < octets.length) {
+            octet = octets[ii];
+            bytesNeeded = 0;
+            codePoint = 0;
+            if (octet <= 0x7F) {
+                bytesNeeded = 0;
+                codePoint = octet & 0xFF;
+            } else if (octet <= 0xDF) {
+                bytesNeeded = 1;
+                codePoint = octet & 0x1F;
+            } else if (octet <= 0xEF) {
+                bytesNeeded = 2;
+                codePoint = octet & 0x0F;
+            } else if (octet <= 0xF4) {
+                bytesNeeded = 3;
+                codePoint = octet & 0x07;
+            }
+            if (octets.length - ii - bytesNeeded > 0) {
+                kk = 0;
+                while (kk < bytesNeeded) {
+                    octet = octets[ii + kk + 1];
+                    codePoint = (codePoint << 6) | (octet & 0x3F);
+                    kk += 1;
+                }
+            } else {
+                codePoint = 0xFFFD;
+                bytesNeeded = octets.length - ii;
+            }
+            string += String.fromCodePoint(codePoint);
+            ii += bytesNeeded + 1;
+        }
+        return string;
+    };
+    TextXxcoder.prototype.encode = function (string) {
+    /*
+     * this function will polyfill TextEncoder.prototype.encode
+     * https://gist.github.com/Yaffle/5458286
+     */
+        let bits;
+        let cc;
+        let codePoint;
+        let ii;
+        let length;
+        let octets;
+        octets = [];
+        length = string.length;
+        ii = 0;
+        while (ii < length) {
+            codePoint = string.codePointAt(ii);
+            cc = 0;
+            bits = 0;
+            if (codePoint <= 0x0000007F) {
+                cc = 0;
+                bits = 0x00;
+            } else if (codePoint <= 0x000007FF) {
+                cc = 6;
+                bits = 0xC0;
+            } else if (codePoint <= 0x0000FFFF) {
+                cc = 12;
+                bits = 0xE0;
+            } else if (codePoint <= 0x001FFFFF) {
+                cc = 18;
+                bits = 0xF0;
+            }
+            octets.push(bits | (codePoint >> cc));
+            cc -= 6;
+            while (cc >= 0) {
+                octets.push(0x80 | ((codePoint >> cc) & 0x3F));
+                cc -= 6;
+            }
+            ii += (
+                codePoint >= 0x10000
+                ? 2
+                : 1
+            );
+        }
+        return octets;
+    };
+    globalThis.TextDecoder = globalThis.TextDecoder || TextXxcoder;
+    globalThis.TextEncoder = globalThis.TextEncoder || TextXxcoder;
     // init local
     local = {};
     local.local = local;
@@ -251,12 +599,16 @@
         && globalThis.navigator
         && typeof globalThis.navigator.userAgent === "string"
     );
+    // init isWebWorker
+    local.isWebWorker = (
+        local.isBrowser && typeof globalThis.importScript === "function"
+    );
     // init function
     local.assertOrThrow = function (passed, message) {
     /*
      * this function will throw err.<message> if <passed> is falsy
      */
-        var err;
+        let err;
         if (passed) {
             return;
         }
@@ -273,16 +625,32 @@
                 // if message is a string, then leave as is
                 ? message
                 // else JSON.stringify message
-                : JSON.stringify(message, null, 4)
+                : JSON.stringify(message, undefined, 4)
             )
         );
         throw err;
+    };
+    local.coalesce = function (...argList) {
+    /*
+     * this function will coalesce null, undefined, or "" in <argList>
+     */
+        let arg;
+        let ii;
+        ii = 0;
+        while (ii < argList.length) {
+            arg = argList[ii];
+            if (arg !== null && arg !== undefined && arg !== "") {
+                break;
+            }
+            ii += 1;
+        }
+        return arg;
     };
     local.fsRmrfSync = function (dir) {
     /*
      * this function will sync "rm -rf" <dir>
      */
-        var child_process;
+        let child_process;
         try {
             child_process = require("child_process");
         } catch (ignore) {
@@ -300,7 +668,7 @@
     /*
      * this function will sync write <data> to <file> with "mkdir -p"
      */
-        var fs;
+        let fs;
         try {
             fs = require("fs");
         } catch (ignore) {
@@ -329,16 +697,16 @@
     local.functionOrNop = function (fnc) {
     /*
      * this function will if <fnc> exists,
-     * them return <fnc>,
+     * return <fnc>,
      * else return <nop>
      */
         return fnc || local.nop;
     };
-    local.identity = function (value) {
+    local.identity = function (val) {
     /*
-     * this function will return <value>
+     * this function will return <val>
      */
-        return value;
+        return val;
     };
     local.nop = function () {
     /*
@@ -348,8 +716,7 @@
     };
     local.objectAssignDefault = function (target, source) {
     /*
-     * this function will if items from <target> are
-     * null, undefined, or empty-string,
+     * this function will if items from <target> are null, undefined, or "",
      * then overwrite them with items from <source>
      */
         target = target || {};
@@ -363,6 +730,26 @@
             }
         });
         return target;
+    };
+    local.querySelector = function (selectors) {
+    /*
+     * this function will return first dom-elem that match <selectors>
+     */
+        return (
+            typeof document === "object" && document
+            && typeof document.querySelector === "function"
+            && document.querySelector(selectors)
+        ) || {};
+    };
+    local.querySelectorAll = function (selectors) {
+    /*
+     * this function will return dom-elem-list that match <selectors>
+     */
+        return (
+            typeof document === "object" && document
+            && typeof document.querySelectorAll === "function"
+            && Array.from(document.querySelectorAll(selectors))
+        ) || [];
     };
     // require builtin
     if (!local.isBrowser) {
@@ -397,6 +784,7 @@
 }((typeof globalThis === "object" && globalThis) || (function () {
     return Function("return this")(); // jslint ignore:line
 }())));
+// assets.utility2.header.js - end
 
 
 
@@ -440,18 +828,16 @@ local.cliRun = function (opt) {
         globalThis.local = local;
         local.vm.runInThisContext(process.argv[3]);
     };
-    local.cliDict["--eval"] = local.cliDict["--eval"] || local.cliDict._eval;
-    local.cliDict["-e"] = local.cliDict["-e"] || local.cliDict._eval;
     local.cliDict._help = local.cliDict._help || function () {
     /*
      *
      * will print help
      */
-        var commandList;
-        var file;
-        var packageJson;
-        var text;
-        var textDict;
+        let commandList;
+        let file;
+        let packageJson;
+        let text;
+        let textDict;
         commandList = [
             {
                 argList: "<arg2>  ...",
@@ -494,14 +880,14 @@ local.cliRun = function (opt) {
             try {
                 commandList[ii] = opt.rgxComment.exec(text);
                 commandList[ii] = {
-                    argList: (commandList[ii][1] || "").trim(),
+                    argList: local.coalesce(commandList[ii][1], "").trim(),
                     command: [
                         key
                     ],
                     description: commandList[ii][2]
                 };
             } catch (ignore) {
-                local.assertOrThrow(null, new Error(
+                local.assertOrThrow(undefined, new Error(
                     "cliRun - cannot parse comment in COMMAND "
                     + key
                     + ":\nnew RegExp("
@@ -541,15 +927,15 @@ local.cliRun = function (opt) {
             }
             return (
                 elem.description + "\n  " + file
-                + ("  " + elem.command.sort().join("|") + "  ").replace((
-                    /^\u0020{4}$/
-                ), "  ")
+                + "  " + elem.command.sort().join("|") + "  "
                 + elem.argList.join("  ")
             );
         }).join("\n\n");
         console.log(text);
     };
+    local.cliDict["--eval"] = local.cliDict["--eval"] || local.cliDict._eval;
     local.cliDict["--help"] = local.cliDict["--help"] || local.cliDict._help;
+    local.cliDict["-e"] = local.cliDict["-e"] || local.cliDict._eval;
     local.cliDict["-h"] = local.cliDict["-h"] || local.cliDict._help;
     local.cliDict._default = local.cliDict._default || local.cliDict._help;
     local.cliDict.help = local.cliDict.help || local.cliDict._help;
@@ -592,34 +978,35 @@ local.cliRun = function (opt) {
     local.cliDict._default();
 };
 
-local.moduleDirname = function (module, modulePathList) {
+local.moduleDirname = function (module, pathList) {
 /*
- * this function will search modulePathList for the module's __dirname
+ * this function will search <pathList> for <module>'s __dirname
  */
-    var result;
+    let result;
     // search process.cwd()
     if (!module || module === "." || module.indexOf("/") >= 0) {
         return require("path").resolve(process.cwd(), module || "");
     }
-    // search modulePathList
-    [
-        "node_modules"
-    ].concat(modulePathList).concat(require("module").globalPaths).concat([
-        process.env.HOME + "/node_modules", "/usr/local/lib/node_modules"
-    ]).some(function (modulePath) {
+    // search pathList
+    Array.from([
+        pathList,
+        require("module").globalPaths,
+        [
+            process.env.HOME + "/node_modules", "/usr/local/lib/node_modules"
+        ]
+    ]).flat().some(function (path) {
         try {
             result = require("path").resolve(
                 process.cwd(),
-                modulePath + "/" + module
+                path + "/" + module
             );
             result = require("fs").statSync(result).isDirectory() && result;
             return result;
         } catch (ignore) {
-            result = null;
+            result = "";
         }
-        return result;
     });
-    return result || "";
+    return result;
 };
 
 local.objectSetDefault = function (dict, defaults, depth) {
@@ -629,8 +1016,8 @@ local.objectSetDefault = function (dict, defaults, depth) {
     dict = dict || {};
     defaults = defaults || {};
     Object.keys(defaults).forEach(function (key) {
-        var defaults2;
-        var dict2;
+        let defaults2;
+        let dict2;
         dict2 = dict[key];
         // handle misbehaving getter
         try {
@@ -647,13 +1034,13 @@ local.objectSetDefault = function (dict, defaults, depth) {
             dict[key] = defaults2;
             return;
         }
-        // if dict2 and defaults2 are both non-null and non-array objects,
+        // if dict2 and defaults2 are both non-undefined and non-array objects,
         // then recurse with dict2 and defaults2
         if (
             depth > 1
-            // dict2 is a non-null and non-array object
+            // dict2 is a non-undefined and non-array object
             && typeof dict2 === "object" && dict2 && !Array.isArray(dict2)
-            // defaults2 is a non-null and non-array object
+            // defaults2 is a non-undefined and non-array object
             && typeof defaults2 === "object" && defaults2
             && !Array.isArray(defaults2)
         ) {
@@ -792,57 +1179,60 @@ local.templateApidocHtml = '\
 ';
 /* jslint ignore:end */
 
-local.templateRender = function (template, dict, opt) {
+local.templateRender = function (template, dict, opt, ii) {
 /*
- * this function will render the template with given dict
+ * this function will render <template> with given <dict>
  */
-    var argList;
-    var getValue;
-    var match;
-    var renderPartial;
-    var rgx;
-    var skip;
-    var value;
+    let argList;
+    let getVal;
+    let match;
+    let renderPartial;
+    let rgx;
+    let skip;
+    let val;
     if (dict === null || dict === undefined) {
         dict = {};
     }
     opt = opt || {};
-    getValue = function (key) {
+    getVal = function (key) {
         argList = key.split(" ");
-        value = dict;
+        val = dict;
         if (argList[0] === "#this/") {
-            return value;
+            return val;
         }
-        // iteratively lookup nested values in the dict
+        if (argList[0] === "#ii/") {
+            return ii;
+        }
+        // iteratively lookup nested val in dict
         argList[0].split(".").forEach(function (key) {
-            value = value && value[key];
+            val = val && val[key];
         });
-        return value;
+        return val;
     };
     renderPartial = function (match0, helper, key, partial) {
         switch (helper) {
         case "each":
-        case "eachTrimRightComma":
-            value = getValue(key);
-            value = (
-                Array.isArray(value)
-                ? value.map(function (dict) {
+        case "eachTrimEndComma":
+            val = getVal(key);
+            val = (
+                Array.isArray(val)
+                ? val.map(function (dict, ii) {
                     // recurse with partial
-                    return local.templateRender(partial, dict, opt);
+                    return local.templateRender(partial, dict, opt, ii);
                 }).join("")
                 : ""
             );
             // remove trailing-comma from last elem
-            if (helper === "eachTrimRightComma") {
-                value = value.trimRight().replace((
+            if (helper === "eachTrimEndComma") {
+                val = val.trimEnd().replace((
                     /,$/
                 ), "");
             }
-            return value;
+            return val;
         case "if":
             partial = partial.split("{{#unless " + key + "}}");
             partial = (
-                getValue(key)
+                getVal(key)
                 ? partial[0]
                 // handle 'unless' case
                 : partial.slice(1).join("{{#unless " + key + "}}")
@@ -851,7 +1241,7 @@ local.templateRender = function (template, dict, opt) {
             return local.templateRender(partial, dict, opt);
         case "unless":
             return (
-                getValue(key)
+                getVal(key)
                 ? ""
                 // recurse with partial
                 : local.templateRender(partial, dict, opt)
@@ -883,35 +1273,50 @@ local.templateRender = function (template, dict, opt) {
     return template.replace((
         /\{\{[^}]+?\}\}/g
     ), function (match0) {
-        var markdownToHtml;
-        var notHtmlSafe;
+        let markdownToHtml;
+        let notHtmlSafe;
         notHtmlSafe = opt.notHtmlSafe;
         try {
-            getValue(match0.slice(2, -2));
-            if (value === undefined) {
+            val = getVal(match0.slice(2, -2));
+            if (val === undefined) {
                 return match0;
             }
             argList.slice(1).forEach(function (fmt, ii, list) {
                 switch (fmt) {
+                case "*":
+                case "+":
+                case "-":
+                case "/":
+                    skip = ii + 1;
+                    val = String(
+                        fmt === "*"
+                        ? Number(val) * Number(list[skip])
+                        : fmt === "+"
+                        ? Number(val) + Number(list[skip])
+                        : fmt === "-"
+                        ? Number(val) - Number(list[skip])
+                        : Number(val) / Number(list[skip])
+                    );
+                    break;
                 case "alphanumeric":
-                    value = value.replace((
+                    val = val.replace((
                         /\W/g
                     ), "_");
                     break;
                 case "decodeURIComponent":
-                    value = decodeURIComponent(value);
+                    val = decodeURIComponent(val);
                     break;
                 case "encodeURIComponent":
-                    value = encodeURIComponent(value);
+                    val = encodeURIComponent(val);
                     break;
                 case "jsonStringify":
-                    value = JSON.stringify(value);
+                    val = JSON.stringify(val);
                     break;
                 case "jsonStringify4":
-                    value = JSON.stringify(value, null, 4);
+                    val = JSON.stringify(val, undefined, 4);
                     break;
                 case "markdownSafe":
-                    value = value.replace((
+                    val = val.replace((
                         /`/g
                     ), "'");
                     break;
@@ -923,20 +1328,21 @@ local.templateRender = function (template, dict, opt) {
                     break;
                 case "padEnd":
                 case "padStart":
+                case "replace":
                 case "slice":
                     skip = ii + 2;
-                    value = String(value)[fmt](
+                    val = String(val)[fmt](
                         list[skip - 1],
-                        list[skip]
+                        list[skip].replace("\"\"", "").replace("\"_\"", " ")
                     );
                     break;
                 case "truncate":
                     skip = ii + 1;
-                    if (value.length > list[skip]) {
-                        value = value.slice(
+                    if (val.length > list[skip]) {
+                        val = val.slice(
                             0,
                             Math.max(list[skip] - 3, 0)
-                        ).trimRight() + "...";
+                        ).trimEnd() + "...";
                     }
                     break;
                 // default to String.prototype[fmt]()
@@ -944,13 +1350,13 @@ local.templateRender = function (template, dict, opt) {
                     if (ii <= skip) {
                         break;
                     }
-                    value = value[fmt]();
+                    val = val[fmt]();
                 }
             });
-            value = String(value);
+            val = String(val);
             // default to htmlSafe
             if (!notHtmlSafe) {
-                value = value.replace((
+                val = val.replace((
                     /&/g
                 ), "&amp;").replace((
                     /"/g
@@ -969,18 +1375,17 @@ local.templateRender = function (template, dict, opt) {
                 && (typeof local.marked === "function" && local.marked)
             );
             if (markdownToHtml) {
-                value = markdownToHtml(value).replace((
+                val = markdownToHtml(val).replace((
                     /&amp;(amp;|apos;|gt;|lt;|quot;)/ig
                 ), "&$1");
             }
-            return value;
+            return val;
         } catch (errCaught) {
             errCaught.message = (
                 "templateRender could not render expression "
-                + JSON.stringify(match0)
-                + "\n"
+                + JSON.stringify(match0) + "\n"
             ) + errCaught.message;
-            local.assertOrThrow(null, errCaught);
+            local.assertOrThrow(undefined, errCaught);
         }
     });
 };
@@ -990,7 +1395,7 @@ local.tryCatchOnError = function (fnc, onError) {
  * this function will run the fnc in a tryCatch block,
  * else call onError with errCaught
  */
-    var result;
+    let result;
     // validate onError
     local.assertOrThrow(typeof onError === "function", typeof onError);
     try {
@@ -1015,18 +1420,18 @@ local.apidocCreate = function (opt) {
 /*
  * this function will create the apidoc from <opt>.dir
  */
-    var elemCreate;
-    var module;
-    var moduleMain;
-    var readExample;
-    var tmp;
-    var toString;
-    var trimLeft;
+    let elemCreate;
+    let module;
+    let moduleMain;
+    let readExample;
+    let tmp;
+    let toString;
+    let trimStart;
     elemCreate = function (module, prefix, key) {
     /*
      * this function will create the apidoc-elem in given <module>
      */
-        var elem;
+        let elem;
         if (opt.modeNoApidoc) {
             return elem;
         }
@@ -1042,14 +1447,15 @@ local.apidocCreate = function (opt) {
         elem.name = (
             elem.typeof + " <span class=\"apidocSignatureSpan\">"
             + elem.moduleName + ".</span>" + key
+        );
         // handle case where module is a function
-        ).replace(">.<", "><");
+        elem.name = elem.name.replace(">.<", "><");
         if (elem.typeof !== "function") {
             return elem;
         }
         // init source
         elem.source = local.stringHtmlSafe(
-            trimLeft(toString(module[key])) || "n/a"
+            trimStart(toString(module[key])) || "n/a"
         ).replace((
             /\([\S\s]*?\)/
         ), function (match0) {
@@ -1072,13 +1478,13 @@ local.apidocCreate = function (opt) {
             example.replace(
                 new RegExp("((?:\n.*?){8}\\.)(" + key + ")(\\((?:.*?\n){8})"),
                 function (ignore, match1, match2, match3) {
-                    elem.example = "..." + trimLeft(
+                    elem.example = "..." + trimStart(
                         local.stringHtmlSafe(match1)
                         + "<span class=\"apidocCodeKeywordSpan\">"
                         + local.stringHtmlSafe(match2)
                         + "</span>"
                         + local.stringHtmlSafe(match3)
-                    ).trimRight() + "\n...";
+                    ).trimEnd() + "\n...";
                     return "";
                 }
             );
@@ -1091,12 +1497,12 @@ local.apidocCreate = function (opt) {
     /*
      * this function will read the example from given file
      */
-        var result;
+        let result;
         local.tryCatchOnError(function () {
             file = local.path.resolve(opt.dir, file);
             console.error("apidocCreate - readExample " + file);
             result = "";
-            result = (
+            result = local.identity(
                 "\n\n\n\n\n\n\n\n"
                 // bug-workaround - truncate example to manageable size
                 + local.fs.readFileSync(file, "utf8").slice(0, 262144)
@@ -1111,18 +1517,18 @@ local.apidocCreate = function (opt) {
     /*
      * this function will try to return the string form of the value
      */
-        var result;
+        let result;
         local.tryCatchOnError(function () {
             result = "";
             result = String(value);
         }, console.error);
         return result;
     };
-    trimLeft = function (text) {
+    trimStart = function (text) {
     /*
-     * this function will normalize the whitespace around the text
+     * this function will normalize whitespace before <text>
      */
-        var whitespace;
+        let whitespace;
         whitespace = "";
         text.trim().replace((
             /^\u0020*/gm
@@ -1139,7 +1545,7 @@ local.apidocCreate = function (opt) {
         ), function (match0) {
             return match0.replace((
                 /(.{128}(?:\b|\w+))/g
-            ), "$1\n").trimRight();
+            ), "$1\n").trimEnd();
         });
         return text;
     };
@@ -1254,12 +1660,12 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
     // handle case where module is a function
     if (typeof moduleMain === "function") {
         (function () {
-            var text;
+            let text;
             text = toString(moduleMain);
             tmp = function () {
                 return;
             };
-            // hack-istanbul
+            // hack-coverage
             tmp();
             Object.defineProperties(tmp, {
                 toString: {
@@ -1383,13 +1789,13 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
             ), "").replace((
                 /\W/g
             ), "_");
-            ([
+            Array.from([
                 tmp.name,
                 tmp.name.slice(0, 1).toUpperCase() + tmp.name.slice(1)
             ]).some(function (name) {
                 tmp.isFiltered = name && (
                     !opt.packageJson.main
-                    || ("./" + file).indexOf(opt.packageJson.main) < 0
+                    || String("./" + file).indexOf(opt.packageJson.main) < 0
                 ) && !module[name];
                 return !tmp.isFiltered;
             });
@@ -1467,9 +1873,9 @@ local.apidocModuleDictAdd = function (opt, moduleDict) {
 /*
  * this function will add the modules in <moduleDict> to <opt>.moduleDict
  */
-    var isModule;
-    var objectKeys;
-    var tmp;
+    let isModule;
+    let objectKeys;
+    let tmp;
     objectKeys = function (dict) {
     /*
      * this function will return a list of the dict's keys, with valid getters
@@ -1518,7 +1924,7 @@ local.apidocModuleDictAdd = function (opt, moduleDict) {
                 ) {
                     return;
                 }
-                isModule = ([
+                isModule = Array.from([
                     tmp.module,
                     tmp.module.prototype
                 ]).some(function (dict) {
@@ -1572,2603 +1978,6 @@ if (module === require.main && !globalThis.utility2_rollup) {
 
 
 
-/* script-begin /assets.utility2.lib.db.js */
-// usr/bin/env node
-/*
- * lib.db.js (2019.8.21)
- * https://github.com/kaizhu256/node-db-lite
- * this zero-dependency package will provide a persistent, in-browser database, with a working web-demo
- *
- * browser example:
-    <script src="assets.db-lite.js"></script>
-    <script>
-    var dbTable1;
-    dbTable1 = window.dbTable1 = window.utility2_db.dbTableCreateOne({
-        name: "dbTable1"
-    });
-    dbTable1.idIndexCreate({ name: "field1" });
-    dbTable1.crudSetOneById({ field1: "hello", field2: "world" });
-    console.log(dbTable1.crudGetManyByQuery({
-        limit: Infinity,
-        query: { field1: "hello" },
-        skip: 0,
-        sort: [{ fieldName: 'field1', isDescending: false }]
-    }));
-    </script>
- *
- * node example:
-    var db, dbTable1;
-    utility2_db = require("./assets.db-lite.js");
-    dbTable1 = global.dbTable1 = utility2_db.dbTableCreateOne({
-        name: "dbTable1"
-    });
-    dbTable1.idIndexCreate({ name: "field1" });
-    dbTable1.crudSetOneById({ field1: "hello", field2: "world" });
-    console.log(dbTable1.crudGetManyByQuery({
-        limit: Infinity,
-        query: { field1: "hello" },
-        skip: 0,
-        sort: [{ fieldName: 'field1', isDescending: false }]
-    }));
- */
-
-
-
-/* istanbul instrument in package db */
-/* istanbul ignore next */
-/* jslint utility2:true */
-(function (globalThis) {
-    "use strict";
-    var consoleError;
-    var local;
-    // init globalThis
-    globalThis.globalThis = globalThis.globalThis || globalThis;
-    // init debug_inline
-    if (!globalThis["debug\u0049nline"]) {
-        consoleError = console.error;
-        globalThis["debug\u0049nline"] = function (...argList) {
-        /*
-         * this function will both print <argList> to stderr
-         * and return <argList>[0]
-         */
-            // debug argList
-            globalThis["debug\u0049nlineArgList"] = argList;
-            consoleError("\n\ndebug\u0049nline");
-            consoleError.apply(console, argList);
-            consoleError("\n");
-            // return arg0 for inspection
-            return argList[0];
-        };
-    }
-    // init local
-    local = {};
-    local.local = local;
-    globalThis.globalLocal = local;
-    // init isBrowser
-    local.isBrowser = (
-        typeof globalThis.XMLHttpRequest === "function"
-        && globalThis.navigator
-        && typeof globalThis.navigator.userAgent === "string"
-    );
-    // init function
-    local.assertOrThrow = function (passed, message) {
-    /*
-     * this function will throw err.<message> if <passed> is falsy
-     */
-        var err;
-        if (passed) {
-            return;
-        }
-        err = (
-            (
-                message
-                && typeof message.message === "string"
-                && typeof message.stack === "string"
-            )
-            // if message is errObj, then leave as is
-            ? message
-            : new Error(
-                typeof message === "string"
-                // if message is a string, then leave as is
-                ? message
-                // else JSON.stringify message
-                : JSON.stringify(message, null, 4)
-            )
-        );
-        throw err;
-    };
-    local.fsRmrfSync = function (dir) {
-    /*
-     * this function will sync "rm -rf" <dir>
-     */
-        var child_process;
-        try {
-            child_process = require("child_process");
-        } catch (ignore) {
-            return;
-        }
-        child_process.spawnSync("rm", [
-            "-rf", dir
-        ], {
-            stdio: [
-                "ignore", 1, 2
-            ]
-        });
-    };
-    local.fsWriteFileWithMkdirpSync = function (file, data) {
-    /*
-     * this function will sync write <data> to <file> with "mkdir -p"
-     */
-        var fs;
-        try {
-            fs = require("fs");
-        } catch (ignore) {
-            return;
-        }
-        // try to write file
-        try {
-            fs.writeFileSync(file, data);
-        } catch (ignore) {
-            // mkdir -p
-            require("child_process").spawnSync(
-                "mkdir",
-                [
-                    "-p", require("path").dirname(file)
-                ],
-                {
-                    stdio: [
-                        "ignore", 1, 2
-                    ]
-                }
-            );
-            // rewrite file
-            fs.writeFileSync(file, data);
-        }
-    };
-    local.functionOrNop = function (fnc) {
-    /*
-     * this function will if <fnc> exists,
-     * them return <fnc>,
-     * else return <nop>
-     */
-        return fnc || local.nop;
-    };
-    local.identity = function (value) {
-    /*
-     * this function will return <value>
-     */
-        return value;
-    };
-    local.nop = function () {
-    /*
-     * this function will do nothing
-     */
-        return;
-    };
-    local.objectAssignDefault = function (target, source) {
-    /*
-     * this function will if items from <target> are
-     * null, undefined, or empty-string,
-     * then overwrite them with items from <source>
-     */
-        target = target || {};
-        Object.keys(source || {}).forEach(function (key) {
-            if (
-                target[key] === null
-                || target[key] === undefined
-                || target[key] === ""
-            ) {
-                target[key] = target[key] || source[key];
-            }
-        });
-        return target;
-    };
-    // require builtin
-    if (!local.isBrowser) {
-        local.assert = require("assert");
-        local.buffer = require("buffer");
-        local.child_process = require("child_process");
-        local.cluster = require("cluster");
-        local.crypto = require("crypto");
-        local.dgram = require("dgram");
-        local.dns = require("dns");
-        local.domain = require("domain");
-        local.events = require("events");
-        local.fs = require("fs");
-        local.http = require("http");
-        local.https = require("https");
-        local.net = require("net");
-        local.os = require("os");
-        local.path = require("path");
-        local.querystring = require("querystring");
-        local.readline = require("readline");
-        local.repl = require("repl");
-        local.stream = require("stream");
-        local.string_decoder = require("string_decoder");
-        local.timers = require("timers");
-        local.tls = require("tls");
-        local.tty = require("tty");
-        local.url = require("url");
-        local.util = require("util");
-        local.vm = require("vm");
-        local.zlib = require("zlib");
-    }
-}((typeof globalThis === "object" && globalThis) || (function () {
-    return Function("return this")(); // jslint ignore:line
-}())));
-
-
-
-(function (local) {
-"use strict";
-
-
-
-/* istanbul ignore next */
-// run shared js-env code - init-before
-(function () {
-// init local
-local = (
-    globalThis.utility2_rollup
-    // || globalThis.utility2_rollup_old
-    // || require("./assets.utility2.rollup.js")
-    || globalThis.globalLocal
-);
-// init exports
-if (local.isBrowser) {
-    globalThis.utility2_db = local;
-} else {
-    module.exports = local;
-    module.exports.__dirname = __dirname;
-}
-// init lib main
-local.db = local;
-
-
-
-/* validateLineSortedReset */
-local.cliRun = function (opt) {
-/*
- * this function will run the cli with given <opt>
- */
-    local.cliDict._eval = local.cliDict._eval || function () {
-    /*
-     * <code>
-     * will eval <code>
-     */
-        globalThis.local = local;
-        local.vm.runInThisContext(process.argv[3]);
-    };
-    local.cliDict["--eval"] = local.cliDict["--eval"] || local.cliDict._eval;
-    local.cliDict["-e"] = local.cliDict["-e"] || local.cliDict._eval;
-    local.cliDict._help = local.cliDict._help || function () {
-    /*
-     *
-     * will print help
-     */
-        var commandList;
-        var file;
-        var packageJson;
-        var text;
-        var textDict;
-        commandList = [
-            {
-                argList: "<arg2>  ...",
-                description: "usage:",
-                command: [
-                    "<arg1>"
-                ]
-            }, {
-                argList: "'console.log(\"hello world\")'",
-                description: "example:",
-                command: [
-                    "--eval"
-                ]
-            }
-        ];
-        file = __filename.replace((
-            /.*\//
-        ), "");
-        opt = Object.assign({}, opt);
-        packageJson = require("./package.json");
-        // validate comment
-        opt.rgxComment = opt.rgxComment || (
-            /\)\u0020\{\n(?:|\u0020{4})\/\*\n(?:\u0020|\u0020{5})\*((?:\u0020<[^>]*?>|\u0020\.\.\.)*?)\n(?:\u0020|\u0020{5})\*\u0020(will\u0020.*?\S)\n(?:\u0020|\u0020{5})\*\/\n(?:\u0020{4}|\u0020{8})\S/
-        );
-        textDict = {};
-        Object.keys(local.cliDict).sort().forEach(function (key, ii) {
-            if (key[0] === "_" && key !== "_default") {
-                return;
-            }
-            text = String(local.cliDict[key]);
-            if (key === "_default") {
-                key = "";
-            }
-            textDict[text] = textDict[text] || (ii + 2);
-            ii = textDict[text];
-            if (commandList[ii]) {
-                commandList[ii].command.push(key);
-                return;
-            }
-            try {
-                commandList[ii] = opt.rgxComment.exec(text);
-                commandList[ii] = {
-                    argList: (commandList[ii][1] || "").trim(),
-                    command: [
-                        key
-                    ],
-                    description: commandList[ii][2]
-                };
-            } catch (ignore) {
-                local.assertOrThrow(null, new Error(
-                    "cliRun - cannot parse comment in COMMAND "
-                    + key
-                    + ":\nnew RegExp("
-                    + JSON.stringify(opt.rgxComment.source)
-                    + ").exec(" + JSON.stringify(text).replace((
-                        /\\\\/g
-                    ), "\u0000").replace((
-                        /\\n/g
-                    ), "\\n\\\n").replace((
-                        /\u0000/g
-                    ), "\\\\") + ");"
-                ));
-            }
-        });
-        text = "";
-        text += packageJson.name + " (" + packageJson.version + ")\n\n";
-        text += commandList.filter(function (elem) {
-            return elem;
-        }).map(function (elem, ii) {
-            elem.command = elem.command.filter(function (elem) {
-                return elem;
-            });
-            switch (ii) {
-            case 0:
-            case 1:
-                elem.argList = [
-                    elem.argList
-                ];
-                break;
-            default:
-                elem.argList = elem.argList.split(" ");
-                elem.description = (
-                    "# COMMAND "
-                    + (elem.command[0] || "<none>") + "\n# "
-                    + elem.description
-                );
-            }
-            return (
-                elem.description + "\n  " + file
-                + ("  " + elem.command.sort().join("|") + "  ").replace((
-                    /^\u0020{4}$/
-                ), "  ")
-                + elem.argList.join("  ")
-            );
-        }).join("\n\n");
-        console.log(text);
-    };
-    local.cliDict["--help"] = local.cliDict["--help"] || local.cliDict._help;
-    local.cliDict["-h"] = local.cliDict["-h"] || local.cliDict._help;
-    local.cliDict._default = local.cliDict._default || local.cliDict._help;
-    local.cliDict.help = local.cliDict.help || local.cliDict._help;
-    local.cliDict._interactive = local.cliDict._interactive || function () {
-    /*
-     *
-     * will start interactive-mode
-     */
-        globalThis.local = local;
-        local.identity(local.replStart || require("repl").start)({
-            useGlobal: true
-        });
-    };
-    local.cliDict["--interactive"] = (
-        local.cliDict["--interactive"]
-        || local.cliDict._interactive
-    );
-    local.cliDict["-i"] = local.cliDict["-i"] || local.cliDict._interactive;
-    local.cliDict._version = local.cliDict._version || function () {
-    /*
-     *
-     * will print version
-     */
-        console.log(require(__dirname + "/package.json").version);
-    };
-    local.cliDict["--version"] = (
-        local.cliDict["--version"]
-        || local.cliDict._version
-    );
-    local.cliDict["-v"] = local.cliDict["-v"] || local.cliDict._version;
-    // default to --help command if no arguments are given
-    if (process.argv.length <= 2) {
-        local.cliDict._help();
-        return;
-    }
-    if (local.cliDict[process.argv[2]]) {
-        local.cliDict[process.argv[2]]();
-        return;
-    }
-    local.cliDict._default();
-};
-
-local.jsonCopy = function (obj) {
-/*
- * this function will deep-copy obj
- */
-    return (
-        obj === undefined
-        ? undefined
-        : JSON.parse(JSON.stringify(obj))
-    );
-};
-
-local.jsonStringifyOrdered = function (obj, replacer, space) {
-/*
- * this function will JSON.stringify <obj>,
- * with object-keys sorted and circular-references removed
- * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#Syntax
- */
-    var circularSet;
-    var stringify;
-    var tmp;
-    stringify = function (obj) {
-    /*
-     * this function will recursively JSON.stringify obj,
-     * with object-keys sorted and circular-references removed
-     */
-        // if obj is not an object or function, then JSON.stringify as normal
-        if (!(
-            obj
-            && typeof obj === "object"
-            && typeof obj.toJSON !== "function"
-        )) {
-            return JSON.stringify(obj);
-        }
-        // ignore circular-reference
-        if (circularSet.has(obj)) {
-            return;
-        }
-        circularSet.add(obj);
-        // if obj is an array, then recurse its items
-        if (Array.isArray(obj)) {
-            tmp = "[" + obj.map(function (obj) {
-                // recurse
-                tmp = stringify(obj);
-                return (
-                    typeof tmp === "string"
-                    ? tmp
-                    : "null"
-                );
-            }).join(",") + "]";
-            circularSet.delete(obj);
-            return tmp;
-        }
-        // if obj is not an array,
-        // then recurse its items with object-keys sorted
-        tmp = "{" + Object.keys(obj).sort().map(function (key) {
-            // recurse
-            tmp = stringify(obj[key]);
-            if (typeof tmp === "string") {
-                return JSON.stringify(key) + ":" + tmp;
-            }
-        }).filter(function (obj) {
-            return typeof obj === "string";
-        }).join(",") + "}";
-        circularSet.delete(obj);
-        return tmp;
-    };
-    circularSet = new Set();
-    return JSON.stringify((
-        (typeof obj === "object" && obj)
-        // recurse
-        ? JSON.parse(stringify(obj))
-        : obj
-    ), replacer, space);
-};
-
-local.listShuffle = function (list) {
-/*
- * this function will inplace shuffle <list> using fisher-yates algorithm
- * https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
- */
-    var ii;
-    var random;
-    var swap;
-    ii = list.length;
-    while (ii > 1) {
-        ii -= 1;
-        random = Math.floor(Math.random() * (ii + 1));
-        swap = list[ii];
-        list[ii] = list[random];
-        list[random] = swap;
-    }
-    return list;
-};
-
-local.objectSetOverride = function (dict, overrides, depth, env) {
-/*
- * this function will recursively set overrides for items in dict
- */
-    dict = dict || {};
-    env = env || (typeof process === "object" && process.env) || {};
-    overrides = overrides || {};
-    Object.keys(overrides).forEach(function (key) {
-        var dict2;
-        var overrides2;
-        dict2 = dict[key];
-        overrides2 = overrides[key];
-        if (overrides2 === undefined) {
-            return;
-        }
-        // if both dict2 and overrides2 are non-null and non-array objects,
-        // then recurse with dict2 and overrides2
-        if (
-            depth > 1
-            // dict2 is a non-null and non-array object
-            && typeof dict2 === "object" && dict2 && !Array.isArray(dict2)
-            // overrides2 is a non-null and non-array object
-            && typeof overrides2 === "object" && overrides2
-            && !Array.isArray(overrides2)
-        ) {
-            local.objectSetOverride(dict2, overrides2, depth - 1, env);
-            return;
-        }
-        // else set dict[key] with overrides[key]
-        dict[key] = (
-            dict === env
-            // if dict is env, then overrides falsy-value with empty-string
-            ? overrides2 || ""
-            : overrides2
-        );
-    });
-    return dict;
-};
-
-local.onErrorDefault = function (err) {
-/*
- * this function will if <err> exists, then print it to stderr
- */
-    if (err) {
-        console.error(err);
-    }
-    return err;
-};
-
-local.onErrorWithStack = function (onError) {
-/*
- * this function will create wrapper around <onError>
- * that will append current-stack to err.stack
- */
-    var onError2;
-    var stack;
-    stack = new Error().stack.replace((
-        /(.*?)\n.*?$/m
-    ), "$1");
-    onError2 = function (err, data, meta) {
-        // append current-stack to err.stack
-        if (
-            err
-            && typeof err.stack === "string"
-            && err !== local.errDefault
-            && String(err.stack).indexOf(stack.split("\n")[2]) < 0
-        ) {
-            err.stack += "\n" + stack;
-        }
-        onError(err, data, meta);
-    };
-    // debug onError
-    onError2.toString = function () {
-        return String(onError);
-    };
-    return onError2;
-};
-
-local.onParallel = function (onError, onEach, onRetry) {
-/*
- * this function will create a function that will
- * 1. run async tasks in parallel
- * 2. if counter === 0 or err occurred, then call onError(err)
- */
-    var onParallel;
-    onError = local.onErrorWithStack(onError);
-    onEach = onEach || local.nop;
-    onRetry = onRetry || local.nop;
-    onParallel = function (err, data) {
-        if (onRetry(err, data)) {
-            return;
-        }
-        // decrement counter
-        onParallel.counter -= 1;
-        // validate counter
-        if (!(onParallel.counter >= 0 || err || onParallel.err)) {
-            err = new Error(
-                "invalid onParallel.counter = " + onParallel.counter
-            );
-        // ensure onError is run only once
-        } else if (onParallel.counter < 0) {
-            return;
-        }
-        // handle err
-        if (err) {
-            onParallel.err = err;
-            // ensure counter <= 0
-            onParallel.counter = -Math.abs(onParallel.counter);
-        }
-        // call onError when isDone
-        if (onParallel.counter <= 0) {
-            onError(err, data);
-            return;
-        }
-        onEach();
-    };
-    // init counter
-    onParallel.counter = 0;
-    // return callback
-    return onParallel;
-};
-
-local.replStart = function () {
-/*
- * this function will start the repl-debugger
- */
-    var that;
-    if (globalThis.utility2_repl1) {
-        return;
-    }
-    // start repl
-    that = require("repl").start({
-        useGlobal: true
-    });
-    globalThis.utility2_repl1 = that;
-    that.onError = function (err) {
-    /*
-     * this function will debug repl-err
-     */
-        globalThis.utility2_debugReplError = err;
-        console.error(err);
-    };
-    // save eval-function
-    that.evalDefault = that.eval;
-    // hook custom-eval-function
-    that.eval = function (script, context, file, onError) {
-        var onError2;
-        onError2 = function (err, data) {
-            // debug err
-            globalThis.utility2_debugReplError = (
-                err || globalThis.utility2_debugReplError
-            );
-            onError(err, data);
-        };
-        script.replace((
-            /^(\S+)\u0020(.*?)\n/
-        ), function (ignore, match1, match2) {
-            switch (match1) {
-            // syntax-sugar - run async shell-command
-            case "$":
-                switch (match2) {
-                // syntax-sugar - run git diff
-                case "git diff":
-                    match2 = "git diff --color | cat";
-                    break;
-                // syntax-sugar - run git log
-                case "git log":
-                    match2 = "git log -n 4 | cat";
-                    break;
-                // syntax-sugar - run git log
-                case "ll":
-                    match2 = "ls -Fal";
-                    break;
-                }
-                // source lib.utility2.sh
-                if (
-                    process.platform !== "win32"
-                    && process.env.npm_config_dir_utility2 && (match2 !== ":")
-                ) {
-                    match2 = (
-                        ". " + process.env.npm_config_dir_utility2
-                        + "/lib.utility2.sh;" + match2
-                    );
-                }
-                // run async shell-command
-                require("child_process").spawn(match2, {
-                    shell: true,
-                    stdio: [
-                        "ignore", 1, 2
-                    ]
-                // on shell exit, print return prompt
-                }).on("exit", function (exitCode) {
-                    console.error("exit-code " + exitCode);
-                    that.evalDefault(
-                        "\n",
-                        context,
-                        file,
-                        onError2
-                    );
-                });
-                script = "\n";
-                break;
-            // syntax-sugar - map text with charCodeAt
-            case "charCode":
-                console.error(
-                    match2.split("").map(function (chr) {
-                        return (
-                            "\\u"
-                            + chr.charCodeAt(0).toString(16).padStart(4, 0)
-                        );
-                    }).join("")
-                );
-                script = "\n";
-                break;
-            // syntax-sugar - sort chr
-            case "charSort":
-                console.error(JSON.stringify(match2.split("").sort().join("")));
-                script = "\n";
-                break;
-            // syntax-sugar - grep current dir
-            case "grep":
-                // run async shell-command
-                require("child_process").spawn((
-                    "find . -type f | grep -v -E "
-/* jslint ignore:start */
-+ '"\
-/\\.|~\$|(\\b|_)(\\.\\d|\
-archive|artifact|\
-bower_component|build|\
-coverage|\
-doc|\
-external|\
-fixture|\
-git_module|\
-jquery|\
-log|\
-min|misc|mock|\
-node_module|\
-raw|\rollup|\
-swp|\
-tmp|\
-vendor)s{0,1}(\\b|_)\
-" '
-/* jslint ignore:end */
-                    + "| tr \"\\n\" \"\\000\" | xargs -0 grep -HIin -E \""
-                    + match2 + "\""
-                ), {
-                    shell: true,
-                    stdio: [
-                        "ignore", 1, 2
-                    ]
-                // on shell exit, print return prompt
-                }).on("exit", function (exitCode) {
-                    console.error("exit-code " + exitCode);
-                    that.evalDefault(
-                        "\n",
-                        context,
-                        file,
-                        onError2
-                    );
-                });
-                script = "\n";
-                break;
-            // syntax-sugar - list object's keys, sorted by item-type
-            // console.error(Object.keys(global).map(function(key){return(typeof global[key]==='object'&&global[key]&&global[key]===global[key]?'global':typeof global[key])+' '+key;}).sort().join('\n')) // jslint ignore:line
-            case "keys":
-                script = (
-                    "console.error(Object.keys(" + match2
-                    + ").map(function(key){return("
-                    + "typeof " + match2 + "[key]==='object'&&"
-                    + match2 + "[key]&&"
-                    + match2 + "[key]===global[key]"
-                    + "?'global'"
-                    + ":typeof " + match2 + "[key]"
-                    + ")+' '+key;"
-                    + "}).sort().join('\\n'))\n"
-                );
-                break;
-            // syntax-sugar - print stringified arg
-            case "print":
-                script = "console.error(String(" + match2 + "))\n";
-                break;
-            // syntax-sugar - read file
-            case "readFile":
-                try {
-                    console.error(JSON.stringify(
-                        require("fs").readFileSync(match2, "utf8")
-                    ));
-                } catch (errCaught) {
-                    console.error(errCaught);
-                }
-                script = "\n";
-                break;
-            }
-        });
-        // eval the script
-        that.evalDefault(script, context, file, onError2);
-    };
-    that.socket = {
-        end: local.nop,
-        on: local.nop,
-        write: local.nop
-    };
-    // init process.stdout
-    process.stdout._writeDefault = (
-        process.stdout._writeDefault
-        || process.stdout._write
-    );
-    process.stdout._write = function (chunk, encoding, callback) {
-        process.stdout._writeDefault(chunk, encoding, callback);
-        // hack-istanbul - ignore else-statement
-        local.nop(that.socket.writable && (function () {
-            that.socket.write(chunk, encoding);
-        }()));
-    };
-    // start serverRepl1
-    globalThis.utility2_serverRepl1 = require("net").createServer(function (
-        socket
-    ) {
-        // init socket
-        that.socket = socket;
-        that.socket.on("data", that.write.bind(that));
-        that.socket.on("error", that.onError);
-        that.socket.setKeepAlive(true);
-    });
-    // hack-istanbul - ignore else-statement
-    local.nop(process.env.PORT_REPL && (function () {
-        console.error(
-            "repl-server listening on port " + process.env.PORT_REPL
-        );
-        globalThis.utility2_serverRepl1.listen(process.env.PORT_REPL);
-    }()));
-};
-
-local.setTimeoutOnError = function (onError, timeout, err, data) {
-/*
- * this function will after timeout has passed,
- * then call <onError>(<err>, <data>)
- */
-    if (typeof onError === "function") {
-        setTimeout(function () {
-            onError(err, data);
-        }, timeout);
-    }
-    return data;
-};
-}());
-
-
-
-// run shared js-env code - lib.storage.js
-(function (local) {
-var child_process;
-var clear;
-var defer;
-var deferList;
-var fs;
-var getItem;
-var init;
-var keys;
-var length;
-var os;
-var removeItem;
-var setItem;
-var storage;
-var storageDir;
-
-storageDir = "tmp/storage." + (
-    local.isBrowser
-    ? "undefined"
-    : process.env.NODE_ENV
-);
-if (!local.isBrowser) {
-    // require modules
-    child_process = require("child_process");
-    fs = require("fs");
-    os = require("os");
-}
-
-clear = function (onError) {
-/*
- * this function will clear storage
- */
-    defer({
-        action: "clear"
-    }, onError);
-};
-
-defer = function (opt, onError) {
-/*
- * this function will defer <opt>.action until storage is ready
- */
-    var data;
-    var isDone;
-    var objectStore;
-    var onError2;
-    var req;
-    var tmp;
-    onError = onError || function (err) {
-        // validate no err occurred
-        local.assertOrThrow(!err, err);
-    };
-    if (!storage) {
-        deferList.push(function () {
-            defer(opt, onError);
-        });
-        init();
-        return;
-    }
-    if (local.isBrowser) {
-        onError2 = function () {
-            /* istanbul ignore next */
-            if (isDone) {
-                return;
-            }
-            isDone = true;
-            onError(
-                req && (req.error || req.transaction.error),
-                data || req.result || ""
-            );
-        };
-        switch (opt.action) {
-        case "clear":
-        case "removeItem":
-        case "setItem":
-            objectStore = storage.transaction(
-                storageDir,
-                "readwrite"
-            ).objectStore(storageDir);
-            break;
-        default:
-            objectStore = storage.transaction(
-                storageDir,
-                "readonly"
-            ).objectStore(storageDir);
-        }
-        switch (opt.action) {
-        case "clear":
-            req = objectStore.clear();
-            break;
-        case "getItem":
-            req = objectStore.get(String(opt.key));
-            break;
-        case "keys":
-            data = [];
-            req = objectStore.openCursor();
-            req.onsuccess = function () {
-                if (!req.result) {
-                    onError2();
-                    return;
-                }
-                data.push(req.result.key);
-                req.result.continue();
-            };
-            break;
-        case "length":
-            req = objectStore.count();
-            break;
-        case "removeItem":
-            req = objectStore.delete(String(opt.key));
-            break;
-        case "setItem":
-            req = objectStore.put(opt.value, String(opt.key));
-            break;
-        }
-        [
-            "onabort", "onerror", "onsuccess"
-        ].forEach(function (handler) {
-            req[handler] = req[handler] || onError2;
-        });
-        // debug req
-        local._debugStorageReq = req;
-    } else {
-        switch (opt.action) {
-        case "clear":
-            child_process.spawnSync("rm -f " + storage + "/*", {
-                shell: true,
-                stdio: [
-                    "ignore", 1, 2
-                ]
-            });
-            setTimeout(onError);
-            break;
-        case "getItem":
-            fs.readFile(
-                storage + "/" + encodeURIComponent(String(opt.key)),
-                "utf8",
-                function (ignore, data) {
-                    onError(null, data || "");
-                }
-            );
-            break;
-        case "keys":
-            fs.readdir(storage, function (err, data) {
-                onError(err, data && data.map(decodeURIComponent));
-            });
-            break;
-        case "length":
-            fs.readdir(storage, function (err, data) {
-                onError(err, data && data.length);
-            });
-            break;
-        case "removeItem":
-            fs.unlink(
-                storage + "/" + encodeURIComponent(String(opt.key)),
-                // ignore err
-                function () {
-                    onError();
-                }
-            );
-            break;
-        case "setItem":
-            tmp = os.tmpdir() + "/" + Date.now() + Math.random();
-            // save to tmp
-            fs.writeFile(tmp, opt.value, function (err) {
-                // validate no err occurred
-                local.assertOrThrow(!err, err);
-                // rename tmp to key
-                fs.rename(
-                    tmp,
-                    storage + "/" + encodeURIComponent(String(opt.key)),
-                    onError
-                );
-            });
-            break;
-        }
-    }
-};
-
-deferList = [];
-
-getItem = function (key, onError) {
-/*
- * this function will get the item with given key from storage
- */
-    defer({
-        action: "getItem",
-        key
-    }, onError);
-};
-
-init = function () {
-/*
- * this function will init storage
- */
-    var onError;
-    var req;
-    onError = function (err) {
-        // validate no err occurred
-        local.assertOrThrow(!err, err);
-        if (local.isBrowser) {
-            storage = globalThis[storageDir];
-        }
-        while (deferList.length) {
-            deferList.shift()();
-        }
-    };
-    if (local.isBrowser) {
-        storage = globalThis[storageDir];
-    }
-    if (storage) {
-        onError();
-        return;
-    }
-    if (local.isBrowser) {
-        // init indexedDB
-        try {
-            req = globalThis.indexedDB.open(storageDir);
-            // debug req
-            local._debugStorageReqIndexedDB = req;
-            req.onerror = onError;
-            req.onsuccess = function () {
-                globalThis[storageDir] = req.result;
-                onError();
-            };
-            req.onupgradeneeded = function () {
-                if (!req.result.objectStoreNames.contains(storageDir)) {
-                    req.result.createObjectStore(storageDir);
-                }
-            };
-        } catch (ignore) {}
-    } else {
-        // mkdirp storage
-        storage = storageDir;
-        child_process.spawnSync("mkdir", [
-            "-p", storage
-        ], {
-            stdio: [
-                "ignore", 1, 2
-            ]
-        });
-        onError();
-    }
-};
-
-keys = function (onError) {
-/*
- * this function will get all the keys in storage
- */
-    defer({
-        action: "keys"
-    }, onError);
-};
-
-length = function (onError) {
-/*
- * this function will get the number of items in storage
- */
-    defer({
-        action: "length"
-    }, onError);
-};
-
-removeItem = function (key, onError) {
-/*
- * this function will remove the item with given key from storage
- */
-    defer({
-        action: "removeItem",
-        key
-    }, onError);
-};
-
-setItem = function (key, value, onError) {
-/*
- * this function will set the item with given key and value to storage
- */
-    defer({
-        action: "setItem",
-        key,
-        value
-    }, onError);
-};
-
-// init local
-local.storage = storage;
-local.storageClear = clear;
-local.storageDefer = defer;
-local.storageDeferList = deferList;
-local.storageDir = storageDir;
-local.storageGetItem = getItem;
-local.storageInit = init;
-local.storageKeys = keys;
-local.storageLength = length;
-local.storageRemoveItem = removeItem;
-local.storageSetItem = setItem;
-}(local));
-
-
-
-// run shared js-env code - lib.dbTable.js
-(function () {
-local._DbTable = function (opt) {
-/*
- * this function will create a dbTable
- */
-    this.name = String(opt.name);
-    // register dbTable in dbTableDict
-    local.dbTableDict[this.name] = this;
-    this.dbRowList = [];
-    this.isDirty = null;
-    this.idIndexList = [
-        {
-            isInteger: false,
-            name: "_id",
-            dict: {}
-        }
-    ];
-    this.onSaveList = [];
-    this.sizeLimit = opt.sizeLimit || 0;
-};
-
-local._DbTable.prototype._cleanup = function () {
-/*
- * this function will cleanup soft-deleted records from the dbTable
- */
-    var dbRow;
-    var ii;
-    var list;
-    if (!this.isDirty && this.dbRowList.length <= this.sizeLimit) {
-        return;
-    }
-    this.isDirty = null;
-    // cleanup dbRowList
-    list = this.dbRowList;
-    this.dbRowList = [];
-    // optimization - while-loop
-    ii = 0;
-    while (ii < list.length) {
-        dbRow = list[ii];
-        // cleanup isRemoved
-        if (!dbRow.$isRemoved) {
-            this.dbRowList.push(dbRow);
-        }
-        ii += 1;
-    }
-    if (this.sizeLimit && this.dbRowList.length >= 1.5 * this.sizeLimit) {
-        this.dbRowList = this._crudGetManyByQuery(
-            {},
-            this.sortDefault,
-            0,
-            this.sizeLimit
-        );
-    }
-};
-
-local._DbTable.prototype._crudGetManyByQuery = function (
-    query,
-    sort,
-    skip,
-    limit,
-    shuffle
-) {
-/*
- * this function will get the dbRow's in the dbTable,
- * with given query, sort, skip, and limit
- */
-    var ii;
-    var result;
-    result = this.dbRowList;
-    // get by query
-    if (result.length && query && Object.keys(query).length) {
-        result = local.dbRowListGetManyByQuery(this.dbRowList, query);
-    }
-    // sort
-    (sort || []).forEach(function (element) {
-        // bug-workaround - v8 does not have stable-sort
-        // optimization - while-loop
-        ii = 0;
-        while (ii < result.length) {
-            result[ii].$ii = ii;
-            ii += 1;
-        }
-        result.sort(function (aa, bb) {
-            return local.sortCompare(
-                local.dbRowGetItem(aa, element.fieldName),
-                local.dbRowGetItem(bb, element.fieldName),
-                aa.$ii,
-                bb.$ii
-            );
-        });
-        if (element.isDescending) {
-            result.reverse();
-        }
-    });
-    // skip
-    result = result.slice(skip || 0);
-    // shuffle
-    local.functionOrNop(shuffle && local.listShuffle)(result);
-    // limit
-    result = result.slice(0, limit || Infinity);
-    return result;
-};
-
-local._DbTable.prototype._crudGetOneById = function (idDict) {
-/*
- * this function will get the dbRow in the dbTable with given idDict
- */
-    var id;
-    var result;
-    idDict = local.objectSetOverride(idDict);
-    result = null;
-    this.idIndexList.some(function (idIndex) {
-        id = idDict[idIndex.name];
-        // optimization - hasOwnProperty
-        if (idIndex.dict.hasOwnProperty(id)) {
-            result = idIndex.dict[id];
-            return result;
-        }
-    });
-    return result;
-};
-
-local._DbTable.prototype._crudRemoveOneById = function (idDict, circularSet) {
-/*
- * this function will remove the dbRow from the dbTable with given idDict
- */
-    var id;
-    var result;
-    var that;
-    if (!idDict) {
-        return null;
-    }
-    that = this;
-    circularSet = circularSet || new Set([
-        idDict
-    ]);
-    result = null;
-    that.idIndexList.forEach(function (idIndex) {
-        id = idDict[idIndex.name];
-        // optimization - hasOwnProperty
-        if (!idIndex.dict.hasOwnProperty(id)) {
-            return;
-        }
-        result = idIndex.dict[id];
-        delete idIndex.dict[id];
-        // optimization - soft-delete
-        result.$isRemoved = true;
-        that.isDirty = true;
-        if (circularSet.has(result)) {
-            return;
-        }
-        circularSet.add(result);
-        // recurse
-        that._crudRemoveOneById(result, circularSet);
-    });
-    that.save();
-    return result;
-};
-
-local._DbTable.prototype._crudSetOneById = function (dbRow) {
-/*
- * this function will set the dbRow into the dbTable with given dbRow._id
- * WARNING - existing dbRow with conflicting dbRow._id will be removed
- */
-    var existing;
-    var id;
-    var normalize;
-    var timeNow;
-    normalize = function (dbRow) {
-    /*
-     * this function will recursively normalize dbRow
-     */
-        switch (typeof dbRow) {
-        case "boolean":
-        case "string":
-            return dbRow;
-        case "number":
-            return (
-                Number.isFinite(dbRow)
-                ? dbRow
-                : undefined
-            );
-        case "object":
-            if (!dbRow) {
-                return;
-            }
-            break;
-        default:
-            return;
-        }
-        Object.keys(dbRow).forEach(function (key) {
-            dbRow[key] = (
-                (key[0] === "$" || key.indexOf(".") >= 0)
-                // invalid-property
-                ? undefined
-                // recurse
-                : normalize(dbRow[key])
-            );
-        });
-        return dbRow;
-    };
-    dbRow = local.jsonCopy(local.objectSetOverride(dbRow));
-    // update timestamp
-    timeNow = new Date().toISOString();
-    dbRow._timeCreated = dbRow._timeCreated || timeNow;
-    if (!local.modeImport) {
-        dbRow._timeUpdated = timeNow;
-    }
-    // normalize
-    dbRow = normalize(dbRow);
-    dbRow = local.jsonCopy(dbRow);
-    // remove existing dbRow
-    existing = this._crudRemoveOneById(dbRow) || dbRow;
-    this.idIndexList.forEach(function (idIndex) {
-        // auto-set id
-        id = local.dbRowSetId(existing, idIndex);
-        // copy id from existing to dbRow
-        dbRow[idIndex.name] = id;
-        // set dbRow
-        idIndex.dict[id] = dbRow;
-    });
-    // update dbRowList
-    this.dbRowList.push(dbRow);
-    this.save();
-    return dbRow;
-};
-
-local._DbTable.prototype._crudUpdateOneById = function (dbRow) {
-/*
- * this function will update the dbRow in the dbTable,
- * if it exists with given dbRow._id
- * WARNING
- * existing dbRow's with conflicting unique-keys (besides the one being updated)
- * will be removed
- */
-    var id;
-    var result;
-    dbRow = local.jsonCopy(local.objectSetOverride(dbRow));
-    result = {};
-    this.idIndexList.some(function (idIndex) {
-        id = dbRow[idIndex.name];
-        // optimization - hasOwnProperty
-        if (idIndex.dict.hasOwnProperty(id)) {
-            result = idIndex.dict[id];
-            return true;
-        }
-    });
-    // remove existing dbRow
-    result = local.jsonCopy(this._crudRemoveOneById(result)) || result;
-    // update dbRow
-    delete dbRow._timeCreated;
-    local.objectSetOverride(result, dbRow, 10);
-    // replace dbRow
-    result = this._crudSetOneById(result);
-    return result;
-};
-
-local._DbTable.prototype.crudCountAll = function (onError) {
-/*
- * this function will count all of dbRow's in dbTable
- */
-    this._cleanup();
-    return local.setTimeoutOnError(onError, 0, null, this.dbRowList.length);
-};
-
-local._DbTable.prototype.crudCountManyByQuery = function (query, onError) {
-/*
- * this function will count the number of dbRow's in dbTable with given query
- */
-    this._cleanup();
-    return local.setTimeoutOnError(
-        onError,
-        0,
-        null,
-        this._crudGetManyByQuery(query).length
-    );
-};
-
-local._DbTable.prototype.crudGetManyById = function (idDictList, onError) {
-/*
- * this function will get the dbRow's in the dbTable with given idDictList
- */
-    var that;
-    this._cleanup();
-    that = this;
-    return local.setTimeoutOnError(onError, 0, null, local.dbRowProject(
-        (idDictList || []).map(function (idDict) {
-            return that._crudGetOneById(idDict);
-        })
-    ));
-};
-
-local._DbTable.prototype.crudGetManyByQuery = function (opt, onError) {
-/*
- * this function will get the dbRow's in the dbTable with given <opt>.query
- */
-    this._cleanup();
-    opt = local.objectSetOverride(opt);
-    return local.setTimeoutOnError(onError, 0, null, local.dbRowProject(
-        this._crudGetManyByQuery(
-            opt.query,
-            opt.sort || this.sortDefault,
-            opt.skip,
-            opt.limit,
-            opt.shuffle
-        ),
-        opt.fieldList
-    ));
-};
-
-local._DbTable.prototype.crudGetOneById = function (idDict, onError) {
-/*
- * this function will get the dbRow in the dbTable with given idDict
- */
-    this._cleanup();
-    return local.setTimeoutOnError(onError, 0, null, local.dbRowProject(
-        this._crudGetOneById(idDict)
-    ));
-};
-
-local._DbTable.prototype.crudGetOneByQuery = function (query, onError) {
-/*
- * this function will get the dbRow in the dbTable with given query
- */
-    var ii;
-    var result;
-    this._cleanup();
-    // optimization - while-loop
-    ii = 0;
-    while (ii < this.dbRowList.length) {
-        result = local.dbRowListGetManyByQuery([
-            this.dbRowList[ii]
-        ], query)[0];
-        if (result) {
-            break;
-        }
-        ii += 1;
-    }
-    return local.setTimeoutOnError(
-        onError,
-        0,
-        null,
-        local.dbRowProject(result)
-    );
-};
-
-local._DbTable.prototype.crudGetOneByRandom = function (onError) {
-/*
- * this function will get a random dbRow in the dbTable
- */
-    this._cleanup();
-    return local.setTimeoutOnError(onError, 0, null, local.dbRowProject(
-        this.dbRowList[Math.floor(Math.random() * this.dbRowList.length)]
-    ));
-};
-
-local._DbTable.prototype.crudRemoveAll = function (onError) {
-/*
- * this function will remove all of the dbRow's from the dbTable
- */
-    var idIndexList;
-    // save idIndexList
-    idIndexList = this.idIndexList;
-    // reset dbTable
-    local._DbTable.call(this, this);
-    // restore idIndexList
-    local.dbTableCreateOne({
-        name: this.name,
-        idIndexCreateList: idIndexList
-    }, onError);
-};
-
-local._DbTable.prototype.crudRemoveManyById = function (idDictList, onError) {
-/*
- * this function will remove the dbRow's from the dbTable with given idDictList
- */
-    var that;
-    that = this;
-    return local.setTimeoutOnError(onError, 0, null, local.dbRowProject(
-        (idDictList || []).map(function (dbRow) {
-            return that._crudRemoveOneById(dbRow);
-        })
-    ));
-};
-
-local._DbTable.prototype.crudRemoveManyByQuery = function (query, onError) {
-/*
- * this function will remove the dbRow's from the dbTable with given query
- */
-    var that;
-    that = this;
-    return local.setTimeoutOnError(onError, 0, null, local.dbRowProject(
-        that._crudGetManyByQuery(query).map(function (dbRow) {
-            return that._crudRemoveOneById(dbRow);
-        })
-    ));
-};
-
-local._DbTable.prototype.crudRemoveOneById = function (idDict, onError) {
-/*
- * this function will remove the dbRow from the dbTable with given idDict
- */
-    return local.setTimeoutOnError(onError, 0, null, local.dbRowProject(
-        this._crudRemoveOneById(idDict)
-    ));
-};
-
-local._DbTable.prototype.crudSetManyById = function (dbRowList, onError) {
-/*
- * this function will set the dbRowList into the dbTable
- */
-    var that;
-    that = this;
-    return local.setTimeoutOnError(onError, 0, null, local.dbRowProject(
-        (dbRowList || []).map(function (dbRow) {
-            return that._crudSetOneById(dbRow);
-        })
-    ));
-};
-
-local._DbTable.prototype.crudSetOneById = function (dbRow, onError) {
-/*
- * this function will set the dbRow into the dbTable with given dbRow._id
- */
-    return local.setTimeoutOnError(onError, 0, null, local.dbRowProject(
-        this._crudSetOneById(dbRow)
-    ));
-};
-
-local._DbTable.prototype.crudUpdateManyById = function (dbRowList, onError) {
-/*
- * this function will update the dbRowList in the dbTable,
- * if they exist with given dbRow._id's
- */
-    var that;
-    that = this;
-    return local.setTimeoutOnError(onError, 0, null, local.dbRowProject(
-        (dbRowList || []).map(function (dbRow) {
-            return that._crudUpdateOneById(dbRow);
-        })
-    ));
-};
-
-local._DbTable.prototype.crudUpdateManyByQuery = function (
-    query,
-    dbRow,
-    onError
-) {
-/*
- * this function will update the dbRow's in the dbTable with given query
- */
-    var result;
-    var that;
-    var tmp;
-    that = this;
-    tmp = local.jsonCopy(local.objectSetOverride(dbRow));
-    result = that._crudGetManyByQuery(query).map(function (dbRow) {
-        tmp._id = dbRow._id;
-        return that._crudUpdateOneById(tmp);
-    });
-    return local.setTimeoutOnError(onError, 0, null, result);
-};
-
-local._DbTable.prototype.crudUpdateOneById = function (dbRow, onError) {
-/*
- * this function will update the dbRow in the dbTable,
- * if it exists with given dbRow._id
- */
-    return local.setTimeoutOnError(onError, 0, null, local.dbRowProject(
-        this._crudUpdateOneById(dbRow)
-    ));
-};
-
-local._DbTable.prototype.drop = function (onError) {
-/*
- * this function will drop the dbTable
- */
-    console.error("db - dropping dbTable " + this.name + " ...");
-    // cancel pending save
-    this.timerSave = null;
-    while (this.onSaveList.length) {
-        this.onSaveList.shift()();
-    }
-    // reset dbTable
-    local._DbTable.call(this, this);
-    // clear persistence
-    local.storageRemoveItem("dbTable." + this.name + ".json", onError);
-};
-
-local._DbTable.prototype.export = function (onError) {
-/*
- * this function will export the db
- */
-    var result;
-    var that;
-    this._cleanup();
-    that = this;
-    result = "";
-    that.idIndexList.forEach(function (idIndex) {
-        result += that.name + " idIndexCreate " + JSON.stringify({
-            isInteger: idIndex.isInteger,
-            name: idIndex.name
-        }) + "\n";
-    });
-    result += that.name + " sizeLimit " + that.sizeLimit + "\n";
-    result += that.name + " sortDefault " + JSON.stringify(
-        that.sortDefault
-    ) + "\n";
-    that.crudGetManyByQuery({}).forEach(function (dbRow) {
-        result += that.name + " dbRowSet " + JSON.stringify(dbRow) + "\n";
-    });
-    return local.setTimeoutOnError(onError, 0, null, result.trim());
-};
-
-local._DbTable.prototype.idIndexCreate = function (opt, onError) {
-/*
- * this function will create an idIndex with given <opt>.name
- */
-    var dbRow;
-    var idIndex;
-    var ii;
-    var name;
-    opt = local.objectSetOverride(opt);
-    name = String(opt.name);
-    // disallow idIndex with dot-name
-    if (name.indexOf(".") >= 0 || name === "_id") {
-        return local.setTimeoutOnError(onError);
-    }
-    // remove existing idIndex
-    this.idIndexRemove(opt);
-    // init idIndex
-    idIndex = {
-        dict: {},
-        isInteger: Boolean(opt.isInteger),
-        name
-    };
-    this.idIndexList.push(idIndex);
-    // populate idIndex with dbRowList
-    // optimization - while-loop
-    ii = 0;
-    while (ii < this.dbRowList.length) {
-        dbRow = this.dbRowList[ii];
-        // auto-set id
-        if (!dbRow.$isRemoved) {
-            idIndex.dict[local.dbRowSetId(dbRow, idIndex)] = dbRow;
-        }
-        ii += 1;
-    }
-    this.save();
-    return local.setTimeoutOnError(onError);
-};
-
-local._DbTable.prototype.idIndexRemove = function (opt, onError) {
-/*
- * this function will remove the idIndex with given <opt>.name
- */
-    var name;
-    opt = local.objectSetOverride(opt);
-    name = String(opt.name);
-    this.idIndexList = this.idIndexList.filter(function (idIndex) {
-        return idIndex.name !== name || idIndex.name === "_id";
-    });
-    this.save();
-    return local.setTimeoutOnError(onError);
-};
-
-local._DbTable.prototype.save = function (onError) {
-/*
- * this function will save the dbTable to storage
- */
-    var that;
-    that = this;
-    if (local.modeImport) {
-        return;
-    }
-    if (onError) {
-        that.onSaveList.push(onError);
-    }
-    // throttle storage-writes to once every 1000 ms
-    that.timerSave = that.timerSave || setTimeout(function () {
-        that.timerSave = null;
-        local.storageSetItem(
-            "dbTable." + that.name + ".json",
-            that.export(),
-            function (err) {
-                while (that.onSaveList.length) {
-                    that.onSaveList.shift()(err);
-                }
-            }
-        );
-    }, 1000);
-};
-
-local.dbCrudRemoveAll = function (onError) {
-/*
- * this function will remove all dbRow's from the db
- */
-    var onParallel;
-    onParallel = local.onParallel(function (err) {
-        local.setTimeoutOnError(onError, 0, err);
-    });
-    onParallel.counter += 1;
-    Object.keys(local.dbTableDict).forEach(function (key) {
-        onParallel.counter += 1;
-        local.dbTableDict[key].crudRemoveAll(onParallel);
-    });
-    onParallel();
-};
-
-local.dbDrop = function (onError) {
-/*
- * this function will drop the db
- */
-    var onParallel;
-    console.error("db - dropping database ...");
-    onParallel = local.onParallel(function (err) {
-        local.setTimeoutOnError(onError, 0, err);
-    });
-    onParallel.counter += 1;
-    onParallel.counter += 1;
-    local.storageClear(onParallel);
-    Object.keys(local.dbTableDict).forEach(function (key) {
-        onParallel.counter += 1;
-        local.dbTableDict[key].drop(onParallel);
-    });
-    onParallel();
-};
-
-local.dbExport = function (onError) {
-/*
- * this function will export the db as serialized text
- */
-    var result;
-    result = "";
-    Object.keys(local.dbTableDict).forEach(function (key) {
-        console.error(
-            "db - exporting dbTable " + local.dbTableDict[key].name + " ..."
-        );
-        result += local.dbTableDict[key].export();
-        result += "\n\n";
-    });
-    return local.setTimeoutOnError(onError, 0, null, result.trim());
-};
-
-local.dbImport = function (text, onError) {
-/*
- * this function will import the serialized text into the db
- */
-    var dbTable;
-    var dbTableDict;
-    dbTableDict = {};
-    local.modeImport = true;
-    setTimeout(function () {
-        local.modeImport = null;
-    });
-    text.replace((
-        /^(\w\S*?)\u0020(\S+?)\u0020(\S.*?)$/gm
-    ), function (match0, match1, match2, match3) {
-        switch (match2) {
-        case "dbRowSet":
-            dbTableDict[match1] = true;
-            dbTable = local.dbTableCreateOne({
-                isLoaded: true,
-                name: match1
-            });
-            dbTable.crudSetOneById(JSON.parse(match3));
-            break;
-        case "idIndexCreate":
-            dbTableDict[match1] = true;
-            dbTable = local.dbTableCreateOne({
-                isLoaded: true,
-                name: match1
-            });
-            dbTable.idIndexCreate(JSON.parse(match3));
-            break;
-        case "sizeLimit":
-            dbTableDict[match1] = true;
-            dbTable = local.dbTableCreateOne({
-                isLoaded: true,
-                name: match1
-            });
-            dbTable.sizeLimit = JSON.parse(match3);
-            break;
-        case "sortDefault":
-            dbTableDict[match1] = true;
-            dbTable = local.dbTableCreateOne({
-                isLoaded: true,
-                name: match1
-            });
-            dbTable.sortDefault = JSON.parse(match3);
-            break;
-        default:
-            local.onErrorDefault(new Error(
-                "db - dbImport - invalid operation - " + match0
-            ));
-        }
-    });
-    Object.keys(dbTableDict).forEach(function (name) {
-        console.error("db - importing dbTable " + name + " ...");
-    });
-    local.modeImport = null;
-    return local.setTimeoutOnError(onError);
-};
-
-local.dbLoad = function (onError) {
-/*
- * this function will load the db from storage
- */
-    var onParallel;
-    onParallel = local.onParallel(function (err) {
-        local.setTimeoutOnError(onError, 0, err);
-    });
-    local.storageKeys(function (err, data) {
-        onParallel.counter += 1;
-        // validate no err occurred
-        onParallel.counter += 1;
-        onParallel(err);
-        (data || []).forEach(function (key) {
-            if (key.indexOf("dbTable.") !== 0) {
-                return;
-            }
-            onParallel.counter += 1;
-            local.storageGetItem(key, function (err, data) {
-                onParallel.counter += 1;
-                onParallel(err);
-                local.dbImport(data, onParallel);
-            });
-        });
-        onParallel();
-    });
-};
-
-local.dbReset = function (dbSeedList, onError) {
-/*
- * this function will drop and seed the db with given dbSeedList
- */
-    var onParallel;
-    onParallel = globalThis.utility2_onReadyBefore || local.onParallel(onError);
-    onParallel.counter += 1;
-    // drop db
-    onParallel.counter += 1;
-    local.dbDrop(function (err) {
-        local.onErrorDefault(err);
-        // seed db
-        local.dbSeed(
-            dbSeedList,
-            !globalThis.utility2_onReadyBefore && onParallel
-        );
-        local.functionOrNop(globalThis.utility2_onReadyBefore)();
-    });
-    local.functionOrNop(globalThis.utility2_onReadyAfter)(onError);
-    onParallel();
-};
-
-local.dbRowGetItem = function (dbRow, key) {
-/*
- * this function will get the item with given key from dbRow
- */
-    var ii;
-    var value;
-    value = dbRow;
-    key = String(key).split(".");
-    // optimization - while-loop
-    ii = 0;
-    while (ii < key.length && typeof value === "object" && value) {
-        value = value[key[ii]];
-        ii += 1;
-    }
-    return (
-        value === undefined
-        ? null
-        : value
-    );
-};
-
-local.dbRowListGetManyByOperator = function (
-    dbRowList,
-    fieldName,
-    operator,
-    bb,
-    not
-) {
-/*
- * this function will get the dbRow's in dbRowList with given operator
- */
-    var fieldValue;
-    var ii;
-    var jj;
-    var result;
-    var test;
-    var typeof2;
-    result = [];
-    typeof2 = typeof bb;
-    if (bb && typeof2 === "object") {
-        switch (operator) {
-        case "$in":
-        case "$nin":
-        case "$regex":
-            break;
-        default:
-            return result;
-        }
-    }
-    switch (operator) {
-    case "$eq":
-        test = function (aa, bb) {
-            return aa === bb;
-        };
-        break;
-    case "$exists":
-        bb = !bb;
-        test = function (aa, bb) {
-            return !((aa === null) ^ bb); // jslint ignore:line
-        };
-        break;
-    case "$gt":
-        test = function (aa, bb, typeof1, typeof2) {
-            return typeof1 === typeof2 && aa > bb;
-        };
-        break;
-    case "$gte":
-        test = function (aa, bb, typeof1, typeof2) {
-            return typeof1 === typeof2 && aa >= bb;
-        };
-        break;
-    case "$in":
-        if (bb && typeof bb.indexOf === "function") {
-            if (typeof2 === "string") {
-                test = function (aa, bb, typeof1, typeof2) {
-                    return typeof1 === typeof2 && bb.indexOf(aa) >= 0;
-                };
-            } else {
-                test = function (aa, bb) {
-                    return bb.indexOf(aa) >= 0;
-                };
-            }
-        }
-        break;
-    case "$lt":
-        test = function (aa, bb, typeof1, typeof2) {
-            return typeof1 === typeof2 && aa < bb;
-        };
-        break;
-    case "$lte":
-        test = function (aa, bb, typeof1, typeof2) {
-            return typeof1 === typeof2 && aa <= bb;
-        };
-        break;
-    case "$ne":
-        test = function (aa, bb) {
-            return aa !== bb;
-        };
-        break;
-    case "$nin":
-        if (bb && typeof bb.indexOf === "function") {
-            if (typeof2 === "string") {
-                test = function (aa, bb, typeof1, typeof2) {
-                    return typeof1 === typeof2 && bb.indexOf(aa) < 0;
-                };
-            } else {
-                test = function (aa, bb) {
-                    return bb.indexOf(aa) < 0;
-                };
-            }
-        }
-        break;
-    case "$regex":
-        if (bb && typeof bb.test === "function") {
-            test = function (aa, bb) {
-                return bb.test(aa);
-            };
-        }
-        break;
-    case "$typeof":
-        test = function (ignore, bb, typeof1) {
-            return typeof1 === bb;
-        };
-        break;
-    }
-    if (!test) {
-        return result;
-    }
-    // optimization - while-loop
-    ii = dbRowList.length;
-    while (ii >= 1) {
-        ii -= 1;
-        fieldValue = local.dbRowGetItem(dbRowList[ii], fieldName);
-        // normalize to list
-        if (!Array.isArray(fieldValue)) {
-            fieldValue = [
-                fieldValue
-            ];
-        }
-        // optimization - while-loop
-        jj = fieldValue.length;
-        while (jj >= 1) {
-            jj -= 1;
-            if (Boolean(
-                not ^ test(fieldValue[jj], bb, typeof fieldValue[jj], typeof2)
-            )) {
-                result.push(dbRowList[ii]);
-                break;
-            }
-        }
-    }
-    return result;
-};
-
-local.dbRowListGetManyByQuery = function (dbRowList, query, fieldName, not) {
-/*
- * this function will get the dbRow's in dbRowList with given query
- */
-    var bb;
-    var dbRowDict;
-    var result;
-    // optimization - convert to boolean
-    not = Boolean(not);
-    result = dbRowList;
-    if (!(typeof query === "object" && query)) {
-        result = local.dbRowListGetManyByOperator(
-            result,
-            fieldName,
-            "$eq",
-            query,
-            not
-        );
-        return result;
-    }
-    Object.keys(query).some(function (key) {
-        bb = query[key];
-        switch (key) {
-        case "$not":
-            key = fieldName;
-            not = !not;
-            break;
-        case "$or":
-            if (!Array.isArray(bb)) {
-                break;
-            }
-            dbRowDict = {};
-            bb.forEach(function (query) {
-                // recurse
-                local.dbRowListGetManyByQuery(result, query).forEach(function (
-                    dbRow
-                ) {
-                    dbRowDict[dbRow._id] = dbRow;
-                });
-            });
-            result = Object.keys(dbRowDict).map(function (id) {
-                return dbRowDict[id];
-            });
-            return !result.length;
-        }
-        if (key[0] === "$") {
-            result = local.dbRowListGetManyByOperator(
-                result,
-                fieldName,
-                key,
-                bb,
-                not
-            );
-            return !result.length;
-        }
-        // recurse
-        result = local.dbRowListGetManyByQuery(result, bb, key, not);
-        return !result.length;
-    });
-    return result;
-};
-
-local.dbRowProject = function (dbRow, fieldList) {
-/*
- * this function will deepcopy and project the dbRow with given fieldList
- */
-    var result;
-    if (!dbRow) {
-        return null;
-    }
-    // handle list-case
-    if (Array.isArray(dbRow)) {
-        return dbRow.map(function (dbRow) {
-            // recurse
-            return local.dbRowProject(dbRow, fieldList);
-        });
-    }
-    // normalize to list
-    if (!(Array.isArray(fieldList) && fieldList.length)) {
-        fieldList = Object.keys(dbRow);
-    }
-    result = {};
-    fieldList.forEach(function (key) {
-        if (key[0] !== "$") {
-            result[key] = dbRow[key];
-        }
-    });
-    return JSON.parse(local.jsonStringifyOrdered(result));
-};
-
-local.dbRowSetId = function (dbRow, idIndex) {
-/*
- * this function will if does not exist,
- * then set a random and unique id into dbRow for given idIndex,
- */
-    var id;
-    id = dbRow[idIndex.name];
-    if (typeof id !== "number" && typeof id !== "string") {
-        do {
-            id = (
-                idIndex.isInteger
-                ? (1 + Math.random()) * 0x10000000000000
-                : "a" + (
-                    (1 + Math.random()) * 0x10000000000000
-                ).toString(36).slice(1)
-            );
-        // optimization - hasOwnProperty
-        } while (idIndex.dict.hasOwnProperty(id));
-        dbRow[idIndex.name] = id;
-    }
-    return id;
-};
-
-local.dbSave = function (onError) {
-/*
- * this function will save the db to storage
- */
-    var onParallel;
-    onParallel = local.onParallel(function (err) {
-        local.setTimeoutOnError(onError, 0, err);
-    });
-    onParallel.counter += 1;
-    Object.keys(local.dbTableDict).forEach(function (key) {
-        onParallel.counter += 1;
-        local.dbTableDict[key].save(onParallel);
-    });
-    onParallel();
-};
-
-local.dbSeed = function (dbSeedList, onError) {
-/*
- * this function will seed the db with given dbSeedList
- */
-    var dbTableDict;
-    var onParallel;
-    dbTableDict = {};
-    onParallel = globalThis.utility2_onReadyBefore || local.onParallel(onError);
-    onParallel.counter += 1;
-    // seed db
-    onParallel.counter += 1;
-    local.dbTableCreateMany(dbSeedList, onParallel);
-    (dbSeedList || []).forEach(function (opt) {
-        dbTableDict[opt.name] = true;
-    });
-    Object.keys(dbTableDict).forEach(function (name) {
-        console.error("db - seeding dbTable " + name + " ...");
-    });
-    local.functionOrNop(globalThis.utility2_onReadyAfter)(onError);
-    onParallel();
-};
-
-local.dbTableCreateMany = function (optionList, onError) {
-/*
- * this function will create many dbTables with given optionList
- */
-    var onParallel;
-    var result;
-    onParallel = local.onParallel(function (err) {
-        local.setTimeoutOnError(onError, 0, err, result);
-    });
-    onParallel.counter += 1;
-    result = (optionList || []).map(function (opt) {
-        onParallel.counter += 1;
-        return local.dbTableCreateOne(opt, onParallel);
-    });
-    return local.setTimeoutOnError(onParallel, 0, null, result);
-};
-
-local.dbTableCreateOne = function (opt, onError) {
-/*
- * this function will create a dbTable with given <opt>
- */
-    var DbTable;
-    var that;
-    opt = local.objectSetOverride(opt);
-    // register dbTable
-    DbTable = local._DbTable;
-    local.dbTableDict[opt.name] = local.dbTableDict[opt.name] || new DbTable(
-        opt
-    );
-    that = local.dbTableDict[opt.name];
-    that.sortDefault = (
-        opt.sortDefault
-        || that.sortDefault
-        || [
-            {
-                fieldName: "_timeUpdated",
-                isDescending: true
-            }
-        ]
-    );
-    // remove idIndex
-    (opt.idIndexRemoveList || []).forEach(function (idIndex) {
-        that.idIndexRemove(idIndex);
-    });
-    // create idIndex
-    (opt.idIndexCreateList || []).forEach(function (idIndex) {
-        that.idIndexCreate(idIndex);
-    });
-    // upsert dbRow
-    that.crudSetManyById(opt.dbRowList);
-    // restore dbTable from persistent-storage
-    that.isLoaded = that.isLoaded || opt.isLoaded;
-    if (!that.isLoaded) {
-        local.storageGetItem("dbTable." + that.name + ".json", function (
-            err,
-            data
-        ) {
-            // validate no err occurred
-            local.assertOrThrow(!err, err);
-            if (!that.isLoaded) {
-                local.dbImport(data);
-            }
-            that.isLoaded = true;
-            local.setTimeoutOnError(onError, 0, null, that);
-        });
-        return that;
-    }
-    return local.setTimeoutOnError(onError, 0, null, that);
-};
-
-local.dbTableDict = {};
-
-local.onEventDomDb = function (evt) {
-/*
- * this function will handle db dom-events
- */
-    var ajaxProgressUpdate;
-    var reader;
-    var tmp;
-    var utility2;
-    utility2 = globalThis.utility2 || {};
-    ajaxProgressUpdate = utility2.ajaxProgressUpdate || local.nop;
-    switch (evt.target.dataset.oneventDb) {
-    case "dbExport":
-        tmp = URL.createObjectURL(new globalThis.Blob([
-            local.dbExport()
-        ]));
-        document.querySelector(
-            "#dbExportA1"
-        ).href = tmp;
-        document.querySelector(
-            "#dbExportA1"
-        ).click();
-        setTimeout(function () {
-            URL.revokeObjectURL(tmp);
-        }, 30000);
-        break;
-    case "dbImport":
-        document.querySelector(
-            "[data-onevent-db='dbImportInput']"
-        ).click();
-        break;
-    case "dbImportInput":
-        if (evt.type !== "change") {
-            return;
-        }
-        ajaxProgressUpdate();
-        reader = new FileReader();
-        reader.addEventListener("load", function () {
-            local.dbImport(reader.result);
-            ajaxProgressUpdate();
-        });
-        reader.readAsText(evt.target.files[0]);
-        break;
-    case "dbReset":
-        ajaxProgressUpdate();
-        local.dbReset(globalThis.utility2_dbSeedList, function (err) {
-            local.onErrorDefault(err);
-            if (
-                utility2.uiEventListenerDict
-                && typeof utility2.uiEventListenerDict[".onEventUiReload"]
-                === "function"
-            ) {
-                utility2.uiEventListenerDict[".onEventUiReload"]();
-            }
-        });
-        break;
-    }
-};
-
-local.sortCompare = function (aa, bb, ii, jj) {
-/*
- * this function will compare aa vs bb and return:
- * -1 if aa < bb
- *  0 if aa === bb
- *  1 if aa > bb
- * the priority for comparing different typeof's is:
- * null < boolean < number < string < object < undefined
- */
-    var typeof1;
-    var typeof2;
-    if (aa === bb) {
-        return (
-            ii < jj
-            ? -1
-            : 1
-        );
-    }
-    if (aa === null) {
-        return -1;
-    }
-    if (bb === null) {
-        return 1;
-    }
-    typeof1 = typeof aa;
-    typeof2 = typeof bb;
-    if (typeof1 === typeof2) {
-        return (
-            typeof1 === "object"
-            ? 0
-            : aa > bb
-            ? 1
-            : -1
-        );
-    }
-    if (typeof1 === "boolean") {
-        return -1;
-    }
-    if (typeof2 === "boolean") {
-        return 1;
-    }
-    if (typeof1 === "number") {
-        return -1;
-    }
-    if (typeof2 === "number") {
-        return 1;
-    }
-    if (typeof1 === "string") {
-        return -1;
-    }
-    if (typeof2 === "string") {
-        return 1;
-    }
-    return 0;
-};
-}());
-
-
-
-// run node js-env code - init-after
-/* istanbul ignore next */
-(function () {
-if (local.isBrowser) {
-    return;
-}
-
-
-
-local.cliDict = {};
-
-local.cliDict.dbTableCrudGetManyByQuery = function () {
-/*
- * <dbTable> <query>
- * will get from <dbTable> with json <query>, <dbRowList>
- */
-    local.dbTableCreateOne({
-        name: process.argv[3]
-    }, function (err, that) {
-        // validate no err occurred
-        local.assertOrThrow(!err, err);
-        console.log(JSON.stringify(that.crudGetManyByQuery(
-            JSON.parse(process.argv[4] || "{}")
-        ), null, 4));
-    });
-};
-
-local.cliDict.dbTableCrudRemoveManyByQuery = function () {
-/*
- * <dbTable> <query>
- * will remove from <dbTable> with json <query>, <dbRowList>
- */
-    local.dbTableCreateOne({
-        name: process.argv[3]
-    }, function (err, that) {
-        // validate no err occurred
-        local.assertOrThrow(!err, err);
-        console.log(JSON.stringify(that.crudRemoveManyByQuery(
-            JSON.parse(process.argv[4])
-        ), null, 4));
-    });
-};
-
-local.cliDict.dbTableCrudSetManyById = function () {
-/*
- * <dbTable> <dbRowList>
- * will set in <dbTable>, <dbRowList>
- */
-    local.dbTableCreateOne({
-        name: process.argv[3]
-    }, function (err, that) {
-        // validate no err occurred
-        local.assertOrThrow(!err, err);
-        that.crudSetManyById(JSON.parse(process.argv[4]));
-    });
-};
-
-local.cliDict.dbTableHeaderDictGet = function () {
-/*
- * <dbTable>
- * will get from <dbTable>, <headerDict>
- */
-    local.dbTableCreateOne({
-        name: process.argv[3]
-    }, function (err, that) {
-        // validate no err occurred
-        local.assertOrThrow(!err, err);
-        var tmp;
-        tmp = [];
-        that.idIndexList.forEach(function (idIndex) {
-            tmp.push({
-                isInteger: idIndex.isInteger,
-                name: idIndex.name
-            });
-        });
-        console.log(JSON.stringify({
-            idIndexList: tmp,
-            sizeLimit: that.sizeLimit,
-            sortDefault: that.sortDefault
-        }, null, 4));
-    });
-};
-
-local.cliDict.dbTableHeaderDictSet = function () {
-/*
- * <dbTable> <headerDict>
- * will set in <dbTable>, <headerDict>
- */
-    local.dbTableCreateOne({
-        name: process.argv[3]
-    }, function (err, that) {
-        // validate no err occurred
-        local.assertOrThrow(!err, err);
-        local.tmp = JSON.parse(process.argv[4]);
-        that.sizeLimit = local.tmp.sizeLimit || that.sizeLimit;
-        that.sortDefault = local.tmp.sortDefault || that.sortDefault;
-        that.save();
-        local.tmp = [];
-        that.idIndexList.forEach(function (idIndex) {
-            local.tmp.push({
-                isInteger: idIndex.isInteger,
-                name: idIndex.name
-            });
-        });
-        local.cliDict.dbTableHeaderDictGet();
-    });
-};
-
-local.cliDict.dbTableIdIndexCreate = function () {
-/*
- * <dbTable> <idIndex>
- * will create in <dbTable>, <idIndex>
- */
-    local.dbTableCreateOne({
-        name: process.argv[3]
-    }, function (err, that) {
-        // validate no err occurred
-        local.assertOrThrow(!err, err);
-        that.idIndexCreate(JSON.parse(process.argv[4]));
-        that.save();
-        local.tmp = [];
-        that.idIndexList.forEach(function (idIndex) {
-            local.tmp.push({
-                isInteger: idIndex.isInteger,
-                name: idIndex.name
-            });
-        });
-        local.cliDict.dbTableHeaderDictGet();
-    });
-};
-
-local.cliDict.dbTableIdIndexRemove = function () {
-/*
- * <dbTable> <idIndex>
- * will remove from <dbTable>, <idIndex>
- */
-    local.dbTableCreateOne({
-        name: process.argv[3]
-    }, function (err, that) {
-        // validate no err occurred
-        local.assertOrThrow(!err, err);
-        that.idIndexRemove(JSON.parse(process.argv[4]));
-        that.save();
-        local.cliDict.dbTableHeaderDictGet();
-    });
-};
-
-local.cliDict.dbTableList = function () {
-/*
- *
- * will get from db, <dbTableList>
- */
-    local.storageKeys(function (err, data) {
-        // validate no err occurred
-        local.assertOrThrow(!err, err);
-        console.log(JSON.stringify(data.map(function (element) {
-            return element.split(".").slice(1, -1).join(".");
-        }), null, 4));
-    });
-};
-
-local.cliDict.dbTableRemove = function () {
-/*
- * <dbTable>
- * will remove from db, <dbTable>
- */
-    local.storageRemoveItem("dbTable." + process.argv[3] + ".json", function (
-        err
-    ) {
-        // validate no err occurred
-        local.assertOrThrow(!err, err);
-        local.cliDict.dbTableList();
-    });
-};
-
-// run the cli
-if (module === require.main && !globalThis.utility2_rollup) {
-    local.cliRun();
-}
-}());
-}());
-/* script-end /assets.utility2.lib.db.js */
-
-
-
 /* script-begin /assets.utility2.lib.github_crud.js */
 // usr/bin/env node
 /*
@@ -4181,31 +1990,184 @@ if (module === require.main && !globalThis.utility2_rollup) {
 
 
 /* istanbul instrument in package github_crud */
+// assets.utility2.header.js - start
 /* istanbul ignore next */
 /* jslint utility2:true */
 (function (globalThis) {
     "use strict";
-    var consoleError;
-    var local;
+    let ArrayPrototypeFlat;
+    let TextXxcoder;
+    let consoleError;
+    let debugName;
+    let local;
+    debugName = "debug" + String("Inline");
     // init globalThis
     globalThis.globalThis = globalThis.globalThis || globalThis;
     // init debug_inline
-    if (!globalThis["debug\u0049nline"]) {
+    if (!globalThis[debugName]) {
         consoleError = console.error;
-        globalThis["debug\u0049nline"] = function (...argList) {
+        globalThis[debugName] = function (...argList) {
         /*
          * this function will both print <argList> to stderr
          * and return <argList>[0]
          */
-            // debug argList
-            globalThis["debug\u0049nlineArgList"] = argList;
-            consoleError("\n\ndebug\u0049nline");
+            consoleError("\n\n" + debugName);
             consoleError.apply(console, argList);
             consoleError("\n");
             // return arg0 for inspection
             return argList[0];
         };
     }
+    // polyfill
+    ArrayPrototypeFlat = function (depth) {
+    /*
+     * this function will polyfill Array.prototype.flat
+     * https://github.com/jonathantneal/array-flat-polyfill
+     */
+        depth = (
+            globalThis.isNaN(depth)
+            ? 1
+            : Number(depth)
+        );
+        if (!depth) {
+            return Array.prototype.slice.call(this);
+        }
+        return Array.prototype.reduce.call(this, function (acc, cur) {
+            if (Array.isArray(cur)) {
+                // recurse
+                acc.push.apply(acc, ArrayPrototypeFlat.call(cur, depth - 1));
+            } else {
+                acc.push(cur);
+            }
+            return acc;
+        }, []);
+    };
+    Array.prototype.flat = Array.prototype.flat || ArrayPrototypeFlat;
+    Array.prototype.flatMap = Array.prototype.flatMap || function flatMap(
+        ...argList
+    ) {
+    /*
+     * this function will polyfill Array.prototype.flatMap
+     * https://github.com/jonathantneal/array-flat-polyfill
+     */
+        return this.map(...argList).flat();
+    };
+    String.prototype.trimEnd = (
+        String.prototype.trimEnd || String.prototype.trimRight
+    );
+    String.prototype.trimStart = (
+        String.prototype.trimStart || String.prototype.trimLeft
+    );
+    (function () {
+        try {
+            globalThis.TextDecoder = (
+                globalThis.TextDecoder || require("util").TextDecoder
+            );
+            globalThis.TextEncoder = (
+                globalThis.TextEncoder || require("util").TextEncoder
+            );
+        } catch (ignore) {}
+    }());
+    TextXxcoder = function () {
+    /*
+     * this function will polyfill TextDecoder/TextEncoder
+     * https://gist.github.com/Yaffle/5458286
+     */
+        return;
+    };
+    TextXxcoder.prototype.decode = function (octets) {
+    /*
+     * this function will polyfill TextDecoder.prototype.decode
+     * https://gist.github.com/Yaffle/5458286
+     */
+        let bytesNeeded;
+        let codePoint;
+        let ii;
+        let kk;
+        let octet;
+        let string;
+        string = "";
+        ii = 0;
+        while (ii < octets.length) {
+            octet = octets[ii];
+            bytesNeeded = 0;
+            codePoint = 0;
+            if (octet <= 0x7F) {
+                bytesNeeded = 0;
+                codePoint = octet & 0xFF;
+            } else if (octet <= 0xDF) {
+                bytesNeeded = 1;
+                codePoint = octet & 0x1F;
+            } else if (octet <= 0xEF) {
+                bytesNeeded = 2;
+                codePoint = octet & 0x0F;
+            } else if (octet <= 0xF4) {
+                bytesNeeded = 3;
+                codePoint = octet & 0x07;
+            }
+            if (octets.length - ii - bytesNeeded > 0) {
+                kk = 0;
+                while (kk < bytesNeeded) {
+                    octet = octets[ii + kk + 1];
+                    codePoint = (codePoint << 6) | (octet & 0x3F);
+                    kk += 1;
+                }
+            } else {
+                codePoint = 0xFFFD;
+                bytesNeeded = octets.length - ii;
+            }
+            string += String.fromCodePoint(codePoint);
+            ii += bytesNeeded + 1;
+        }
+        return string;
+    };
+    TextXxcoder.prototype.encode = function (string) {
+    /*
+     * this function will polyfill TextEncoder.prototype.encode
+     * https://gist.github.com/Yaffle/5458286
+     */
+        let bits;
+        let cc;
+        let codePoint;
+        let ii;
+        let length;
+        let octets;
+        octets = [];
+        length = string.length;
+        ii = 0;
+        while (ii < length) {
+            codePoint = string.codePointAt(ii);
+            cc = 0;
+            bits = 0;
+            if (codePoint <= 0x0000007F) {
+                cc = 0;
+                bits = 0x00;
+            } else if (codePoint <= 0x000007FF) {
+                cc = 6;
+                bits = 0xC0;
+            } else if (codePoint <= 0x0000FFFF) {
+                cc = 12;
+                bits = 0xE0;
+            } else if (codePoint <= 0x001FFFFF) {
+                cc = 18;
+                bits = 0xF0;
+            }
+            octets.push(bits | (codePoint >> cc));
+            cc -= 6;
+            while (cc >= 0) {
+                octets.push(0x80 | ((codePoint >> cc) & 0x3F));
+                cc -= 6;
+            }
+            ii += (
+                codePoint >= 0x10000
+                ? 2
+                : 1
+            );
+        }
+        return octets;
+    };
+    globalThis.TextDecoder = globalThis.TextDecoder || TextXxcoder;
+    globalThis.TextEncoder = globalThis.TextEncoder || TextXxcoder;
     // init local
     local = {};
     local.local = local;
@@ -4216,12 +2178,16 @@ if (module === require.main && !globalThis.utility2_rollup) {
         && globalThis.navigator
         && typeof globalThis.navigator.userAgent === "string"
     );
+    // init isWebWorker
+    local.isWebWorker = (
+        local.isBrowser && typeof globalThis.importScript === "function"
+    );
     // init function
     local.assertOrThrow = function (passed, message) {
     /*
      * this function will throw err.<message> if <passed> is falsy
      */
-        var err;
+        let err;
         if (passed) {
             return;
         }
@@ -4238,16 +2204,32 @@ if (module === require.main && !globalThis.utility2_rollup) {
                 // if message is a string, then leave as is
                 ? message
                 // else JSON.stringify message
-                : JSON.stringify(message, null, 4)
+                : JSON.stringify(message, undefined, 4)
             )
         );
         throw err;
+    };
+    local.coalesce = function (...argList) {
+    /*
+     * this function will coalesce null, undefined, or "" in <argList>
+     */
+        let arg;
+        let ii;
+        ii = 0;
+        while (ii < argList.length) {
+            arg = argList[ii];
+            if (arg !== null && arg !== undefined && arg !== "") {
+                break;
+            }
+            ii += 1;
+        }
+        return arg;
     };
     local.fsRmrfSync = function (dir) {
     /*
      * this function will sync "rm -rf" <dir>
      */
-        var child_process;
+        let child_process;
         try {
             child_process = require("child_process");
         } catch (ignore) {
@@ -4265,7 +2247,7 @@ if (module === require.main && !globalThis.utility2_rollup) {
     /*
      * this function will sync write <data> to <file> with "mkdir -p"
      */
-        var fs;
+        let fs;
         try {
             fs = require("fs");
         } catch (ignore) {
@@ -4294,16 +2276,16 @@ if (module === require.main && !globalThis.utility2_rollup) {
     local.functionOrNop = function (fnc) {
     /*
      * this function will if <fnc> exists,
-     * them return <fnc>,
+     * return <fnc>,
      * else return <nop>
      */
         return fnc || local.nop;
     };
-    local.identity = function (value) {
+    local.identity = function (val) {
     /*
-     * this function will return <value>
+     * this function will return <val>
      */
-        return value;
+        return val;
     };
     local.nop = function () {
     /*
@@ -4313,8 +2295,7 @@ if (module === require.main && !globalThis.utility2_rollup) {
     };
     local.objectAssignDefault = function (target, source) {
     /*
-     * this function will if items from <target> are
-     * null, undefined, or empty-string,
+     * this function will if items from <target> are null, undefined, or "",
      * then overwrite them with items from <source>
      */
         target = target || {};
@@ -4328,6 +2309,26 @@ if (module === require.main && !globalThis.utility2_rollup) {
             }
         });
         return target;
+    };
+    local.querySelector = function (selectors) {
+    /*
+     * this function will return first dom-elem that match <selectors>
+     */
+        return (
+            typeof document === "object" && document
+            && typeof document.querySelector === "function"
+            && document.querySelector(selectors)
+        ) || {};
+    };
+    local.querySelectorAll = function (selectors) {
+    /*
+     * this function will return dom-elem-list that match <selectors>
+     */
+        return (
+            typeof document === "object" && document
+            && typeof document.querySelectorAll === "function"
+            && Array.from(document.querySelectorAll(selectors))
+        ) || [];
     };
     // require builtin
     if (!local.isBrowser) {
@@ -4362,6 +2363,7 @@ if (module === require.main && !globalThis.utility2_rollup) {
 }((typeof globalThis === "object" && globalThis) || (function () {
     return Function("return this")(); // jslint ignore:line
 }())));
+// assets.utility2.header.js - end
 
 
 
@@ -4409,18 +2411,18 @@ local.ajax = function (opt, onError) {
         console.log(xhr.responseText);
     });
  */
-    var ajaxProgressUpdate;
-    var bufferValidateAndCoerce;
-    var isDone;
-    var local2;
-    var onError2;
-    var onEvent;
-    var stack;
-    var streamCleanup;
-    var timeout;
-    var tmp;
-    var xhr;
-    var xhrInit;
+    let ajaxProgressUpdate;
+    let bufferValidateAndCoerce;
+    let isDone;
+    let local2;
+    let onError2;
+    let onEvent;
+    let stack;
+    let streamCleanup;
+    let timeout;
+    let tmp;
+    let xhr;
+    let xhrInit;
     // init local2
     local2 = opt.local2 || local.utility2 || {};
     // init function
@@ -4428,22 +2430,22 @@ local.ajax = function (opt, onError) {
         return;
     };
     bufferValidateAndCoerce = local2.bufferValidateAndCoerce || function (
-        bff,
+        buf,
         mode
     ) {
     /*
-     * this function will validate and coerce/convert <bff> -> Buffer
-     * (or String if <mode> = "string")
+     * this function will validate and coerce/convert
+     * <buf> to Buffer/Uint8Array, or String if <mode> = "string"
      */
-        // coerce ArrayBuffer -> Buffer
-        if (Object.prototype.toString.call(bff) === "[object ArrayBuffer]") {
-            bff = new Uint8Array(bff);
+        // coerce ArrayBuffer to Buffer
+        if (Object.prototype.toString.call(buf) === "[object ArrayBuffer]") {
+            buf = new Uint8Array(buf);
         }
-        // convert Buffer -> utf8
-        if (mode === "string" && typeof bff !== "string") {
-            bff = String(bff);
+        // convert Buffer to utf8
+        if (mode === "string" && typeof buf !== "string") {
+            buf = String(buf);
         }
-        return bff;
+        return buf;
     };
     onEvent = function (evt) {
     /*
@@ -4507,8 +2509,8 @@ local.ajax = function (opt, onError) {
             if (xhr.getAllResponseHeaders) {
                 xhr.getAllResponseHeaders().replace((
                     /(.*?):\u0020*(.*?)\r\n/g
-                ), function (ignore, match1, match2) {
-                    xhr.resHeaders[match1.toLowerCase()] = match2;
+                ), function (ignore, key, val) {
+                    xhr.resHeaders[key.toLowerCase()] = val;
                 });
             }
             // debug ajaxResponse
@@ -4569,7 +2571,7 @@ local.ajax = function (opt, onError) {
     /*
      * this function will try to end or destroy <stream>
      */
-        var err;
+        let err;
         // try to end stream
         try {
             stream.end();
@@ -4607,7 +2609,7 @@ local.ajax = function (opt, onError) {
         Object.keys(xhr.headers).forEach(function (key) {
             xhr.headers[key.toLowerCase()] = xhr.headers[key];
         });
-        // coerce Uint8Array -> Buffer
+        // coerce Uint8Array to Buffer
         if (
             !local.isBrowser
             && !Buffer.isBuffer(xhr.data)
@@ -4643,20 +2645,20 @@ local.ajax = function (opt, onError) {
         /*
          * this function will read <resStream>
          */
-            var chunkList;
-            chunkList = [];
-            xhr.resHeaders = resStream.resHeaders || resStream.headers;
+            let bufList;
+            bufList = [];
+            xhr.resHeaders = resStream.headers || xhr.resHeaders;
             xhr.resStream = resStream;
             xhr.statusCode = resStream.statusCode;
             resStream.dataLength = 0;
-            resStream.on("data", function (chunk) {
-                chunkList.push(chunk);
+            resStream.on("data", function (buf) {
+                bufList.push(buf);
             });
             resStream.on("end", function () {
                 xhr.response = (
                     local.isBrowser
-                    ? chunkList[0]
-                    : Buffer.concat(chunkList)
+                    ? bufList[0]
+                    : Buffer.concat(bufList)
                 );
                 resStream.dataLength = (
                     xhr.response.byteLength || xhr.response.length
@@ -4699,7 +2701,7 @@ local.ajax = function (opt, onError) {
     // increment counter
     ajaxProgressUpdate.counter |= 0;
     ajaxProgressUpdate.counter += 1;
-    // init event-handling
+    // handle evt
     xhr.addEventListener("abort", xhr.onEvent);
     xhr.addEventListener("error", xhr.onEvent);
     xhr.addEventListener("load", xhr.onEvent);
@@ -4760,18 +2762,16 @@ local.cliRun = function (opt) {
         globalThis.local = local;
         local.vm.runInThisContext(process.argv[3]);
     };
-    local.cliDict["--eval"] = local.cliDict["--eval"] || local.cliDict._eval;
-    local.cliDict["-e"] = local.cliDict["-e"] || local.cliDict._eval;
     local.cliDict._help = local.cliDict._help || function () {
     /*
      *
      * will print help
      */
-        var commandList;
-        var file;
-        var packageJson;
-        var text;
-        var textDict;
+        let commandList;
+        let file;
+        let packageJson;
+        let text;
+        let textDict;
         commandList = [
             {
                 argList: "<arg2>  ...",
@@ -4814,14 +2814,14 @@ local.cliRun = function (opt) {
             try {
                 commandList[ii] = opt.rgxComment.exec(text);
                 commandList[ii] = {
-                    argList: (commandList[ii][1] || "").trim(),
+                    argList: local.coalesce(commandList[ii][1], "").trim(),
                     command: [
                         key
                     ],
                     description: commandList[ii][2]
                 };
             } catch (ignore) {
-                local.assertOrThrow(null, new Error(
+                local.assertOrThrow(undefined, new Error(
                     "cliRun - cannot parse comment in COMMAND "
                     + key
                     + ":\nnew RegExp("
@@ -4861,15 +2861,15 @@ local.cliRun = function (opt) {
             }
             return (
                 elem.description + "\n  " + file
-                + ("  " + elem.command.sort().join("|") + "  ").replace((
-                    /^\u0020{4}$/
-                ), "  ")
+                + "  " + elem.command.sort().join("|") + "  "
                 + elem.argList.join("  ")
             );
         }).join("\n\n");
         console.log(text);
     };
+    local.cliDict["--eval"] = local.cliDict["--eval"] || local.cliDict._eval;
     local.cliDict["--help"] = local.cliDict["--help"] || local.cliDict._help;
+    local.cliDict["-e"] = local.cliDict["-e"] || local.cliDict._eval;
     local.cliDict["-h"] = local.cliDict["-h"] || local.cliDict._help;
     local.cliDict._default = local.cliDict._default || local.cliDict._help;
     local.cliDict.help = local.cliDict.help || local.cliDict._help;
@@ -4937,13 +2937,13 @@ local.gotoNext = function (opt, onError) {
         } catch (errCaught) {
             // throw errCaught to break infinite recursion-loop
             if (opt.errCaught) {
-                local.assertOrThrow(null, opt.errCaught);
+                local.assertOrThrow(undefined, opt.errCaught);
             }
             opt.errCaught = errCaught;
             opt.gotoNext(errCaught, data, meta);
         }
     });
-    opt.gotoNextData = opt.gotoNext.bind(null, null);
+    opt.gotoNextData = opt.gotoNext.bind(undefined, undefined);
     return opt;
 };
 
@@ -4959,11 +2959,10 @@ local.onErrorDefault = function (err) {
 
 local.onErrorWithStack = function (onError) {
 /*
- * this function will create wrapper around <onError>
- * that will append current-stack to err.stack
+ * this function will wrap <onError> with wrapper preserving current-stack
  */
-    var onError2;
-    var stack;
+    let onError2;
+    let stack;
     stack = new Error().stack.replace((
         /(.*?)\n.*?$/m
     ), "$1");
@@ -4992,7 +2991,7 @@ local.onParallel = function (onError, onEach, onRetry) {
  * 1. run async tasks in parallel
  * 2. if counter === 0 or err occurred, then call onError(err)
  */
-    var onParallel;
+    let onParallel;
     onError = local.onErrorWithStack(onError);
     onEach = onEach || local.nop;
     onRetry = onRetry || local.nop;
@@ -5037,9 +3036,9 @@ local.onParallelList = function (opt, onEach, onError) {
  *    with given <opt>.rateLimit and <opt>.retryLimit
  * 2. call <onError> when onParallel.ii + 1 === <opt>.list.length
  */
-    var isListEnd;
-    var onEach2;
-    var onParallel;
+    let isListEnd;
+    let onEach2;
+    let onParallel;
     opt.list = opt.list || [];
     onEach2 = function () {
         while (true) {
@@ -5071,7 +3070,7 @@ local.onParallelList = function (opt, onEach, onError) {
         }
         // restart if opt.list has grown
         if (isListEnd && (onParallel.ii + 1 < opt.list.length)) {
-            isListEnd = null;
+            isListEnd = undefined;
             onEach2();
         }
     });
@@ -5624,7 +3623,7 @@ if (module === require.main && !globalThis.utility2_rollup) {
 /* script-begin /assets.utility2.lib.istanbul.js */
 // usr/bin/env node
 /*
- * lib.istanbul.js (2019.8.24)
+ * lib.istanbul.js (2019.9.16)
  * https://github.com/kaizhu256/node-istanbul-lite
  * this zero-dependency package will provide a browser-compatible version of the istanbul (v0.4.5) coverage-tool, with a working web-demo
  *
@@ -5633,31 +3632,184 @@ if (module === require.main && !globalThis.utility2_rollup) {
 
 
 /* istanbul instrument in package istanbul */
+// assets.utility2.header.js - start
 /* istanbul ignore next */
 /* jslint utility2:true */
 (function (globalThis) {
     "use strict";
-    var consoleError;
-    var local;
+    let ArrayPrototypeFlat;
+    let TextXxcoder;
+    let consoleError;
+    let debugName;
+    let local;
+    debugName = "debug" + String("Inline");
     // init globalThis
     globalThis.globalThis = globalThis.globalThis || globalThis;
     // init debug_inline
-    if (!globalThis["debug\u0049nline"]) {
+    if (!globalThis[debugName]) {
         consoleError = console.error;
-        globalThis["debug\u0049nline"] = function (...argList) {
+        globalThis[debugName] = function (...argList) {
         /*
          * this function will both print <argList> to stderr
          * and return <argList>[0]
          */
-            // debug argList
-            globalThis["debug\u0049nlineArgList"] = argList;
-            consoleError("\n\ndebug\u0049nline");
+            consoleError("\n\n" + debugName);
             consoleError.apply(console, argList);
             consoleError("\n");
             // return arg0 for inspection
             return argList[0];
         };
     }
+    // polyfill
+    ArrayPrototypeFlat = function (depth) {
+    /*
+     * this function will polyfill Array.prototype.flat
+     * https://github.com/jonathantneal/array-flat-polyfill
+     */
+        depth = (
+            globalThis.isNaN(depth)
+            ? 1
+            : Number(depth)
+        );
+        if (!depth) {
+            return Array.prototype.slice.call(this);
+        }
+        return Array.prototype.reduce.call(this, function (acc, cur) {
+            if (Array.isArray(cur)) {
+                // recurse
+                acc.push.apply(acc, ArrayPrototypeFlat.call(cur, depth - 1));
+            } else {
+                acc.push(cur);
+            }
+            return acc;
+        }, []);
+    };
+    Array.prototype.flat = Array.prototype.flat || ArrayPrototypeFlat;
+    Array.prototype.flatMap = Array.prototype.flatMap || function flatMap(
+        ...argList
+    ) {
+    /*
+     * this function will polyfill Array.prototype.flatMap
+     * https://github.com/jonathantneal/array-flat-polyfill
+     */
+        return this.map(...argList).flat();
+    };
+    String.prototype.trimEnd = (
+        String.prototype.trimEnd || String.prototype.trimRight
+    );
+    String.prototype.trimStart = (
+        String.prototype.trimStart || String.prototype.trimLeft
+    );
+    (function () {
+        try {
+            globalThis.TextDecoder = (
+                globalThis.TextDecoder || require("util").TextDecoder
+            );
+            globalThis.TextEncoder = (
+                globalThis.TextEncoder || require("util").TextEncoder
+            );
+        } catch (ignore) {}
+    }());
+    TextXxcoder = function () {
+    /*
+     * this function will polyfill TextDecoder/TextEncoder
+     * https://gist.github.com/Yaffle/5458286
+     */
+        return;
+    };
+    TextXxcoder.prototype.decode = function (octets) {
+    /*
+     * this function will polyfill TextDecoder.prototype.decode
+     * https://gist.github.com/Yaffle/5458286
+     */
+        let bytesNeeded;
+        let codePoint;
+        let ii;
+        let kk;
+        let octet;
+        let string;
+        string = "";
+        ii = 0;
+        while (ii < octets.length) {
+            octet = octets[ii];
+            bytesNeeded = 0;
+            codePoint = 0;
+            if (octet <= 0x7F) {
+                bytesNeeded = 0;
+                codePoint = octet & 0xFF;
+            } else if (octet <= 0xDF) {
+                bytesNeeded = 1;
+                codePoint = octet & 0x1F;
+            } else if (octet <= 0xEF) {
+                bytesNeeded = 2;
+                codePoint = octet & 0x0F;
+            } else if (octet <= 0xF4) {
+                bytesNeeded = 3;
+                codePoint = octet & 0x07;
+            }
+            if (octets.length - ii - bytesNeeded > 0) {
+                kk = 0;
+                while (kk < bytesNeeded) {
+                    octet = octets[ii + kk + 1];
+                    codePoint = (codePoint << 6) | (octet & 0x3F);
+                    kk += 1;
+                }
+            } else {
+                codePoint = 0xFFFD;
+                bytesNeeded = octets.length - ii;
+            }
+            string += String.fromCodePoint(codePoint);
+            ii += bytesNeeded + 1;
+        }
+        return string;
+    };
+    TextXxcoder.prototype.encode = function (string) {
+    /*
+     * this function will polyfill TextEncoder.prototype.encode
+     * https://gist.github.com/Yaffle/5458286
+     */
+        let bits;
+        let cc;
+        let codePoint;
+        let ii;
+        let length;
+        let octets;
+        octets = [];
+        length = string.length;
+        ii = 0;
+        while (ii < length) {
+            codePoint = string.codePointAt(ii);
+            cc = 0;
+            bits = 0;
+            if (codePoint <= 0x0000007F) {
+                cc = 0;
+                bits = 0x00;
+            } else if (codePoint <= 0x000007FF) {
+                cc = 6;
+                bits = 0xC0;
+            } else if (codePoint <= 0x0000FFFF) {
+                cc = 12;
+                bits = 0xE0;
+            } else if (codePoint <= 0x001FFFFF) {
+                cc = 18;
+                bits = 0xF0;
+            }
+            octets.push(bits | (codePoint >> cc));
+            cc -= 6;
+            while (cc >= 0) {
+                octets.push(0x80 | ((codePoint >> cc) & 0x3F));
+                cc -= 6;
+            }
+            ii += (
+                codePoint >= 0x10000
+                ? 2
+                : 1
+            );
+        }
+        return octets;
+    };
+    globalThis.TextDecoder = globalThis.TextDecoder || TextXxcoder;
+    globalThis.TextEncoder = globalThis.TextEncoder || TextXxcoder;
     // init local
     local = {};
     local.local = local;
@@ -5668,12 +3820,16 @@ if (module === require.main && !globalThis.utility2_rollup) {
         && globalThis.navigator
         && typeof globalThis.navigator.userAgent === "string"
     );
+    // init isWebWorker
+    local.isWebWorker = (
+        local.isBrowser && typeof globalThis.importScript === "function"
+    );
     // init function
     local.assertOrThrow = function (passed, message) {
     /*
      * this function will throw err.<message> if <passed> is falsy
      */
-        var err;
+        let err;
         if (passed) {
             return;
         }
@@ -5690,16 +3846,32 @@ if (module === require.main && !globalThis.utility2_rollup) {
                 // if message is a string, then leave as is
                 ? message
                 // else JSON.stringify message
-                : JSON.stringify(message, null, 4)
+                : JSON.stringify(message, undefined, 4)
             )
         );
         throw err;
+    };
+    local.coalesce = function (...argList) {
+    /*
+     * this function will coalesce null, undefined, or "" in <argList>
+     */
+        let arg;
+        let ii;
+        ii = 0;
+        while (ii < argList.length) {
+            arg = argList[ii];
+            if (arg !== null && arg !== undefined && arg !== "") {
+                break;
+            }
+            ii += 1;
+        }
+        return arg;
     };
     local.fsRmrfSync = function (dir) {
     /*
      * this function will sync "rm -rf" <dir>
      */
-        var child_process;
+        let child_process;
         try {
             child_process = require("child_process");
         } catch (ignore) {
@@ -5717,7 +3889,7 @@ if (module === require.main && !globalThis.utility2_rollup) {
     /*
      * this function will sync write <data> to <file> with "mkdir -p"
      */
-        var fs;
+        let fs;
         try {
             fs = require("fs");
         } catch (ignore) {
@@ -5746,16 +3918,16 @@ if (module === require.main && !globalThis.utility2_rollup) {
     local.functionOrNop = function (fnc) {
     /*
      * this function will if <fnc> exists,
-     * them return <fnc>,
+     * return <fnc>,
      * else return <nop>
      */
         return fnc || local.nop;
     };
-    local.identity = function (value) {
+    local.identity = function (val) {
     /*
-     * this function will return <value>
+     * this function will return <val>
      */
-        return value;
+        return val;
     };
     local.nop = function () {
     /*
@@ -5765,8 +3937,7 @@ if (module === require.main && !globalThis.utility2_rollup) {
     };
     local.objectAssignDefault = function (target, source) {
     /*
-     * this function will if items from <target> are
-     * null, undefined, or empty-string,
+     * this function will if items from <target> are null, undefined, or "",
      * then overwrite them with items from <source>
      */
         target = target || {};
@@ -5780,6 +3951,26 @@ if (module === require.main && !globalThis.utility2_rollup) {
             }
         });
         return target;
+    };
+    local.querySelector = function (selectors) {
+    /*
+     * this function will return first dom-elem that match <selectors>
+     */
+        return (
+            typeof document === "object" && document
+            && typeof document.querySelector === "function"
+            && document.querySelector(selectors)
+        ) || {};
+    };
+    local.querySelectorAll = function (selectors) {
+    /*
+     * this function will return dom-elem-list that match <selectors>
+     */
+        return (
+            typeof document === "object" && document
+            && typeof document.querySelectorAll === "function"
+            && Array.from(document.querySelectorAll(selectors))
+        ) || [];
     };
     // require builtin
     if (!local.isBrowser) {
@@ -5814,6 +4005,7 @@ if (module === require.main && !globalThis.utility2_rollup) {
 }((typeof globalThis === "object" && globalThis) || (function () {
     return Function("return this")(); // jslint ignore:line
 }())));
+// assets.utility2.header.js - end
 
 
 
@@ -5864,18 +4056,16 @@ local.cliRun = function (opt) {
         globalThis.local = local;
         local.vm.runInThisContext(process.argv[3]);
     };
-    local.cliDict["--eval"] = local.cliDict["--eval"] || local.cliDict._eval;
-    local.cliDict["-e"] = local.cliDict["-e"] || local.cliDict._eval;
     local.cliDict._help = local.cliDict._help || function () {
     /*
      *
      * will print help
      */
-        var commandList;
-        var file;
-        var packageJson;
-        var text;
-        var textDict;
+        let commandList;
+        let file;
+        let packageJson;
+        let text;
+        let textDict;
         commandList = [
             {
                 argList: "<arg2>  ...",
@@ -5918,14 +4108,14 @@ local.cliRun = function (opt) {
             try {
                 commandList[ii] = opt.rgxComment.exec(text);
                 commandList[ii] = {
-                    argList: (commandList[ii][1] || "").trim(),
+                    argList: local.coalesce(commandList[ii][1], "").trim(),
                     command: [
                         key
                     ],
                     description: commandList[ii][2]
                 };
             } catch (ignore) {
-                local.assertOrThrow(null, new Error(
+                local.assertOrThrow(undefined, new Error(
                     "cliRun - cannot parse comment in COMMAND "
                     + key
                     + ":\nnew RegExp("
@@ -5965,15 +4155,15 @@ local.cliRun = function (opt) {
             }
             return (
                 elem.description + "\n  " + file
-                + ("  " + elem.command.sort().join("|") + "  ").replace((
-                    /^\u0020{4}$/
-                ), "  ")
+                + "  " + elem.command.sort().join("|") + "  "
                 + elem.argList.join("  ")
             );
         }).join("\n\n");
         console.log(text);
     };
+    local.cliDict["--eval"] = local.cliDict["--eval"] || local.cliDict._eval;
     local.cliDict["--help"] = local.cliDict["--help"] || local.cliDict._help;
+    local.cliDict["-e"] = local.cliDict["-e"] || local.cliDict._eval;
     local.cliDict["-h"] = local.cliDict["-h"] || local.cliDict._help;
     local.cliDict._default = local.cliDict._default || local.cliDict._help;
     local.cliDict.help = local.cliDict.help || local.cliDict._help;
@@ -6021,13 +4211,15 @@ local.cliRun = function (opt) {
 
 // run shared js-env code - function
 (function () {
-var __dirname;
-var process;
-var require;
+let __dirname;
+let process;
+let require;
 // hack-jslint
 local.nop(__dirname, require);
-/* istanbul ignore next */
-globalThis.__coverageCodeDict__ = globalThis.__coverageCodeDict__ || {};
+globalThis.__coverageCodeDict__ = local.coalesce(
+    globalThis.__coverageCodeDict__,
+    {}
+);
 // mock builtins
 __dirname = "";
 process = local.process || {
@@ -6088,14 +4280,12 @@ local._istanbul_path = local.path || {
     }
 };
 
-local.coverageMerge = function (coverage1, coverage2) {
+local.coverageMerge = function (coverage1 = {}, coverage2 = {}) {
 /*
  * this function will inplace-merge coverage2 into coverage1
  */
-    var dict1;
-    var dict2;
-    coverage1 = coverage1 || {};
-    coverage2 = coverage2 || {};
+    let dict1;
+    let dict2;
     Object.keys(coverage2).forEach(function (file) {
         if (!coverage2[file]) {
             return;
@@ -6133,16 +4323,14 @@ local.coverageMerge = function (coverage1, coverage2) {
     return coverage1;
 };
 
-local.coverageReportCreate = function () {
+local.coverageReportCreate = function (opt) {
 /*
  * this function will
  * 1. print coverage in text-format to stdout
  * 2. write coverage in html-format to filesystem
  * 3. return coverage in html-format as single document
  */
-    var opt;
-    /* istanbul ignore next */
-    if (!globalThis.__coverage__) {
+    if (!(opt && opt.coverage)) {
         return "";
     }
     opt = {};
@@ -6151,16 +4339,15 @@ local.coverageReportCreate = function () {
     if (!local.isBrowser && process.env.npm_config_mode_coverage_merge) {
         console.log("merging file " + opt.dir + "/coverage.json to coverage");
         try {
-            local.coverageMerge(globalThis.__coverage__, JSON.parse(
+            local.coverageMerge(opt.coverage, JSON.parse(
                 local.fs.readFileSync(opt.dir + "/coverage.json", "utf8")
             ));
         } catch (ignore) {}
         try {
-            opt.coverageCodeDict = JSON.parse(local.fs.readFileSync(
+            Object.keys(JSON.parse(local.fs.readFileSync(
                 opt.dir + "/coverage.code-dict.json",
                 "utf8"
-            ));
-            Object.keys(opt.coverageCodeDict).forEach(function (key) {
+            ))).forEach(function (key) {
                 globalThis.__coverageCodeDict__[key] = (
                     globalThis.__coverageCodeDict__[key]
                     || true
@@ -6189,7 +4376,7 @@ local.coverageReportCreate = function () {
         // write coverage.json
         local.fsWriteFileWithMkdirpSync(
             opt.dir + "/coverage.json",
-            JSON.stringify(globalThis.__coverage__)
+            JSON.stringify(opt.coverage)
         );
         // write coverage.code-dict.json
         local.fsWriteFileWithMkdirpSync(
@@ -6226,7 +4413,6 @@ local.coverageReportCreate = function () {
     return local.coverageReportHtml;
 };
 
-/* istanbul ignore next */
 local.instrumentInPackage = function (code, file) {
 /*
  * this function will instrument the code
@@ -6270,7 +4456,7 @@ local.instrumentSync = function (code, file) {
         embedSource: true,
         esModules: true,
         noAutoWrap: true
-    }).instrumentSync(code, file).trimLeft();
+    }).instrumentSync(code, file).trimStart();
 };
 
 local.util = {
@@ -6284,7 +4470,7 @@ file https://registry.npmjs.org/acorn/-/acorn-6.3.0.tgz
 */
 /* istanbul ignore next */
 /* jslint ignore:start */
-(function () { var exports, module; exports = module = local.esprima = {};
+(function () { let exports, module; exports = module = local.esprima = {};
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -11260,7 +9446,7 @@ file https://registry.npmjs.org/acorn/-/acorn-6.3.0.tgz
 file https://github.com/estools/estraverse/blob/4.2.0/estraverse.js
 */
 /* istanbul ignore next */
-(function () { var exports; exports = local.estraverse = {};
+(function () { let exports; exports = local.estraverse = {};
 /*
   Copyright (C) 2012-2013 Yusuke Suzuki <utatane.tea@gmail.com>
   Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
@@ -12118,7 +10304,7 @@ file https://github.com/estools/estraverse/blob/4.2.0/estraverse.js
 file https://github.com/estools/esutils/blob/2.0.3/lib/code.js
 */
 /* istanbul ignore next */
-(function () { var module; module = {};
+(function () { let module; module = {};
 /*
   Copyright (C) 2013-2014 Yusuke Suzuki <utatane.tea@gmail.com>
   Copyright (C) 2014 Ivan Nikulin <ifaaan@gmail.com>
@@ -12262,7 +10448,7 @@ local.esutils = { code: module.exports }; }());
 file https://github.com/estools/escodegen/blob/v1.12.0/escodegen.js
 */
 /* istanbul ignore next */
-(function () { var exports; exports = local.escodegen = {};
+(function () { let exports; exports = local.escodegen = {};
 /*
   Copyright (C) 2012-2014 Yusuke Suzuki <utatane.tea@gmail.com>
   Copyright (C) 2015 Ingvar Stepanyan <me@rreverser.com>
@@ -14886,7 +13072,7 @@ local.handlebars.compile = function (template) {
  * that will render <template> with given <dict>
  */
     return function (dict) {
-        var result;
+        let result;
         result = template;
         // render triple-curly-brace
         result = result.replace((
@@ -14967,14 +13153,16 @@ local.handlebars.replace = function (template, dict, withPrefix) {
 /*
  * this function will render <template> with given <dict>
  */
-    var value;
+    let value;
     // search for keys in the template
     return template.replace((
         /\{\{.+?\}\}/g
     ), function (match0) {
         value = dict;
         // iteratively lookup nested values in the dict
-        (withPrefix + match0.slice(2, -2)).split(".").forEach(function (key) {
+        String(
+            withPrefix + match0.slice(2, -2)
+        ).split(".").forEach(function (key) {
             value = value && value[key];
         });
         return (
@@ -15014,7 +13202,7 @@ file https://github.com/gotwarlost/istanbul/blob/v0.2.16/lib/util/insertion-text
 */
 /* istanbul ignore next */
 /* jslint ignore:start */
-(function () { var module; module = {};
+(function () { let module; module = {};
 /*
  Copyright (c) 2012, Yahoo! Inc.  All rights reserved.
  Copyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.
@@ -15132,7 +13320,7 @@ local["../util/insertion-text"] = module.exports; }());
 file https://github.com/gotwarlost/istanbul/blob/v0.4.5/lib/instrumenter.js
 */
 /* istanbul ignore next */
-(function () { var escodegen, esprima, module, window; escodegen = local.escodegen; esprima = local.esprima; module = undefined; window = local;
+(function () { let escodegen, esprima, module, window; escodegen = local.escodegen; esprima = local.esprima; module = undefined; window = local;
 /*
  Copyright (c) 2012, Yahoo! Inc.  All rights reserved.
  Copyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.
@@ -15190,7 +13378,7 @@ file https://github.com/gotwarlost/istanbul/blob/v0.4.5/lib/instrumenter.js
             window.__cov_seq += 1;
             suffix = window.__cov_seq;
         }
-        // hack-istanbul - pseudorandom coverage-identifier
+        // hack-coverage - pseudorandom coverage-identifier
         return '__cov_' + Math.random().toString(16).slice(2);
     }
 
@@ -15592,7 +13780,7 @@ file https://github.com/gotwarlost/istanbul/blob/v0.4.5/lib/instrumenter.js
                 code = LEADER_WRAP + code + TRAILER_WRAP;
             }
             try {
-                // hack-istanbul - acorn opt
+                // hack-coverage - acorn opt
                 var opt = {
                     locations: true,
                     onComment: [],
@@ -15645,7 +13833,7 @@ file https://github.com/gotwarlost/istanbul/blob/v0.4.5/lib/instrumenter.js
                 nodeStart = node.range[0],
                 hint;
             this.currentState.currentHint = null;
-            // hack-istanbul - allow top-level istanbul-ignore-next
+            // hack-coverage - allow top-level istanbul-ignore-next
             if (node.type === "Program") { return; }
             while (i < hints.length) {
                 hint = hints[i];
@@ -16243,7 +14431,7 @@ file https://github.com/gotwarlost/istanbul/blob/v0.4.5/lib/instrumenter.js
 file https://github.com/gotwarlost/istanbul/blob/v0.2.16/lib/object-utils.js
 */
 /* istanbul ignore next */
-(function () { var module, window; module = undefined; window = local;
+(function () { let module, window; module = undefined; window = local;
 /*
  Copyright (c) 2012, Yahoo! Inc.  All rights reserved.
  Copyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.
@@ -16618,7 +14806,7 @@ local["../object-utils"] = window.coverageUtils; }());
 file https://github.com/gotwarlost/istanbul/blob/v0.2.16/lib/report/common/defaults.js
 */
 /* istanbul ignore next */
-(function () { var module; module = {};
+(function () { let module; module = {};
 /*
  Copyright (c) 2013, Yahoo! Inc.  All rights reserved.
  Copyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.
@@ -16643,7 +14831,7 @@ module.exports = {
         /* istanbul ignore if: untestable in batch mode */
         if (process.stdout.isTTY) {
             switch (clazz) {
-                // hack-istanbul - Octal escape sequences are not allowed in strict mode.
+                // hack-coverage - Octal escape sequences are not allowed in strict mode.
                 case 'low' : str = '\0x1b[91m' + str + '\0x1b[0m'; break;
                 case 'medium': str = '\0x1b[93m' + str + '\0x1b[0m'; break;
                 case 'high': str = '\0x1b[92m' + str + '\0x1b[0m'; break;
@@ -16960,7 +15148,7 @@ local["head.txt"] = '\
             evt.preventDefault();\n\
         }\n\
     };\n\
-    // init event-handling\n\
+    // handle evt\n\
     document.addEventListener(\n\
         "keydown",\n\
         window.domOnEventSelectAllWithinPre\n\
@@ -17023,7 +15211,7 @@ file https://github.com/gotwarlost/istanbul/blob/v0.2.16/lib/util/tree-summarize
 */
 /* istanbul ignore next */
 (function () {
-    var module;
+    let module;
     module = {};
 /* jslint ignore:start */
 /*
@@ -17257,7 +15445,7 @@ file https://github.com/gotwarlost/istanbul/blob/v0.2.16/lib/report/html.js
 */
 /* istanbul ignore next */
 /* jslint ignore:start */
-(function () { var module; module = {};
+(function () { let module; module = {};
 /*
  Copyright (c) 2012, Yahoo! Inc.  All rights reserved.
  Copyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.
@@ -17284,7 +15472,7 @@ var handlebars = require('handlebars'),
         '<tr>',
         '<td class="line-count">{{#show_lines}}{{maxLines}}{{/show_lines}}</td>',
         '<td class="line-coverage">{{#show_line_execution_counts fileCoverage}}{{maxLines}}{{/show_line_execution_counts}}</td>',
-        // hack-istanbul - domOnEventSelectAllWithinPre
+        // hack-coverage - domOnEventSelectAllWithinPre
         '<td class="text"><pre class="prettyprint lang-js" tabIndex="0">{{#show_code structured}}{{/show_code}}</pre></td>',
         '</tr>\n'
     ].join('')),
@@ -17293,7 +15481,7 @@ var handlebars = require('handlebars'),
         '<table>',
         '<thead>',
         '<tr>',
-        // hack-istanbul - compact summary
+        // hack-coverage - compact summary
         '   <th data-col="file" data-fmt="html" data-html="true" class="file">File</th>',
         '   <th data-col="statements" data-type="number" data-fmt="pct" class="pct">Statements</th>',
         '   <th data-col="branches" data-type="number" data-fmt="pct" class="pct">Branches</th>',
@@ -17305,7 +15493,7 @@ var handlebars = require('handlebars'),
     ].join('\n'),
     summaryLineTemplate = handlebars.compile([
         '<tr>',
-        // hack-istanbul - compact summary
+        // hack-coverage - compact summary
         '<td class="file {{reportClasses.statements}}" data-value="{{file}}"><a href="{{output}}"><div>{{file}}</div>{{#show_picture}}{{metrics.statements.pct}}{{/show_picture}}</a></td>',
         '<td data-value="{{metrics.statements.pct}}" class="pct {{reportClasses.statements}}">{{metrics.statements.pct}}%<br>({{metrics.statements.covered}} / {{metrics.statements.total}})</td>',
         '<td data-value="{{metrics.branches.pct}}" class="pct {{reportClasses.branches}}">{{metrics.branches.pct}}%<br>({{metrics.branches.covered}} / {{metrics.branches.total}})</td>',
@@ -17354,7 +15542,7 @@ handlebars.registerHelper('show_ignores', function (metrics) {
     }
 
     result = [];
-    // hack-istanbul - compact summary
+    // hack-coverage - compact summary
     if (statements >0) { result.push('statements: ' + statements); }
     if (branches >0) { result.push('branches: ' + branches); }
     if (functions >0) { result.push('functions: ' + functions); }
@@ -17362,7 +15550,7 @@ handlebars.registerHelper('show_ignores', function (metrics) {
     return result.join('<br>');
 });
 
-// hack-istanbul - hashtag lineno
+// hack-coverage - hashtag lineno
 handlebars.registerHelper('show_lines', function (opts) {
     var maxLines = Number(opts.fn(this)),
         i,
@@ -17583,7 +15771,7 @@ function HtmlReport(opts) {
     this.opts.sourceStore = this.opts.sourceStore || Store.create('fslookup');
     this.opts.linkMapper = this.opts.linkMapper || this.standardLinkMapper();
     this.opts.writer = this.opts.writer || null;
-    // hack-istanbul - new Date() bugfix
+    // hack-coverage - new Date() bugfix
     this.opts.templateData = { datetime: new Date().toGMTString() };
     this.opts.watermarks = this.opts.watermarks || defaults.watermarks();
 }
@@ -18036,7 +16224,7 @@ local.cliDict.cover = function () {
  * <script>
  * will run and cover <script>
  */
-    var tmp;
+    let tmp;
     try {
         tmp = JSON.parse(local.fs.readFileSync("package.json", "utf8"));
         process.env.npm_package_nameLib = (
@@ -18112,15 +16300,17 @@ local.cliDict.report = function () {
     globalThis.__coverageCodeDict__ = {};
     Object.entries(globalThis.__coverage__).forEach(function (entry) {
         globalThis.__coverageCodeDict__[entry[0]] = true;
-        entry[1].code = entry[1].code || (entry[1].text || "").split("\n");
+        entry[1].code = entry[1].code || entry[1].text.split("\n");
     });
-    local.coverageReportCreate();
+    local.coverageReportCreate({
+        coverage: globalThis.__coverage__
+    });
 };
 
 local.cliDict.test = function () {
 /*
  * <script>
- * will run and cover <script> if env var $npm_config_mode_coverage is set
+ * will run and cover <script> if env-var $npm_config_mode_coverage is set
  */
     if (process.env.npm_config_mode_coverage) {
         process.argv[2] = "cover";
@@ -18148,7 +16338,7 @@ if (module === require.main && !globalThis.utility2_rollup) {
 /* script-begin /assets.utility2.lib.jslint.js */
 // usr/bin/env node
 /*
- * lib.jslint.js (2019.9.7)
+ * lib.jslint.js (2019.10.10)
  * https://github.com/kaizhu256/node-jslint-lite
  * this zero-dependency package will provide browser-compatible versions of jslint (v2019.8.3) and csslint (v1.0.5), with a working web-demo
  *
@@ -18157,31 +16347,184 @@ if (module === require.main && !globalThis.utility2_rollup) {
 
 
 /* istanbul instrument in package jslint */
+// assets.utility2.header.js - start
 /* istanbul ignore next */
 /* jslint utility2:true */
 (function (globalThis) {
     "use strict";
-    var consoleError;
-    var local;
+    let ArrayPrototypeFlat;
+    let TextXxcoder;
+    let consoleError;
+    let debugName;
+    let local;
+    debugName = "debug" + String("Inline");
     // init globalThis
     globalThis.globalThis = globalThis.globalThis || globalThis;
     // init debug_inline
-    if (!globalThis["debug\u0049nline"]) {
+    if (!globalThis[debugName]) {
         consoleError = console.error;
-        globalThis["debug\u0049nline"] = function (...argList) {
+        globalThis[debugName] = function (...argList) {
         /*
          * this function will both print <argList> to stderr
          * and return <argList>[0]
          */
-            // debug argList
-            globalThis["debug\u0049nlineArgList"] = argList;
-            consoleError("\n\ndebug\u0049nline");
+            consoleError("\n\n" + debugName);
             consoleError.apply(console, argList);
             consoleError("\n");
             // return arg0 for inspection
             return argList[0];
         };
     }
+    // polyfill
+    ArrayPrototypeFlat = function (depth) {
+    /*
+     * this function will polyfill Array.prototype.flat
+     * https://github.com/jonathantneal/array-flat-polyfill
+     */
+        depth = (
+            globalThis.isNaN(depth)
+            ? 1
+            : Number(depth)
+        );
+        if (!depth) {
+            return Array.prototype.slice.call(this);
+        }
+        return Array.prototype.reduce.call(this, function (acc, cur) {
+            if (Array.isArray(cur)) {
+                // recurse
+                acc.push.apply(acc, ArrayPrototypeFlat.call(cur, depth - 1));
+            } else {
+                acc.push(cur);
+            }
+            return acc;
+        }, []);
+    };
+    Array.prototype.flat = Array.prototype.flat || ArrayPrototypeFlat;
+    Array.prototype.flatMap = Array.prototype.flatMap || function flatMap(
+        ...argList
+    ) {
+    /*
+     * this function will polyfill Array.prototype.flatMap
+     * https://github.com/jonathantneal/array-flat-polyfill
+     */
+        return this.map(...argList).flat();
+    };
+    String.prototype.trimEnd = (
+        String.prototype.trimEnd || String.prototype.trimRight
+    );
+    String.prototype.trimStart = (
+        String.prototype.trimStart || String.prototype.trimLeft
+    );
+    (function () {
+        try {
+            globalThis.TextDecoder = (
+                globalThis.TextDecoder || require("util").TextDecoder
+            );
+            globalThis.TextEncoder = (
+                globalThis.TextEncoder || require("util").TextEncoder
+            );
+        } catch (ignore) {}
+    }());
+    TextXxcoder = function () {
+    /*
+     * this function will polyfill TextDecoder/TextEncoder
+     * https://gist.github.com/Yaffle/5458286
+     */
+        return;
+    };
+    TextXxcoder.prototype.decode = function (octets) {
+    /*
+     * this function will polyfill TextDecoder.prototype.decode
+     * https://gist.github.com/Yaffle/5458286
+     */
+        let bytesNeeded;
+        let codePoint;
+        let ii;
+        let kk;
+        let octet;
+        let string;
+        string = "";
+        ii = 0;
+        while (ii < octets.length) {
+            octet = octets[ii];
+            bytesNeeded = 0;
+            codePoint = 0;
+            if (octet <= 0x7F) {
+                bytesNeeded = 0;
+                codePoint = octet & 0xFF;
+            } else if (octet <= 0xDF) {
+                bytesNeeded = 1;
+                codePoint = octet & 0x1F;
+            } else if (octet <= 0xEF) {
+                bytesNeeded = 2;
+                codePoint = octet & 0x0F;
+            } else if (octet <= 0xF4) {
+                bytesNeeded = 3;
+                codePoint = octet & 0x07;
+            }
+            if (octets.length - ii - bytesNeeded > 0) {
+                kk = 0;
+                while (kk < bytesNeeded) {
+                    octet = octets[ii + kk + 1];
+                    codePoint = (codePoint << 6) | (octet & 0x3F);
+                    kk += 1;
+                }
+            } else {
+                codePoint = 0xFFFD;
+                bytesNeeded = octets.length - ii;
+            }
+            string += String.fromCodePoint(codePoint);
+            ii += bytesNeeded + 1;
+        }
+        return string;
+    };
+    TextXxcoder.prototype.encode = function (string) {
+    /*
+     * this function will polyfill TextEncoder.prototype.encode
+     * https://gist.github.com/Yaffle/5458286
+     */
+        let bits;
+        let cc;
+        let codePoint;
+        let ii;
+        let length;
+        let octets;
+        octets = [];
+        length = string.length;
+        ii = 0;
+        while (ii < length) {
+            codePoint = string.codePointAt(ii);
+            cc = 0;
+            bits = 0;
+            if (codePoint <= 0x0000007F) {
+                cc = 0;
+                bits = 0x00;
+            } else if (codePoint <= 0x000007FF) {
+                cc = 6;
+                bits = 0xC0;
+            } else if (codePoint <= 0x0000FFFF) {
+                cc = 12;
+                bits = 0xE0;
+            } else if (codePoint <= 0x001FFFFF) {
+                cc = 18;
+                bits = 0xF0;
+            }
+            octets.push(bits | (codePoint >> cc));
+            cc -= 6;
+            while (cc >= 0) {
+                octets.push(0x80 | ((codePoint >> cc) & 0x3F));
+                cc -= 6;
+            }
+            ii += (
+                codePoint >= 0x10000
+                ? 2
+                : 1
+            );
+        }
+        return octets;
+    };
+    globalThis.TextDecoder = globalThis.TextDecoder || TextXxcoder;
+    globalThis.TextEncoder = globalThis.TextEncoder || TextXxcoder;
     // init local
     local = {};
     local.local = local;
@@ -18192,12 +16535,16 @@ if (module === require.main && !globalThis.utility2_rollup) {
         && globalThis.navigator
         && typeof globalThis.navigator.userAgent === "string"
     );
+    // init isWebWorker
+    local.isWebWorker = (
+        local.isBrowser && typeof globalThis.importScript === "function"
+    );
     // init function
     local.assertOrThrow = function (passed, message) {
     /*
      * this function will throw err.<message> if <passed> is falsy
      */
-        var err;
+        let err;
         if (passed) {
             return;
         }
@@ -18214,16 +16561,32 @@ if (module === require.main && !globalThis.utility2_rollup) {
                 // if message is a string, then leave as is
                 ? message
                 // else JSON.stringify message
-                : JSON.stringify(message, null, 4)
+                : JSON.stringify(message, undefined, 4)
             )
         );
         throw err;
+    };
+    local.coalesce = function (...argList) {
+    /*
+     * this function will coalesce null, undefined, or "" in <argList>
+     */
+        let arg;
+        let ii;
+        ii = 0;
+        while (ii < argList.length) {
+            arg = argList[ii];
+            if (arg !== null && arg !== undefined && arg !== "") {
+                break;
+            }
+            ii += 1;
+        }
+        return arg;
     };
     local.fsRmrfSync = function (dir) {
     /*
      * this function will sync "rm -rf" <dir>
      */
-        var child_process;
+        let child_process;
         try {
             child_process = require("child_process");
         } catch (ignore) {
@@ -18241,7 +16604,7 @@ if (module === require.main && !globalThis.utility2_rollup) {
     /*
      * this function will sync write <data> to <file> with "mkdir -p"
      */
-        var fs;
+        let fs;
         try {
             fs = require("fs");
         } catch (ignore) {
@@ -18270,16 +16633,16 @@ if (module === require.main && !globalThis.utility2_rollup) {
     local.functionOrNop = function (fnc) {
     /*
      * this function will if <fnc> exists,
-     * them return <fnc>,
+     * return <fnc>,
      * else return <nop>
      */
         return fnc || local.nop;
     };
-    local.identity = function (value) {
+    local.identity = function (val) {
     /*
-     * this function will return <value>
+     * this function will return <val>
      */
-        return value;
+        return val;
     };
     local.nop = function () {
     /*
@@ -18289,8 +16652,7 @@ if (module === require.main && !globalThis.utility2_rollup) {
     };
     local.objectAssignDefault = function (target, source) {
     /*
-     * this function will if items from <target> are
-     * null, undefined, or empty-string,
+     * this function will if items from <target> are null, undefined, or "",
      * then overwrite them with items from <source>
      */
         target = target || {};
@@ -18304,6 +16666,26 @@ if (module === require.main && !globalThis.utility2_rollup) {
             }
         });
         return target;
+    };
+    local.querySelector = function (selectors) {
+    /*
+     * this function will return first dom-elem that match <selectors>
+     */
+        return (
+            typeof document === "object" && document
+            && typeof document.querySelector === "function"
+            && document.querySelector(selectors)
+        ) || {};
+    };
+    local.querySelectorAll = function (selectors) {
+    /*
+     * this function will return dom-elem-list that match <selectors>
+     */
+        return (
+            typeof document === "object" && document
+            && typeof document.querySelectorAll === "function"
+            && Array.from(document.querySelectorAll(selectors))
+        ) || [];
     };
     // require builtin
     if (!local.isBrowser) {
@@ -18338,6 +16720,7 @@ if (module === require.main && !globalThis.utility2_rollup) {
 }((typeof globalThis === "object" && globalThis) || (function () {
     return Function("return this")(); // jslint ignore:line
 }())));
+// assets.utility2.header.js - end
 
 
 
@@ -18381,18 +16764,16 @@ local.cliRun = function (opt) {
         globalThis.local = local;
         local.vm.runInThisContext(process.argv[3]);
     };
-    local.cliDict["--eval"] = local.cliDict["--eval"] || local.cliDict._eval;
-    local.cliDict["-e"] = local.cliDict["-e"] || local.cliDict._eval;
     local.cliDict._help = local.cliDict._help || function () {
     /*
      *
      * will print help
      */
-        var commandList;
-        var file;
-        var packageJson;
-        var text;
-        var textDict;
+        let commandList;
+        let file;
+        let packageJson;
+        let text;
+        let textDict;
         commandList = [
             {
                 argList: "<arg2>  ...",
@@ -18435,14 +16816,14 @@ local.cliRun = function (opt) {
             try {
                 commandList[ii] = opt.rgxComment.exec(text);
                 commandList[ii] = {
-                    argList: (commandList[ii][1] || "").trim(),
+                    argList: local.coalesce(commandList[ii][1], "").trim(),
                     command: [
                         key
                     ],
                     description: commandList[ii][2]
                 };
             } catch (ignore) {
-                local.assertOrThrow(null, new Error(
+                local.assertOrThrow(undefined, new Error(
                     "cliRun - cannot parse comment in COMMAND "
                     + key
                     + ":\nnew RegExp("
@@ -18482,15 +16863,15 @@ local.cliRun = function (opt) {
             }
             return (
                 elem.description + "\n  " + file
-                + ("  " + elem.command.sort().join("|") + "  ").replace((
-                    /^\u0020{4}$/
-                ), "  ")
+                + "  " + elem.command.sort().join("|") + "  "
                 + elem.argList.join("  ")
             );
         }).join("\n\n");
         console.log(text);
     };
+    local.cliDict["--eval"] = local.cliDict["--eval"] || local.cliDict._eval;
     local.cliDict["--help"] = local.cliDict["--help"] || local.cliDict._help;
+    local.cliDict["-e"] = local.cliDict["-e"] || local.cliDict._eval;
     local.cliDict["-h"] = local.cliDict["-h"] || local.cliDict._help;
     local.cliDict._default = local.cliDict._default || local.cliDict._help;
     local.cliDict.help = local.cliDict.help || local.cliDict._help;
@@ -18535,11 +16916,10 @@ local.cliRun = function (opt) {
 
 local.onErrorWithStack = function (onError) {
 /*
- * this function will create wrapper around <onError>
- * that will append current-stack to err.stack
+ * this function will wrap <onError> with wrapper preserving current-stack
  */
-    var onError2;
-    var stack;
+    let onError2;
+    let stack;
     stack = new Error().stack.replace((
         /(.*?)\n.*?$/m
     ), "$1");
@@ -18568,7 +16948,7 @@ local.onParallel = function (onError, onEach, onRetry) {
  * 1. run async tasks in parallel
  * 2. if counter === 0 or err occurred, then call onError(err)
  */
-    var onParallel;
+    let onParallel;
     onError = local.onErrorWithStack(onError);
     onEach = onEach || local.nop;
     onRetry = onRetry || local.nop;
@@ -29482,6 +27862,7 @@ const allowed_option = {
         "setImmediate", "setInterval", "setTimeout", "TextDecoder",
         "TextEncoder", "URL", "URLSearchParams", "__dirname", "__filename"
     ],
+    nomen: true,
     single: true,
     this: true,
     white: true
@@ -29713,19 +28094,19 @@ const rx_directive_part = (
 );
 // token (sorry it is so long)
 const rx_token = (
-    /^((\s+)|([a-zA-Z_$][a-zA-Z0-9_$]*)|[(){}\[\],:;'"~`]|\?\.?|=(?:==?|>)?|\.+|[*\/][*\/=]?|\+[=+]?|-[=\-]?|[\^%]=?|&[&=]?|\|[|=]?|>{1,3}=?|<<?=?|!(?:!|==?)?|(0|[1-9][0-9]*))(.*)$/
+    /^((\s+)|([a-zA-Z_$][a-zA-Z0-9_$]*)|[(){}\[\],:;'"~`]|\?\.?|=(?:==?|>)?|\.+|[*\/][*\/=]?|\+[=+]?|-[=\-]?|[\^%]=?|&[&=]?|\|[|=]?|>{1,3}=?|<<?=?|!(?:!|==?)?|(0n?|[1-9][0-9]*n?))(.*)$/
 );
 const rx_digits = (
     /^([0-9]+)(.*)$/
 );
 const rx_hexs = (
-    /^([0-9a-fA-F]+)(.*)$/
+    /^([0-9a-fA-F]+n?)(.*)$/
 );
 const rx_octals = (
-    /^([0-7]+)(.*)$/
+    /^([0-7]+n?)(.*)$/
 );
 const rx_bits = (
-    /^([01]+)(.*)$/
+    /^([01]+n?)(.*)$/
 );
 // mega
 const rx_mega = (
@@ -30927,7 +29308,7 @@ function survey(name) {
                 warn("unregistered_property_a", name);
             }
         } else {
-            if (name.identifier && rx_bad_property.test(id)) {
+            if (!option.nomen && name.identifier && rx_bad_property.test(id)) {
                 warn("bad_property_a", name);
             }
         }
@@ -34412,8 +32793,8 @@ next_line_extra = function (source_line, line) {
 /*
  * this function will run with extra-features inside jslint-function next_line()
  */
-    var line_extra;
-    var tmp;
+    let line_extra;
+    let tmp;
     line_extra = {};
     line_extra.line = line;
     line_extra.source = source_line;
@@ -34440,6 +32821,7 @@ next_line_extra = function (source_line, line) {
         option.bitwise = true;
         option.browser = true;
         option.node = true;
+        option.nomen = true;
         option.this = true;
         option.utility2 = true;
         [].concat(
@@ -34466,7 +32848,7 @@ warn_at_extra = function (warning, warnings) {
 /*
  * this function will run with extra-features inside jslint-function warn_at()
  */
-    var tmp;
+    let tmp;
     Object.assign(warning, lines_extra[warning.line]);
     // warning - early_stop
     if (early_stop) {
@@ -34481,28 +32863,11 @@ warn_at_extra = function (warning, warnings) {
         return;
     }
     switch (option.utility2 && warning.code) {
-    // bad_property_a: "Bad property name '{a}'.",
-    case "bad_property_a":
-        return;
-    // expected_a_b: "Expected '{a}' and instead saw '{b}'.",
-    case "expected_a_b":
-        switch (warning.a + " " + warning.b) {
-        case "let var":
-        case "var let":
-            return;
-        }
-        break;
     // too_long: "Line is longer than 80 characters.",
     case "too_long":
         if ((
             /^\s*?(?:\/\/(?:!!\u0020|\u0020https:\/\/)|(?:\S+?\u0020)?(?:https:\/\/|this\u0020.*?\u0020package\u0020will\u0020))/m
         ).test(warning.source)) {
-            return;
-        }
-        break;
-    // unexpected_a: "Unexpected '{a}'.",
-    case "unexpected_a":
-        if (warning.a === "." && warning.c && warning.c.wrapped === true) {
             return;
         }
         break;
@@ -34578,10 +32943,7 @@ warn_at_extra = function (warning, warnings) {
     if (option.utility2) {
         warning.option = Object.assign({}, option);
         Object.keys(warning.option).forEach(function (key) {
-            if (
-                typeof warning.option[key] === "object"
-                || (warning.option[key] || "").length >= 100
-            ) {
+            if (typeof warning.option[key] === "object") {
                 delete warning.option[key];
             }
         });
@@ -34600,22 +32962,18 @@ warn_at_extra = function (warning, warnings) {
 
 // run shared js-env code - function
 (function () {
-local.jslintAndPrint = function (code, file, opt) {
+local.jslintAndPrint = function (code = "", file = "undefined", opt = {}) {
 /*
  * this function will jslint / csslint <code> and print any errors to stderr
  */
-    var tmp;
+    let ii;
+    let tmp;
     if (!(opt && opt.gotoState)) {
         local.jslintResult = {
             gotoState: 0
         };
     }
-    code = code || "";
-    file = file || "undefined";
-    opt = Object.assign(local.jslintResult, opt || {}, {
-        code,
-        file
-    });
+    opt = Object.assign(local.jslintResult, opt);
     opt.gotoState += 1;
     switch (opt.gotoState) {
     // jslint - init
@@ -34623,18 +32981,28 @@ local.jslintAndPrint = function (code, file, opt) {
         // cleanup
         opt.errList = [];
         opt.errMsg = "";
+        // preserve lineno
+        if (opt.iiStart) {
+            opt.lineOffset |= 0;
+            ii = 0;
+            while (true) {
+                ii = code.indexOf("\n", ii);
+                if (ii === 0 || ii > opt.iiStart) {
+                    break;
+                }
+                ii += 1;
+                opt.lineOffset += 1;
+            }
+            code = code.slice(opt.iiStart, opt.iiEnd || code.length);
+        }
         switch (opt.fileType0) {
         // deembed-js - '\\n\\\n...\\n\\\n'
         case ".\\n\\":
             // rgx - remove \\n\\
             code = code.replace((
                 /\\n\\$|\\(.)/gm
-            ), function (match0) {
-                return (
-                    match0 === "\\n\\"
-                    ? ""
-                    : match0[1]
-                );
+            ), function (ignore, match1) {
+                return match1 || "";
             });
             break;
         // deembed-js - '\n...\n'
@@ -34784,6 +33152,10 @@ local.jslintAndPrint = function (code, file, opt) {
             code = code.replace((
                 /'/g
             ), "\\'");
+            // rgx - escape js-env to js\-env
+            code = code.replace((
+                /\u0020js-env\u0020/g
+            ), " js\\-env ");
             code += "\n";
             break;
         // reembed-js - '\n...\n'
@@ -34794,7 +33166,7 @@ local.jslintAndPrint = function (code, file, opt) {
             ), "'\"'\"'") + "\n";
             break;
         case false:
-            code = code.trimRight() + "\n";
+            code = code.trimEnd() + "\n";
             break;
         default:
             code = code.trim() + "\n";
@@ -34827,7 +33199,7 @@ local.jslintAndPrint = function (code, file, opt) {
                 + "\u001b[22m"
             );
         }
-        // print colorized err.message to stderr
+        // print colorized errMsg to stderr
         // https://github.com/kaizhu256/JSLint/blob/cli/cli.js#L99
         opt.errList.filter(function (warning) {
             return warning && warning.message;
@@ -34865,6 +33237,7 @@ local.jslintAndPrint = function (code, file, opt) {
             // print err to stderr
             console.error(opt.errMsg);
         }
+        opt.code = code;
         return code;
     }
     // recurse
@@ -34875,10 +33248,10 @@ local.jslintAndPrintDir = function (dir, opt, onError) {
 /*
  * this function will jslint files in shallow <dir>
  */
-    var onParallel;
+    let onParallel;
     onParallel = local.onParallel(onError);
     local.fs.readdirSync(dir).forEach(function (file) {
-        var timeStart;
+        let timeStart;
         file = process.cwd() + "/" + file;
         switch ((
             /\.\w+?$|$/m
@@ -34897,7 +33270,7 @@ local.jslintAndPrintDir = function (dir, opt, onError) {
             onParallel.counter += 1;
             // jslint file
             local.fs.readFile(file, "utf8", function (err, data) {
-                // validate no err occurred
+                // handle err
                 local.assertOrThrow(!err, err);
                 timeStart = Date.now();
                 local.jslintAndPrint(data, file, opt);
@@ -34915,21 +33288,22 @@ local.jslintAutofix = function (code, file, opt) {
 /*
  * this function will jslint-autofix <code>
  */
-    var code0;
-    var code2;
-    var dataList;
-    var ignoreList;
-    var ii;
-    var rgx1;
-    var rgx2;
-    var tmp;
+    let code0;
+    let code2;
+    let dataList;
+    let ignoreList;
+    let ii;
+    let rgx1;
+    let rgx2;
+    let tmp;
     // autofix-all
     if (opt.autofix) {
         // autofix-all - normalize local-function
-        if (typeof(
+        if (
             globalThis.utility2
-            && globalThis.utility2.jslintAutofixLocalFunction
-        ) === "function") {
+            && typeof globalThis.utility2.jslintAutofixLocalFunction
+            === "function"
+        ) {
             code = globalThis.utility2.jslintAutofixLocalFunction(code, file);
         }
         // autofix-all - remove trailing-whitespace
@@ -34950,22 +33324,19 @@ local.jslintAutofix = function (code, file, opt) {
         ), "\n\n\n\n");
         // autofix-all - recurse <script>...</script>, <style>...</style>
         code = code.replace((
-            /(^\/\*\u0020jslint\u0020utility2:true\u0020\*\/\\n\\\n(?:^.*?\\n\\\n)*?)(^(?:\/\/\u0020)?<\/(?:script|style)>\\n\\\n)/gm
+            /(^\/\*\u0020jslint\u0020utility2:true\u0020\*\/\\n\\\n(?:^.*?\\n\\\n)*?)(';$|<\/script>\\n\\$|<\/style>\\n\\$)/gm
         ), function (ignore, match1, match2, ii) {
             return local.jslintAndPrint(
-                match1,
+                code,
                 file + (
-                    match2.indexOf("style") >= 0
+                    match2.indexOf("style") > -1
                     ? ".<style>.css"
                     : ".<script>.js"
                 ),
                 Object.assign({}, opt, {
                     fileType0: ".\\n\\",
-                    lineOffset: (
-                        opt.lineOffset | 0
-                    ) + code.slice(0, ii).replace((
-                        /.+/g
-                    ), "").length,
+                    iiEnd: ii + match1.length,
+                    iiStart: ii,
                     gotoState: 0
                 })
             ) + match2;
@@ -34977,25 +33348,21 @@ local.jslintAutofix = function (code, file, opt) {
     case ".html":
         // autofix-html - recurse <script>...</script>, <style>...</style>
         code = code.replace((
-            /(^\/\*\u0020jslint\u0020utility2:true\u0020\*\/\n(?:^.*?\n)*?)(^<\/(?:script|style)>\n)/gm
+            /^(\/\*\u0020jslint\u0020utility2:true\u0020\*\/\n[\S\s]*?\n)(<\/(?:script|style)>)$/gm
         ), function (ignore, match1, match2, ii) {
             return local.jslintAndPrint(
-                match1,
+                code,
                 file + (
                     match2.indexOf("style") >= 0
                     ? ".<style>.css"
                     : ".<script>.js"
                 ),
-                local.objectAssignDefault({
+                Object.assign({}, opt, {
                     fileType0: opt.fileType,
-                    lineOffset: (
-                        (opt.lineOffset | 0)
-                        + code.slice(0, ii).replace((
-                            /.+/g
-                        ), "").length
-                    ),
+                    iiEnd: ii + match1.length,
+                    iiStart: ii,
                     gotoState: 0
-                }, opt)
+                })
             ) + match2;
         });
         break;
@@ -35069,7 +33436,8 @@ local.jslintAutofix = function (code, file, opt) {
                 ii = rgx1.lastIndex;
                 while (rgx1.lastIndex < code.length) {
                     tmp[1] = rgx1.exec(code)[0];
-                    switch (tmp[0] + "_" + tmp[1]) {
+                    tmp[2] = tmp[0] + "_" + tmp[1];
+                    switch (tmp[2]) {
                     case "\"_\"":
                     case "'_'":
                     case "/*_*/":
@@ -35081,7 +33449,7 @@ local.jslintAutofix = function (code, file, opt) {
                         code2 += "_" + tmp[1];
                         dataList.push({
                             code: tmp[0] + code.slice(ii, rgx1.lastIndex),
-                            type: (tmp[0] + "_" + tmp[1]).replace("/_*/", "/_/")
+                            type: tmp[2].replace("/_*/", "/_/")
                         });
                         ii = 0;
                         break;
@@ -35116,7 +33484,7 @@ local.jslintAutofix = function (code, file, opt) {
             ).test(line)) {
                 return (
                     tmp
-                    ? tmp[0].slice(0, -1) + line.trimLeft()
+                    ? tmp[0].slice(0, -1) + line.trimStart()
                     : line
                 );
             }
@@ -35230,11 +33598,11 @@ local.jslintAutofix = function (code, file, opt) {
                 ), "/\\*");
                 break;
             case "/_/":
-                // autofix-js - rgx - " " -> "\\u0020"
+                // autofix-js - rgx - " " to "\\u0020"
                 data.code = data.code.replace((
                     /\u0020/g
                 ), "\\u0020");
-                // autofix-js - rgx - "-]" -> "\-]"
+                // autofix-js - rgx - "-]" to "\-]"
                 data.code = data.code.replace((
                     /\\.|-\]/g
                 ), function (match0) {
@@ -35281,7 +33649,7 @@ local.jslintAutofix = function (code, file, opt) {
                 break;
             }
         }
-        // autofix-js - remux - code, dataList.</_/> -> code
+        // autofix-js - remux - code, dataList.</_/> to code
         code = code.replace((
             /\/\u0000\//g
         ), function () {
@@ -35293,26 +33661,25 @@ local.jslintAutofix = function (code, file, opt) {
         ), function (match0) {
             return match0.split("\n").slice(0, -1).sort().join("\n") + "\n";
         });
-        // autofix-js - remux - code, ignoreList -> code
+        // autofix-js - remux - code, ignoreList to code
         code = code.replace((
             /^\u0020*?\/\*\u0020jslint\u0020ignore:start:end\u0020\*\/$/gm
         ), function () {
-            return ignoreList.shift().trimLeft();
+            return ignoreList.shift().trimStart();
         });
         break;
     case ".md":
         // autofix-md - recurse ```javascript...```
         code = code.replace((
-            /(```javascript\n)([\S\s]*?)\n```/g
+            /^(```javascript\n)([\S\s]*?\n)```$/gm
         ), function (ignore, match1, match2, ii) {
             return match1 + local.jslintAndPrint(
-                match2,
+                code,
                 file + ".<```javascript>.js",
                 Object.assign({}, opt, {
                     fileType0: opt.fileType,
-                    lineOffset: code.slice(0, ii).replace((
-                        /.+/g
-                    ), "").length + 1,
+                    iiEnd: ii + match1.length + match2.length,
+                    iiStart: ii + match1.length,
                     gotoState: 0
                 })
             ) + "```";
@@ -35321,16 +33688,15 @@ local.jslintAutofix = function (code, file, opt) {
     case ".sh":
         // autofix-sh - recurse node -e '...'
         code = code.replace((
-            /(\bUTILITY2_MACRO_JS='\n|\bnode\u0020-e\u0020(?:"\$UTILITY2_MACRO_JS")?'\n)([\S\s]*?)\n'/g
-        ), function (ignore, match1, match2, ii) {
-            return match1 + local.jslintAndPrint(
-                match2,
+            /^\/\*\u0020jslint\u0020utility2:true\u0020\*\/\n[\S\s]*?\n'/gm
+        ), function (match0, ii) {
+            return local.jslintAndPrint(
+                code,
                 file + ".<node -e>.js",
                 Object.assign({}, opt, {
                     fileType0: opt.fileType,
-                    lineOffset: code.slice(0, ii).replace((
-                        /.+/g
-                    ), "").length + 1,
+                    iiEnd: ii + match0.length - 1,
+                    iiStart: ii,
                     gotoState: 0
                 })
             ) + "'";
@@ -35342,11 +33708,11 @@ local.jslintAutofix = function (code, file, opt) {
 
 local.jslintGetColumnLine = function (code, ii) {
 /*
- * this function will transform <code> and <ii> -> {column, line, evidence}
+ * this function will transform <code> and <ii> to {column, line, evidence}
  */
-    var column;
-    var evidence;
-    var line;
+    let column;
+    let evidence;
+    let line;
     evidence = code.slice(0, ii).split("\n");
     line = evidence.length - 1;
     column = evidence[line].length;
@@ -35364,10 +33730,10 @@ local.jslintUtility2 = function (code, ignore, opt) {
 /*
  * this function will jslint <code> with utiity2-specific rules
  */
-    var code2;
-    var err;
-    var indent;
-    var previous;
+    let code2;
+    let err;
+    let indent;
+    let previous;
     // jslintUtility2 - all
     if (opt.utility2) {
         code2 = code;
@@ -35744,31 +34110,184 @@ if (module === require.main && !globalThis.utility2_rollup) {
 
 
 /* istanbul instrument in package marked */
+// assets.utility2.header.js - start
 /* istanbul ignore next */
 /* jslint utility2:true */
 (function (globalThis) {
     "use strict";
-    var consoleError;
-    var local;
+    let ArrayPrototypeFlat;
+    let TextXxcoder;
+    let consoleError;
+    let debugName;
+    let local;
+    debugName = "debug" + String("Inline");
     // init globalThis
     globalThis.globalThis = globalThis.globalThis || globalThis;
     // init debug_inline
-    if (!globalThis["debug\u0049nline"]) {
+    if (!globalThis[debugName]) {
         consoleError = console.error;
-        globalThis["debug\u0049nline"] = function (...argList) {
+        globalThis[debugName] = function (...argList) {
         /*
          * this function will both print <argList> to stderr
          * and return <argList>[0]
          */
-            // debug argList
-            globalThis["debug\u0049nlineArgList"] = argList;
-            consoleError("\n\ndebug\u0049nline");
+            consoleError("\n\n" + debugName);
             consoleError.apply(console, argList);
             consoleError("\n");
             // return arg0 for inspection
             return argList[0];
         };
     }
+    // polyfill
+    ArrayPrototypeFlat = function (depth) {
+    /*
+     * this function will polyfill Array.prototype.flat
+     * https://github.com/jonathantneal/array-flat-polyfill
+     */
+        depth = (
+            globalThis.isNaN(depth)
+            ? 1
+            : Number(depth)
+        );
+        if (!depth) {
+            return Array.prototype.slice.call(this);
+        }
+        return Array.prototype.reduce.call(this, function (acc, cur) {
+            if (Array.isArray(cur)) {
+                // recurse
+                acc.push.apply(acc, ArrayPrototypeFlat.call(cur, depth - 1));
+            } else {
+                acc.push(cur);
+            }
+            return acc;
+        }, []);
+    };
+    Array.prototype.flat = Array.prototype.flat || ArrayPrototypeFlat;
+    Array.prototype.flatMap = Array.prototype.flatMap || function flatMap(
+        ...argList
+    ) {
+    /*
+     * this function will polyfill Array.prototype.flatMap
+     * https://github.com/jonathantneal/array-flat-polyfill
+     */
+        return this.map(...argList).flat();
+    };
+    String.prototype.trimEnd = (
+        String.prototype.trimEnd || String.prototype.trimRight
+    );
+    String.prototype.trimStart = (
+        String.prototype.trimStart || String.prototype.trimLeft
+    );
+    (function () {
+        try {
+            globalThis.TextDecoder = (
+                globalThis.TextDecoder || require("util").TextDecoder
+            );
+            globalThis.TextEncoder = (
+                globalThis.TextEncoder || require("util").TextEncoder
+            );
+        } catch (ignore) {}
+    }());
+    TextXxcoder = function () {
+    /*
+     * this function will polyfill TextDecoder/TextEncoder
+     * https://gist.github.com/Yaffle/5458286
+     */
+        return;
+    };
+    TextXxcoder.prototype.decode = function (octets) {
+    /*
+     * this function will polyfill TextDecoder.prototype.decode
+     * https://gist.github.com/Yaffle/5458286
+     */
+        let bytesNeeded;
+        let codePoint;
+        let ii;
+        let kk;
+        let octet;
+        let string;
+        string = "";
+        ii = 0;
+        while (ii < octets.length) {
+            octet = octets[ii];
+            bytesNeeded = 0;
+            codePoint = 0;
+            if (octet <= 0x7F) {
+                bytesNeeded = 0;
+                codePoint = octet & 0xFF;
+            } else if (octet <= 0xDF) {
+                bytesNeeded = 1;
+                codePoint = octet & 0x1F;
+            } else if (octet <= 0xEF) {
+                bytesNeeded = 2;
+                codePoint = octet & 0x0F;
+            } else if (octet <= 0xF4) {
+                bytesNeeded = 3;
+                codePoint = octet & 0x07;
+            }
+            if (octets.length - ii - bytesNeeded > 0) {
+                kk = 0;
+                while (kk < bytesNeeded) {
+                    octet = octets[ii + kk + 1];
+                    codePoint = (codePoint << 6) | (octet & 0x3F);
+                    kk += 1;
+                }
+            } else {
+                codePoint = 0xFFFD;
+                bytesNeeded = octets.length - ii;
+            }
+            string += String.fromCodePoint(codePoint);
+            ii += bytesNeeded + 1;
+        }
+        return string;
+    };
+    TextXxcoder.prototype.encode = function (string) {
+    /*
+     * this function will polyfill TextEncoder.prototype.encode
+     * https://gist.github.com/Yaffle/5458286
+     */
+        let bits;
+        let cc;
+        let codePoint;
+        let ii;
+        let length;
+        let octets;
+        octets = [];
+        length = string.length;
+        ii = 0;
+        while (ii < length) {
+            codePoint = string.codePointAt(ii);
+            cc = 0;
+            bits = 0;
+            if (codePoint <= 0x0000007F) {
+                cc = 0;
+                bits = 0x00;
+            } else if (codePoint <= 0x000007FF) {
+                cc = 6;
+                bits = 0xC0;
+            } else if (codePoint <= 0x0000FFFF) {
+                cc = 12;
+                bits = 0xE0;
+            } else if (codePoint <= 0x001FFFFF) {
+                cc = 18;
+                bits = 0xF0;
+            }
+            octets.push(bits | (codePoint >> cc));
+            cc -= 6;
+            while (cc >= 0) {
+                octets.push(0x80 | ((codePoint >> cc) & 0x3F));
+                cc -= 6;
+            }
+            ii += (
+                codePoint >= 0x10000
+                ? 2
+                : 1
+            );
+        }
+        return octets;
+    };
+    globalThis.TextDecoder = globalThis.TextDecoder || TextXxcoder;
+    globalThis.TextEncoder = globalThis.TextEncoder || TextXxcoder;
     // init local
     local = {};
     local.local = local;
@@ -35779,12 +34298,16 @@ if (module === require.main && !globalThis.utility2_rollup) {
         && globalThis.navigator
         && typeof globalThis.navigator.userAgent === "string"
     );
+    // init isWebWorker
+    local.isWebWorker = (
+        local.isBrowser && typeof globalThis.importScript === "function"
+    );
     // init function
     local.assertOrThrow = function (passed, message) {
     /*
      * this function will throw err.<message> if <passed> is falsy
      */
-        var err;
+        let err;
         if (passed) {
             return;
         }
@@ -35801,16 +34324,32 @@ if (module === require.main && !globalThis.utility2_rollup) {
                 // if message is a string, then leave as is
                 ? message
                 // else JSON.stringify message
-                : JSON.stringify(message, null, 4)
+                : JSON.stringify(message, undefined, 4)
             )
         );
         throw err;
+    };
+    local.coalesce = function (...argList) {
+    /*
+     * this function will coalesce null, undefined, or "" in <argList>
+     */
+        let arg;
+        let ii;
+        ii = 0;
+        while (ii < argList.length) {
+            arg = argList[ii];
+            if (arg !== null && arg !== undefined && arg !== "") {
+                break;
+            }
+            ii += 1;
+        }
+        return arg;
     };
     local.fsRmrfSync = function (dir) {
     /*
      * this function will sync "rm -rf" <dir>
      */
-        var child_process;
+        let child_process;
         try {
             child_process = require("child_process");
         } catch (ignore) {
@@ -35828,7 +34367,7 @@ if (module === require.main && !globalThis.utility2_rollup) {
     /*
      * this function will sync write <data> to <file> with "mkdir -p"
      */
-        var fs;
+        let fs;
         try {
             fs = require("fs");
         } catch (ignore) {
@@ -35857,16 +34396,16 @@ if (module === require.main && !globalThis.utility2_rollup) {
     local.functionOrNop = function (fnc) {
     /*
      * this function will if <fnc> exists,
-     * them return <fnc>,
+     * return <fnc>,
      * else return <nop>
      */
         return fnc || local.nop;
     };
-    local.identity = function (value) {
+    local.identity = function (val) {
     /*
-     * this function will return <value>
+     * this function will return <val>
      */
-        return value;
+        return val;
     };
     local.nop = function () {
     /*
@@ -35876,8 +34415,7 @@ if (module === require.main && !globalThis.utility2_rollup) {
     };
     local.objectAssignDefault = function (target, source) {
     /*
-     * this function will if items from <target> are
-     * null, undefined, or empty-string,
+     * this function will if items from <target> are null, undefined, or "",
      * then overwrite them with items from <source>
      */
         target = target || {};
@@ -35891,6 +34429,26 @@ if (module === require.main && !globalThis.utility2_rollup) {
             }
         });
         return target;
+    };
+    local.querySelector = function (selectors) {
+    /*
+     * this function will return first dom-elem that match <selectors>
+     */
+        return (
+            typeof document === "object" && document
+            && typeof document.querySelector === "function"
+            && document.querySelector(selectors)
+        ) || {};
+    };
+    local.querySelectorAll = function (selectors) {
+    /*
+     * this function will return dom-elem-list that match <selectors>
+     */
+        return (
+            typeof document === "object" && document
+            && typeof document.querySelectorAll === "function"
+            && Array.from(document.querySelectorAll(selectors))
+        ) || [];
     };
     // require builtin
     if (!local.isBrowser) {
@@ -35925,6 +34483,7 @@ if (module === require.main && !globalThis.utility2_rollup) {
 }((typeof globalThis === "object" && globalThis) || (function () {
     return Function("return this")(); // jslint ignore:line
 }())));
+// assets.utility2.header.js - end
 
 
 
@@ -36182,31 +34741,184 @@ if (local.isBrowser) {
 
 
 /* istanbul instrument in package puppeteer */
+// assets.utility2.header.js - start
 /* istanbul ignore next */
 /* jslint utility2:true */
 (function (globalThis) {
     "use strict";
-    var consoleError;
-    var local;
+    let ArrayPrototypeFlat;
+    let TextXxcoder;
+    let consoleError;
+    let debugName;
+    let local;
+    debugName = "debug" + String("Inline");
     // init globalThis
     globalThis.globalThis = globalThis.globalThis || globalThis;
     // init debug_inline
-    if (!globalThis["debug\u0049nline"]) {
+    if (!globalThis[debugName]) {
         consoleError = console.error;
-        globalThis["debug\u0049nline"] = function (...argList) {
+        globalThis[debugName] = function (...argList) {
         /*
          * this function will both print <argList> to stderr
          * and return <argList>[0]
          */
-            // debug argList
-            globalThis["debug\u0049nlineArgList"] = argList;
-            consoleError("\n\ndebug\u0049nline");
+            consoleError("\n\n" + debugName);
             consoleError.apply(console, argList);
             consoleError("\n");
             // return arg0 for inspection
             return argList[0];
         };
     }
+    // polyfill
+    ArrayPrototypeFlat = function (depth) {
+    /*
+     * this function will polyfill Array.prototype.flat
+     * https://github.com/jonathantneal/array-flat-polyfill
+     */
+        depth = (
+            globalThis.isNaN(depth)
+            ? 1
+            : Number(depth)
+        );
+        if (!depth) {
+            return Array.prototype.slice.call(this);
+        }
+        return Array.prototype.reduce.call(this, function (acc, cur) {
+            if (Array.isArray(cur)) {
+                // recurse
+                acc.push.apply(acc, ArrayPrototypeFlat.call(cur, depth - 1));
+            } else {
+                acc.push(cur);
+            }
+            return acc;
+        }, []);
+    };
+    Array.prototype.flat = Array.prototype.flat || ArrayPrototypeFlat;
+    Array.prototype.flatMap = Array.prototype.flatMap || function flatMap(
+        ...argList
+    ) {
+    /*
+     * this function will polyfill Array.prototype.flatMap
+     * https://github.com/jonathantneal/array-flat-polyfill
+     */
+        return this.map(...argList).flat();
+    };
+    String.prototype.trimEnd = (
+        String.prototype.trimEnd || String.prototype.trimRight
+    );
+    String.prototype.trimStart = (
+        String.prototype.trimStart || String.prototype.trimLeft
+    );
+    (function () {
+        try {
+            globalThis.TextDecoder = (
+                globalThis.TextDecoder || require("util").TextDecoder
+            );
+            globalThis.TextEncoder = (
+                globalThis.TextEncoder || require("util").TextEncoder
+            );
+        } catch (ignore) {}
+    }());
+    TextXxcoder = function () {
+    /*
+     * this function will polyfill TextDecoder/TextEncoder
+     * https://gist.github.com/Yaffle/5458286
+     */
+        return;
+    };
+    TextXxcoder.prototype.decode = function (octets) {
+    /*
+     * this function will polyfill TextDecoder.prototype.decode
+     * https://gist.github.com/Yaffle/5458286
+     */
+        let bytesNeeded;
+        let codePoint;
+        let ii;
+        let kk;
+        let octet;
+        let string;
+        string = "";
+        ii = 0;
+        while (ii < octets.length) {
+            octet = octets[ii];
+            bytesNeeded = 0;
+            codePoint = 0;
+            if (octet <= 0x7F) {
+                bytesNeeded = 0;
+                codePoint = octet & 0xFF;
+            } else if (octet <= 0xDF) {
+                bytesNeeded = 1;
+                codePoint = octet & 0x1F;
+            } else if (octet <= 0xEF) {
+                bytesNeeded = 2;
+                codePoint = octet & 0x0F;
+            } else if (octet <= 0xF4) {
+                bytesNeeded = 3;
+                codePoint = octet & 0x07;
+            }
+            if (octets.length - ii - bytesNeeded > 0) {
+                kk = 0;
+                while (kk < bytesNeeded) {
+                    octet = octets[ii + kk + 1];
+                    codePoint = (codePoint << 6) | (octet & 0x3F);
+                    kk += 1;
+                }
+            } else {
+                codePoint = 0xFFFD;
+                bytesNeeded = octets.length - ii;
+            }
+            string += String.fromCodePoint(codePoint);
+            ii += bytesNeeded + 1;
+        }
+        return string;
+    };
+    TextXxcoder.prototype.encode = function (string) {
+    /*
+     * this function will polyfill TextEncoder.prototype.encode
+     * https://gist.github.com/Yaffle/5458286
+     */
+        let bits;
+        let cc;
+        let codePoint;
+        let ii;
+        let length;
+        let octets;
+        octets = [];
+        length = string.length;
+        ii = 0;
+        while (ii < length) {
+            codePoint = string.codePointAt(ii);
+            cc = 0;
+            bits = 0;
+            if (codePoint <= 0x0000007F) {
+                cc = 0;
+                bits = 0x00;
+            } else if (codePoint <= 0x000007FF) {
+                cc = 6;
+                bits = 0xC0;
+            } else if (codePoint <= 0x0000FFFF) {
+                cc = 12;
+                bits = 0xE0;
+            } else if (codePoint <= 0x001FFFFF) {
+                cc = 18;
+                bits = 0xF0;
+            }
+            octets.push(bits | (codePoint >> cc));
+            cc -= 6;
+            while (cc >= 0) {
+                octets.push(0x80 | ((codePoint >> cc) & 0x3F));
+                cc -= 6;
+            }
+            ii += (
+                codePoint >= 0x10000
+                ? 2
+                : 1
+            );
+        }
+        return octets;
+    };
+    globalThis.TextDecoder = globalThis.TextDecoder || TextXxcoder;
+    globalThis.TextEncoder = globalThis.TextEncoder || TextXxcoder;
     // init local
     local = {};
     local.local = local;
@@ -36217,12 +34929,16 @@ if (local.isBrowser) {
         && globalThis.navigator
         && typeof globalThis.navigator.userAgent === "string"
     );
+    // init isWebWorker
+    local.isWebWorker = (
+        local.isBrowser && typeof globalThis.importScript === "function"
+    );
     // init function
     local.assertOrThrow = function (passed, message) {
     /*
      * this function will throw err.<message> if <passed> is falsy
      */
-        var err;
+        let err;
         if (passed) {
             return;
         }
@@ -36239,16 +34955,32 @@ if (local.isBrowser) {
                 // if message is a string, then leave as is
                 ? message
                 // else JSON.stringify message
-                : JSON.stringify(message, null, 4)
+                : JSON.stringify(message, undefined, 4)
             )
         );
         throw err;
+    };
+    local.coalesce = function (...argList) {
+    /*
+     * this function will coalesce null, undefined, or "" in <argList>
+     */
+        let arg;
+        let ii;
+        ii = 0;
+        while (ii < argList.length) {
+            arg = argList[ii];
+            if (arg !== null && arg !== undefined && arg !== "") {
+                break;
+            }
+            ii += 1;
+        }
+        return arg;
     };
     local.fsRmrfSync = function (dir) {
     /*
      * this function will sync "rm -rf" <dir>
      */
-        var child_process;
+        let child_process;
         try {
             child_process = require("child_process");
         } catch (ignore) {
@@ -36266,7 +34998,7 @@ if (local.isBrowser) {
     /*
      * this function will sync write <data> to <file> with "mkdir -p"
      */
-        var fs;
+        let fs;
         try {
             fs = require("fs");
         } catch (ignore) {
@@ -36295,16 +35027,16 @@ if (local.isBrowser) {
     local.functionOrNop = function (fnc) {
     /*
      * this function will if <fnc> exists,
-     * them return <fnc>,
+     * return <fnc>,
      * else return <nop>
      */
         return fnc || local.nop;
     };
-    local.identity = function (value) {
+    local.identity = function (val) {
     /*
-     * this function will return <value>
+     * this function will return <val>
      */
-        return value;
+        return val;
     };
     local.nop = function () {
     /*
@@ -36314,8 +35046,7 @@ if (local.isBrowser) {
     };
     local.objectAssignDefault = function (target, source) {
     /*
-     * this function will if items from <target> are
-     * null, undefined, or empty-string,
+     * this function will if items from <target> are null, undefined, or "",
      * then overwrite them with items from <source>
      */
         target = target || {};
@@ -36329,6 +35060,26 @@ if (local.isBrowser) {
             }
         });
         return target;
+    };
+    local.querySelector = function (selectors) {
+    /*
+     * this function will return first dom-elem that match <selectors>
+     */
+        return (
+            typeof document === "object" && document
+            && typeof document.querySelector === "function"
+            && document.querySelector(selectors)
+        ) || {};
+    };
+    local.querySelectorAll = function (selectors) {
+    /*
+     * this function will return dom-elem-list that match <selectors>
+     */
+        return (
+            typeof document === "object" && document
+            && typeof document.querySelectorAll === "function"
+            && Array.from(document.querySelectorAll(selectors))
+        ) || [];
     };
     // require builtin
     if (!local.isBrowser) {
@@ -36363,6 +35114,7 @@ if (local.isBrowser) {
 }((typeof globalThis === "object" && globalThis) || (function () {
     return Function("return this")(); // jslint ignore:line
 }())));
+// assets.utility2.header.js - end
 
 
 
@@ -36406,18 +35158,16 @@ local.cliRun = function (opt) {
         globalThis.local = local;
         local.vm.runInThisContext(process.argv[3]);
     };
-    local.cliDict["--eval"] = local.cliDict["--eval"] || local.cliDict._eval;
-    local.cliDict["-e"] = local.cliDict["-e"] || local.cliDict._eval;
     local.cliDict._help = local.cliDict._help || function () {
     /*
      *
      * will print help
      */
-        var commandList;
-        var file;
-        var packageJson;
-        var text;
-        var textDict;
+        let commandList;
+        let file;
+        let packageJson;
+        let text;
+        let textDict;
         commandList = [
             {
                 argList: "<arg2>  ...",
@@ -36460,14 +35210,14 @@ local.cliRun = function (opt) {
             try {
                 commandList[ii] = opt.rgxComment.exec(text);
                 commandList[ii] = {
-                    argList: (commandList[ii][1] || "").trim(),
+                    argList: local.coalesce(commandList[ii][1], "").trim(),
                     command: [
                         key
                     ],
                     description: commandList[ii][2]
                 };
             } catch (ignore) {
-                local.assertOrThrow(null, new Error(
+                local.assertOrThrow(undefined, new Error(
                     "cliRun - cannot parse comment in COMMAND "
                     + key
                     + ":\nnew RegExp("
@@ -36507,15 +35257,15 @@ local.cliRun = function (opt) {
             }
             return (
                 elem.description + "\n  " + file
-                + ("  " + elem.command.sort().join("|") + "  ").replace((
-                    /^\u0020{4}$/
-                ), "  ")
+                + "  " + elem.command.sort().join("|") + "  "
                 + elem.argList.join("  ")
             );
         }).join("\n\n");
         console.log(text);
     };
+    local.cliDict["--eval"] = local.cliDict["--eval"] || local.cliDict._eval;
     local.cliDict["--help"] = local.cliDict["--help"] || local.cliDict._help;
+    local.cliDict["-e"] = local.cliDict["-e"] || local.cliDict._eval;
     local.cliDict["-h"] = local.cliDict["-h"] || local.cliDict._help;
     local.cliDict._default = local.cliDict._default || local.cliDict._help;
     local.cliDict.help = local.cliDict.help || local.cliDict._help;
@@ -36556,79 +35306,6 @@ local.cliRun = function (opt) {
         return;
     }
     local.cliDict._default();
-};
-
-local.onErrorWithStack = function (onError) {
-/*
- * this function will create wrapper around <onError>
- * that will append current-stack to err.stack
- */
-    var onError2;
-    var stack;
-    stack = new Error().stack.replace((
-        /(.*?)\n.*?$/m
-    ), "$1");
-    onError2 = function (err, data, meta) {
-        // append current-stack to err.stack
-        if (
-            err
-            && typeof err.stack === "string"
-            && err !== local.errDefault
-            && String(err.stack).indexOf(stack.split("\n")[2]) < 0
-        ) {
-            err.stack += "\n" + stack;
-        }
-        onError(err, data, meta);
-    };
-    // debug onError
-    onError2.toString = function () {
-        return String(onError);
-    };
-    return onError2;
-};
-
-local.onParallel = function (onError, onEach, onRetry) {
-/*
- * this function will create a function that will
- * 1. run async tasks in parallel
- * 2. if counter === 0 or err occurred, then call onError(err)
- */
-    var onParallel;
-    onError = local.onErrorWithStack(onError);
-    onEach = onEach || local.nop;
-    onRetry = onRetry || local.nop;
-    onParallel = function (err, data) {
-        if (onRetry(err, data)) {
-            return;
-        }
-        // decrement counter
-        onParallel.counter -= 1;
-        // validate counter
-        if (!(onParallel.counter >= 0 || err || onParallel.err)) {
-            err = new Error(
-                "invalid onParallel.counter = " + onParallel.counter
-            );
-        // ensure onError is run only once
-        } else if (onParallel.counter < 0) {
-            return;
-        }
-        // handle err
-        if (err) {
-            onParallel.err = err;
-            // ensure counter <= 0
-            onParallel.counter = -Math.abs(onParallel.counter);
-        }
-        // call onError when isDone
-        if (onParallel.counter <= 0) {
-            onError(err, data);
-            return;
-        }
-        onEach();
-    };
-    // init counter
-    onParallel.counter = 0;
-    // return callback
-    return onParallel;
 };
 }());
 
@@ -43273,7 +41950,7 @@ class ExecutionContext {
       throw new Error(`Expected to get |string| or |function| as the first argument, but got "${pageFunction}" instead.`);
 
     let functionText = pageFunction.toString();
-    // hack-istanbul - un-instrument
+    // hack-coverage - un-instrument
     functionText = functionText.replace((/\b__cov_.*?\+\+/g), "0");
     try {
       new Function('(' + functionText + ')');
@@ -49027,6 +47704,8 @@ let isValidUTF8     = exports_websockets_ws_lib_validation.isValidUTF8;
 // let WebSocket       = exports_websockets_ws_lib_websocket;
 local._puppeteer = exports_GoogleChrome_puppeteer_index;
 local.puppeteerApi = exports_GoogleChrome_puppeteer_lib_api;
+local.puppeteerLaunch = local._puppeteer.launch.bind(local._puppeteer);
+local.nop(local.puppeteerLaunch);
 
 
 
@@ -49034,7 +47713,10 @@ local.puppeteerApi = exports_GoogleChrome_puppeteer_lib_api;
 file none
 */
 /* jslint ignore:end */
-local.puppeteerLaunch = local._puppeteer.launch.bind(local._puppeteer);
+// run the cli
+if (module === require.main && !globalThis.utility2_rollup) {
+    local.cliRun();
+}
 }());
 }());
 /* script-end /assets.utility2.lib.puppeteer.js */
@@ -49047,31 +47729,184 @@ local.puppeteerLaunch = local._puppeteer.launch.bind(local._puppeteer);
 
 
 /* istanbul instrument in package sjcl */
+// assets.utility2.header.js - start
 /* istanbul ignore next */
 /* jslint utility2:true */
 (function (globalThis) {
     "use strict";
-    var consoleError;
-    var local;
+    let ArrayPrototypeFlat;
+    let TextXxcoder;
+    let consoleError;
+    let debugName;
+    let local;
+    debugName = "debug" + String("Inline");
     // init globalThis
     globalThis.globalThis = globalThis.globalThis || globalThis;
     // init debug_inline
-    if (!globalThis["debug\u0049nline"]) {
+    if (!globalThis[debugName]) {
         consoleError = console.error;
-        globalThis["debug\u0049nline"] = function (...argList) {
+        globalThis[debugName] = function (...argList) {
         /*
          * this function will both print <argList> to stderr
          * and return <argList>[0]
          */
-            // debug argList
-            globalThis["debug\u0049nlineArgList"] = argList;
-            consoleError("\n\ndebug\u0049nline");
+            consoleError("\n\n" + debugName);
             consoleError.apply(console, argList);
             consoleError("\n");
             // return arg0 for inspection
             return argList[0];
         };
     }
+    // polyfill
+    ArrayPrototypeFlat = function (depth) {
+    /*
+     * this function will polyfill Array.prototype.flat
+     * https://github.com/jonathantneal/array-flat-polyfill
+     */
+        depth = (
+            globalThis.isNaN(depth)
+            ? 1
+            : Number(depth)
+        );
+        if (!depth) {
+            return Array.prototype.slice.call(this);
+        }
+        return Array.prototype.reduce.call(this, function (acc, cur) {
+            if (Array.isArray(cur)) {
+                // recurse
+                acc.push.apply(acc, ArrayPrototypeFlat.call(cur, depth - 1));
+            } else {
+                acc.push(cur);
+            }
+            return acc;
+        }, []);
+    };
+    Array.prototype.flat = Array.prototype.flat || ArrayPrototypeFlat;
+    Array.prototype.flatMap = Array.prototype.flatMap || function flatMap(
+        ...argList
+    ) {
+    /*
+     * this function will polyfill Array.prototype.flatMap
+     * https://github.com/jonathantneal/array-flat-polyfill
+     */
+        return this.map(...argList).flat();
+    };
+    String.prototype.trimEnd = (
+        String.prototype.trimEnd || String.prototype.trimRight
+    );
+    String.prototype.trimStart = (
+        String.prototype.trimStart || String.prototype.trimLeft
+    );
+    (function () {
+        try {
+            globalThis.TextDecoder = (
+                globalThis.TextDecoder || require("util").TextDecoder
+            );
+            globalThis.TextEncoder = (
+                globalThis.TextEncoder || require("util").TextEncoder
+            );
+        } catch (ignore) {}
+    }());
+    TextXxcoder = function () {
+    /*
+     * this function will polyfill TextDecoder/TextEncoder
+     * https://gist.github.com/Yaffle/5458286
+     */
+        return;
+    };
+    TextXxcoder.prototype.decode = function (octets) {
+    /*
+     * this function will polyfill TextDecoder.prototype.decode
+     * https://gist.github.com/Yaffle/5458286
+     */
+        let bytesNeeded;
+        let codePoint;
+        let ii;
+        let kk;
+        let octet;
+        let string;
+        string = "";
+        ii = 0;
+        while (ii < octets.length) {
+            octet = octets[ii];
+            bytesNeeded = 0;
+            codePoint = 0;
+            if (octet <= 0x7F) {
+                bytesNeeded = 0;
+                codePoint = octet & 0xFF;
+            } else if (octet <= 0xDF) {
+                bytesNeeded = 1;
+                codePoint = octet & 0x1F;
+            } else if (octet <= 0xEF) {
+                bytesNeeded = 2;
+                codePoint = octet & 0x0F;
+            } else if (octet <= 0xF4) {
+                bytesNeeded = 3;
+                codePoint = octet & 0x07;
+            }
+            if (octets.length - ii - bytesNeeded > 0) {
+                kk = 0;
+                while (kk < bytesNeeded) {
+                    octet = octets[ii + kk + 1];
+                    codePoint = (codePoint << 6) | (octet & 0x3F);
+                    kk += 1;
+                }
+            } else {
+                codePoint = 0xFFFD;
+                bytesNeeded = octets.length - ii;
+            }
+            string += String.fromCodePoint(codePoint);
+            ii += bytesNeeded + 1;
+        }
+        return string;
+    };
+    TextXxcoder.prototype.encode = function (string) {
+    /*
+     * this function will polyfill TextEncoder.prototype.encode
+     * https://gist.github.com/Yaffle/5458286
+     */
+        let bits;
+        let cc;
+        let codePoint;
+        let ii;
+        let length;
+        let octets;
+        octets = [];
+        length = string.length;
+        ii = 0;
+        while (ii < length) {
+            codePoint = string.codePointAt(ii);
+            cc = 0;
+            bits = 0;
+            if (codePoint <= 0x0000007F) {
+                cc = 0;
+                bits = 0x00;
+            } else if (codePoint <= 0x000007FF) {
+                cc = 6;
+                bits = 0xC0;
+            } else if (codePoint <= 0x0000FFFF) {
+                cc = 12;
+                bits = 0xE0;
+            } else if (codePoint <= 0x001FFFFF) {
+                cc = 18;
+                bits = 0xF0;
+            }
+            octets.push(bits | (codePoint >> cc));
+            cc -= 6;
+            while (cc >= 0) {
+                octets.push(0x80 | ((codePoint >> cc) & 0x3F));
+                cc -= 6;
+            }
+            ii += (
+                codePoint >= 0x10000
+                ? 2
+                : 1
+            );
+        }
+        return octets;
+    };
+    globalThis.TextDecoder = globalThis.TextDecoder || TextXxcoder;
+    globalThis.TextEncoder = globalThis.TextEncoder || TextXxcoder;
     // init local
     local = {};
     local.local = local;
@@ -49082,12 +47917,16 @@ local.puppeteerLaunch = local._puppeteer.launch.bind(local._puppeteer);
         && globalThis.navigator
         && typeof globalThis.navigator.userAgent === "string"
     );
+    // init isWebWorker
+    local.isWebWorker = (
+        local.isBrowser && typeof globalThis.importScript === "function"
+    );
     // init function
     local.assertOrThrow = function (passed, message) {
     /*
      * this function will throw err.<message> if <passed> is falsy
      */
-        var err;
+        let err;
         if (passed) {
             return;
         }
@@ -49104,16 +47943,32 @@ local.puppeteerLaunch = local._puppeteer.launch.bind(local._puppeteer);
                 // if message is a string, then leave as is
                 ? message
                 // else JSON.stringify message
-                : JSON.stringify(message, null, 4)
+                : JSON.stringify(message, undefined, 4)
             )
         );
         throw err;
+    };
+    local.coalesce = function (...argList) {
+    /*
+     * this function will coalesce null, undefined, or "" in <argList>
+     */
+        let arg;
+        let ii;
+        ii = 0;
+        while (ii < argList.length) {
+            arg = argList[ii];
+            if (arg !== null && arg !== undefined && arg !== "") {
+                break;
+            }
+            ii += 1;
+        }
+        return arg;
     };
     local.fsRmrfSync = function (dir) {
     /*
      * this function will sync "rm -rf" <dir>
      */
-        var child_process;
+        let child_process;
         try {
             child_process = require("child_process");
         } catch (ignore) {
@@ -49131,7 +47986,7 @@ local.puppeteerLaunch = local._puppeteer.launch.bind(local._puppeteer);
     /*
      * this function will sync write <data> to <file> with "mkdir -p"
      */
-        var fs;
+        let fs;
         try {
             fs = require("fs");
         } catch (ignore) {
@@ -49160,16 +48015,16 @@ local.puppeteerLaunch = local._puppeteer.launch.bind(local._puppeteer);
     local.functionOrNop = function (fnc) {
     /*
      * this function will if <fnc> exists,
-     * them return <fnc>,
+     * return <fnc>,
      * else return <nop>
      */
         return fnc || local.nop;
     };
-    local.identity = function (value) {
+    local.identity = function (val) {
     /*
-     * this function will return <value>
+     * this function will return <val>
      */
-        return value;
+        return val;
     };
     local.nop = function () {
     /*
@@ -49179,8 +48034,7 @@ local.puppeteerLaunch = local._puppeteer.launch.bind(local._puppeteer);
     };
     local.objectAssignDefault = function (target, source) {
     /*
-     * this function will if items from <target> are
-     * null, undefined, or empty-string,
+     * this function will if items from <target> are null, undefined, or "",
      * then overwrite them with items from <source>
      */
         target = target || {};
@@ -49194,6 +48048,26 @@ local.puppeteerLaunch = local._puppeteer.launch.bind(local._puppeteer);
             }
         });
         return target;
+    };
+    local.querySelector = function (selectors) {
+    /*
+     * this function will return first dom-elem that match <selectors>
+     */
+        return (
+            typeof document === "object" && document
+            && typeof document.querySelector === "function"
+            && document.querySelector(selectors)
+        ) || {};
+    };
+    local.querySelectorAll = function (selectors) {
+    /*
+     * this function will return dom-elem-list that match <selectors>
+     */
+        return (
+            typeof document === "object" && document
+            && typeof document.querySelectorAll === "function"
+            && Array.from(document.querySelectorAll(selectors))
+        ) || [];
     };
     // require builtin
     if (!local.isBrowser) {
@@ -49228,6 +48102,7 @@ local.puppeteerLaunch = local._puppeteer.launch.bind(local._puppeteer);
 }((typeof globalThis === "object" && globalThis) || (function () {
     return Function("return this")(); // jslint ignore:line
 }())));
+// assets.utility2.header.js - end
 
 
 
@@ -49875,40 +48750,193 @@ if (local.isBrowser) {
 /* script-begin /assets.utility2.js */
 // usr/bin/env node
 /*
- * lib.utility2.js (2019.9.8)
+ * lib.utility2.js (2019.10.9)
  * https://github.com/kaizhu256/node-utility2
- * this zero-dependency package will provide a collection of high-level functions to to build, test, and deploy webapps
+ * this zero-dependency package will provide high-level functions to to build, test, and deploy webapps
  *
  */
 
 
 
 /* istanbul instrument in package utility2 */
+// assets.utility2.header.js - start
 /* istanbul ignore next */
 /* jslint utility2:true */
 (function (globalThis) {
     "use strict";
-    var consoleError;
-    var local;
+    let ArrayPrototypeFlat;
+    let TextXxcoder;
+    let consoleError;
+    let debugName;
+    let local;
+    debugName = "debug" + String("Inline");
     // init globalThis
     globalThis.globalThis = globalThis.globalThis || globalThis;
     // init debug_inline
-    if (!globalThis["debug\u0049nline"]) {
+    if (!globalThis[debugName]) {
         consoleError = console.error;
-        globalThis["debug\u0049nline"] = function (...argList) {
+        globalThis[debugName] = function (...argList) {
         /*
          * this function will both print <argList> to stderr
          * and return <argList>[0]
          */
-            // debug argList
-            globalThis["debug\u0049nlineArgList"] = argList;
-            consoleError("\n\ndebug\u0049nline");
+            consoleError("\n\n" + debugName);
             consoleError.apply(console, argList);
             consoleError("\n");
             // return arg0 for inspection
             return argList[0];
         };
     }
+    // polyfill
+    ArrayPrototypeFlat = function (depth) {
+    /*
+     * this function will polyfill Array.prototype.flat
+     * https://github.com/jonathantneal/array-flat-polyfill
+     */
+        depth = (
+            globalThis.isNaN(depth)
+            ? 1
+            : Number(depth)
+        );
+        if (!depth) {
+            return Array.prototype.slice.call(this);
+        }
+        return Array.prototype.reduce.call(this, function (acc, cur) {
+            if (Array.isArray(cur)) {
+                // recurse
+                acc.push.apply(acc, ArrayPrototypeFlat.call(cur, depth - 1));
+            } else {
+                acc.push(cur);
+            }
+            return acc;
+        }, []);
+    };
+    Array.prototype.flat = Array.prototype.flat || ArrayPrototypeFlat;
+    Array.prototype.flatMap = Array.prototype.flatMap || function flatMap(
+        ...argList
+    ) {
+    /*
+     * this function will polyfill Array.prototype.flatMap
+     * https://github.com/jonathantneal/array-flat-polyfill
+     */
+        return this.map(...argList).flat();
+    };
+    String.prototype.trimEnd = (
+        String.prototype.trimEnd || String.prototype.trimRight
+    );
+    String.prototype.trimStart = (
+        String.prototype.trimStart || String.prototype.trimLeft
+    );
+    (function () {
+        try {
+            globalThis.TextDecoder = (
+                globalThis.TextDecoder || require("util").TextDecoder
+            );
+            globalThis.TextEncoder = (
+                globalThis.TextEncoder || require("util").TextEncoder
+            );
+        } catch (ignore) {}
+    }());
+    TextXxcoder = function () {
+    /*
+     * this function will polyfill TextDecoder/TextEncoder
+     * https://gist.github.com/Yaffle/5458286
+     */
+        return;
+    };
+    TextXxcoder.prototype.decode = function (octets) {
+    /*
+     * this function will polyfill TextDecoder.prototype.decode
+     * https://gist.github.com/Yaffle/5458286
+     */
+        let bytesNeeded;
+        let codePoint;
+        let ii;
+        let kk;
+        let octet;
+        let string;
+        string = "";
+        ii = 0;
+        while (ii < octets.length) {
+            octet = octets[ii];
+            bytesNeeded = 0;
+            codePoint = 0;
+            if (octet <= 0x7F) {
+                bytesNeeded = 0;
+                codePoint = octet & 0xFF;
+            } else if (octet <= 0xDF) {
+                bytesNeeded = 1;
+                codePoint = octet & 0x1F;
+            } else if (octet <= 0xEF) {
+                bytesNeeded = 2;
+                codePoint = octet & 0x0F;
+            } else if (octet <= 0xF4) {
+                bytesNeeded = 3;
+                codePoint = octet & 0x07;
+            }
+            if (octets.length - ii - bytesNeeded > 0) {
+                kk = 0;
+                while (kk < bytesNeeded) {
+                    octet = octets[ii + kk + 1];
+                    codePoint = (codePoint << 6) | (octet & 0x3F);
+                    kk += 1;
+                }
+            } else {
+                codePoint = 0xFFFD;
+                bytesNeeded = octets.length - ii;
+            }
+            string += String.fromCodePoint(codePoint);
+            ii += bytesNeeded + 1;
+        }
+        return string;
+    };
+    TextXxcoder.prototype.encode = function (string) {
+    /*
+     * this function will polyfill TextEncoder.prototype.encode
+     * https://gist.github.com/Yaffle/5458286
+     */
+        let bits;
+        let cc;
+        let codePoint;
+        let ii;
+        let length;
+        let octets;
+        octets = [];
+        length = string.length;
+        ii = 0;
+        while (ii < length) {
+            codePoint = string.codePointAt(ii);
+            cc = 0;
+            bits = 0;
+            if (codePoint <= 0x0000007F) {
+                cc = 0;
+                bits = 0x00;
+            } else if (codePoint <= 0x000007FF) {
+                cc = 6;
+                bits = 0xC0;
+            } else if (codePoint <= 0x0000FFFF) {
+                cc = 12;
+                bits = 0xE0;
+            } else if (codePoint <= 0x001FFFFF) {
+                cc = 18;
+                bits = 0xF0;
+            }
+            octets.push(bits | (codePoint >> cc));
+            cc -= 6;
+            while (cc >= 0) {
+                octets.push(0x80 | ((codePoint >> cc) & 0x3F));
+                cc -= 6;
+            }
+            ii += (
+                codePoint >= 0x10000
+                ? 2
+                : 1
+            );
+        }
+        return octets;
+    };
+    globalThis.TextDecoder = globalThis.TextDecoder || TextXxcoder;
+    globalThis.TextEncoder = globalThis.TextEncoder || TextXxcoder;
     // init local
     local = {};
     local.local = local;
@@ -49919,12 +48947,16 @@ if (local.isBrowser) {
         && globalThis.navigator
         && typeof globalThis.navigator.userAgent === "string"
     );
+    // init isWebWorker
+    local.isWebWorker = (
+        local.isBrowser && typeof globalThis.importScript === "function"
+    );
     // init function
     local.assertOrThrow = function (passed, message) {
     /*
      * this function will throw err.<message> if <passed> is falsy
      */
-        var err;
+        let err;
         if (passed) {
             return;
         }
@@ -49941,16 +48973,32 @@ if (local.isBrowser) {
                 // if message is a string, then leave as is
                 ? message
                 // else JSON.stringify message
-                : JSON.stringify(message, null, 4)
+                : JSON.stringify(message, undefined, 4)
             )
         );
         throw err;
+    };
+    local.coalesce = function (...argList) {
+    /*
+     * this function will coalesce null, undefined, or "" in <argList>
+     */
+        let arg;
+        let ii;
+        ii = 0;
+        while (ii < argList.length) {
+            arg = argList[ii];
+            if (arg !== null && arg !== undefined && arg !== "") {
+                break;
+            }
+            ii += 1;
+        }
+        return arg;
     };
     local.fsRmrfSync = function (dir) {
     /*
      * this function will sync "rm -rf" <dir>
      */
-        var child_process;
+        let child_process;
         try {
             child_process = require("child_process");
         } catch (ignore) {
@@ -49968,7 +49016,7 @@ if (local.isBrowser) {
     /*
      * this function will sync write <data> to <file> with "mkdir -p"
      */
-        var fs;
+        let fs;
         try {
             fs = require("fs");
         } catch (ignore) {
@@ -49997,16 +49045,16 @@ if (local.isBrowser) {
     local.functionOrNop = function (fnc) {
     /*
      * this function will if <fnc> exists,
-     * them return <fnc>,
+     * return <fnc>,
      * else return <nop>
      */
         return fnc || local.nop;
     };
-    local.identity = function (value) {
+    local.identity = function (val) {
     /*
-     * this function will return <value>
+     * this function will return <val>
      */
-        return value;
+        return val;
     };
     local.nop = function () {
     /*
@@ -50016,8 +49064,7 @@ if (local.isBrowser) {
     };
     local.objectAssignDefault = function (target, source) {
     /*
-     * this function will if items from <target> are
-     * null, undefined, or empty-string,
+     * this function will if items from <target> are null, undefined, or "",
      * then overwrite them with items from <source>
      */
         target = target || {};
@@ -50031,6 +49078,26 @@ if (local.isBrowser) {
             }
         });
         return target;
+    };
+    local.querySelector = function (selectors) {
+    /*
+     * this function will return first dom-elem that match <selectors>
+     */
+        return (
+            typeof document === "object" && document
+            && typeof document.querySelector === "function"
+            && document.querySelector(selectors)
+        ) || {};
+    };
+    local.querySelectorAll = function (selectors) {
+    /*
+     * this function will return dom-elem-list that match <selectors>
+     */
+        return (
+            typeof document === "object" && document
+            && typeof document.querySelectorAll === "function"
+            && Array.from(document.querySelectorAll(selectors))
+        ) || [];
     };
     // require builtin
     if (!local.isBrowser) {
@@ -50065,6 +49132,7 @@ if (local.isBrowser) {
 }((typeof globalThis === "object" && globalThis) || (function () {
     return Function("return this")(); // jslint ignore:line
 }())));
+// assets.utility2.header.js - end
 
 
 
@@ -50101,7 +49169,6 @@ globalThis.utility2 = local;
 // init lib extra
 [
     "apidoc",
-    "db",
     "github_crud",
     "istanbul",
     "jslint",
@@ -50129,6 +49196,385 @@ local.assetsDict = local.assetsDict || {};
 
 
 /* jslint ignore:start */
+local.assetsDict["/assets.utility2.header.js"] = '\
+// assets.utility2.header.js - start\n\
+/* istanbul ignore next */\n\
+/* jslint utility2:true */\n\
+(function (globalThis) {\n\
+    "use strict";\n\
+    let ArrayPrototypeFlat;\n\
+    let TextXxcoder;\n\
+    let consoleError;\n\
+    let debugName;\n\
+    let local;\n\
+    debugName = "debug" + String("Inline");\n\
+    // init globalThis\n\
+    globalThis.globalThis = globalThis.globalThis || globalThis;\n\
+    // init debug_inline\n\
+    if (!globalThis[debugName]) {\n\
+        consoleError = console.error;\n\
+        globalThis[debugName] = function (...argList) {\n\
+        /*\n\
+         * this function will both print <argList> to stderr\n\
+         * and return <argList>[0]\n\
+         */\n\
+            consoleError("\\n\\n" + debugName);\n\
+            consoleError.apply(console, argList);\n\
+            consoleError("\\n");\n\
+            // return arg0 for inspection\n\
+            return argList[0];\n\
+        };\n\
+    }\n\
+    // polyfill\n\
+    ArrayPrototypeFlat = function (depth) {\n\
+    /*\n\
+     * this function will polyfill Array.prototype.flat\n\
+     * https://github.com/jonathantneal/array-flat-polyfill\n\
+     */\n\
+        depth = (\n\
+            globalThis.isNaN(depth)\n\
+            ? 1\n\
+            : Number(depth)\n\
+        );\n\
+        if (!depth) {\n\
+            return Array.prototype.slice.call(this);\n\
+        }\n\
+        return Array.prototype.reduce.call(this, function (acc, cur) {\n\
+            if (Array.isArray(cur)) {\n\
+                // recurse\n\
+                acc.push.apply(acc, ArrayPrototypeFlat.call(cur, depth - 1));\n\
+            } else {\n\
+                acc.push(cur);\n\
+            }\n\
+            return acc;\n\
+        }, []);\n\
+    };\n\
+    Array.prototype.flat = Array.prototype.flat || ArrayPrototypeFlat;\n\
+    Array.prototype.flatMap = Array.prototype.flatMap || function flatMap(\n\
+        ...argList\n\
+    ) {\n\
+    /*\n\
+     * this function will polyfill Array.prototype.flatMap\n\
+     * https://github.com/jonathantneal/array-flat-polyfill\n\
+     */\n\
+        return this.map(...argList).flat();\n\
+    };\n\
+    String.prototype.trimEnd = (\n\
+        String.prototype.trimEnd || String.prototype.trimRight\n\
+    );\n\
+    String.prototype.trimStart = (\n\
+        String.prototype.trimStart || String.prototype.trimLeft\n\
+    );\n\
+    (function () {\n\
+        try {\n\
+            globalThis.TextDecoder = (\n\
+                globalThis.TextDecoder || require("util").TextDecoder\n\
+            );\n\
+            globalThis.TextEncoder = (\n\
+                globalThis.TextEncoder || require("util").TextEncoder\n\
+            );\n\
+        } catch (ignore) {}\n\
+    }());\n\
+    TextXxcoder = function () {\n\
+    /*\n\
+     * this function will polyfill TextDecoder/TextEncoder\n\
+     * https://gist.github.com/Yaffle/5458286\n\
+     */\n\
+        return;\n\
+    };\n\
+    TextXxcoder.prototype.decode = function (octets) {\n\
+    /*\n\
+     * this function will polyfill TextDecoder.prototype.decode\n\
+     * https://gist.github.com/Yaffle/5458286\n\
+     */\n\
+        let bytesNeeded;\n\
+        let codePoint;\n\
+        let ii;\n\
+        let kk;\n\
+        let octet;\n\
+        let string;\n\
+        string = "";\n\
+        ii = 0;\n\
+        while (ii < octets.length) {\n\
+            octet = octets[ii];\n\
+            bytesNeeded = 0;\n\
+            codePoint = 0;\n\
+            if (octet <= 0x7F) {\n\
+                bytesNeeded = 0;\n\
+                codePoint = octet & 0xFF;\n\
+            } else if (octet <= 0xDF) {\n\
+                bytesNeeded = 1;\n\
+                codePoint = octet & 0x1F;\n\
+            } else if (octet <= 0xEF) {\n\
+                bytesNeeded = 2;\n\
+                codePoint = octet & 0x0F;\n\
+            } else if (octet <= 0xF4) {\n\
+                bytesNeeded = 3;\n\
+                codePoint = octet & 0x07;\n\
+            }\n\
+            if (octets.length - ii - bytesNeeded > 0) {\n\
+                kk = 0;\n\
+                while (kk < bytesNeeded) {\n\
+                    octet = octets[ii + kk + 1];\n\
+                    codePoint = (codePoint << 6) | (octet & 0x3F);\n\
+                    kk += 1;\n\
+                }\n\
+            } else {\n\
+                codePoint = 0xFFFD;\n\
+                bytesNeeded = octets.length - ii;\n\
+            }\n\
+            string += String.fromCodePoint(codePoint);\n\
+            ii += bytesNeeded + 1;\n\
+        }\n\
+        return string;\n\
+    };\n\
+    TextXxcoder.prototype.encode = function (string) {\n\
+    /*\n\
+     * this function will polyfill TextEncoder.prototype.encode\n\
+     * https://gist.github.com/Yaffle/5458286\n\
+     */\n\
+        let bits;\n\
+        let cc;\n\
+        let codePoint;\n\
+        let ii;\n\
+        let length;\n\
+        let octets;\n\
+        octets = [];\n\
+        length = string.length;\n\
+        ii = 0;\n\
+        while (ii < length) {\n\
+            codePoint = string.codePointAt(ii);\n\
+            cc = 0;\n\
+            bits = 0;\n\
+            if (codePoint <= 0x0000007F) {\n\
+                cc = 0;\n\
+                bits = 0x00;\n\
+            } else if (codePoint <= 0x000007FF) {\n\
+                cc = 6;\n\
+                bits = 0xC0;\n\
+            } else if (codePoint <= 0x0000FFFF) {\n\
+                cc = 12;\n\
+                bits = 0xE0;\n\
+            } else if (codePoint <= 0x001FFFFF) {\n\
+                cc = 18;\n\
+                bits = 0xF0;\n\
+            }\n\
+            octets.push(bits | (codePoint >> cc));\n\
+            cc -= 6;\n\
+            while (cc >= 0) {\n\
+                octets.push(0x80 | ((codePoint >> cc) & 0x3F));\n\
+                cc -= 6;\n\
+            }\n\
+            ii += (\n\
+                codePoint >= 0x10000\n\
+                ? 2\n\
+                : 1\n\
+            );\n\
+        }\n\
+        return octets;\n\
+    };\n\
+    globalThis.TextDecoder = globalThis.TextDecoder || TextXxcoder;\n\
+    globalThis.TextEncoder = globalThis.TextEncoder || TextXxcoder;\n\
+    // init local\n\
+    local = {};\n\
+    local.local = local;\n\
+    globalThis.globalLocal = local;\n\
+    // init isBrowser\n\
+    local.isBrowser = (\n\
+        typeof globalThis.XMLHttpRequest === "function"\n\
+        && globalThis.navigator\n\
+        && typeof globalThis.navigator.userAgent === "string"\n\
+    );\n\
+    // init isWebWorker\n\
+    local.isWebWorker = (\n\
+        local.isBrowser && typeof globalThis.importScript === "function"\n\
+    );\n\
+    // init function\n\
+    local.assertOrThrow = function (passed, message) {\n\
+    /*\n\
+     * this function will throw err.<message> if <passed> is falsy\n\
+     */\n\
+        let err;\n\
+        if (passed) {\n\
+            return;\n\
+        }\n\
+        err = (\n\
+            (\n\
+                message\n\
+                && typeof message.message === "string"\n\
+                && typeof message.stack === "string"\n\
+            )\n\
+            // if message is errObj, then leave as is\n\
+            ? message\n\
+            : new Error(\n\
+                typeof message === "string"\n\
+                // if message is a string, then leave as is\n\
+                ? message\n\
+                // else JSON.stringify message\n\
+                : JSON.stringify(message, undefined, 4)\n\
+            )\n\
+        );\n\
+        throw err;\n\
+    };\n\
+    local.coalesce = function (...argList) {\n\
+    /*\n\
+     * this function will coalesce null, undefined, or "" in <argList>\n\
+     */\n\
+        let arg;\n\
+        let ii;\n\
+        ii = 0;\n\
+        while (ii < argList.length) {\n\
+            arg = argList[ii];\n\
+            if (arg !== null && arg !== undefined && arg !== "") {\n\
+                break;\n\
+            }\n\
+            ii += 1;\n\
+        }\n\
+        return arg;\n\
+    };\n\
+    local.fsRmrfSync = function (dir) {\n\
+    /*\n\
+     * this function will sync "rm -rf" <dir>\n\
+     */\n\
+        let child_process;\n\
+        try {\n\
+            child_process = require("child_process");\n\
+        } catch (ignore) {\n\
+            return;\n\
+        }\n\
+        child_process.spawnSync("rm", [\n\
+            "-rf", dir\n\
+        ], {\n\
+            stdio: [\n\
+                "ignore", 1, 2\n\
+            ]\n\
+        });\n\
+    };\n\
+    local.fsWriteFileWithMkdirpSync = function (file, data) {\n\
+    /*\n\
+     * this function will sync write <data> to <file> with "mkdir -p"\n\
+     */\n\
+        let fs;\n\
+        try {\n\
+            fs = require("fs");\n\
+        } catch (ignore) {\n\
+            return;\n\
+        }\n\
+        // try to write file\n\
+        try {\n\
+            fs.writeFileSync(file, data);\n\
+        } catch (ignore) {\n\
+            // mkdir -p\n\
+            require("child_process").spawnSync(\n\
+                "mkdir",\n\
+                [\n\
+                    "-p", require("path").dirname(file)\n\
+                ],\n\
+                {\n\
+                    stdio: [\n\
+                        "ignore", 1, 2\n\
+                    ]\n\
+                }\n\
+            );\n\
+            // rewrite file\n\
+            fs.writeFileSync(file, data);\n\
+        }\n\
+    };\n\
+    local.functionOrNop = function (fnc) {\n\
+    /*\n\
+     * this function will if <fnc> exists,\n\
+     * return <fnc>,\n\
+     * else return <nop>\n\
+     */\n\
+        return fnc || local.nop;\n\
+    };\n\
+    local.identity = function (val) {\n\
+    /*\n\
+     * this function will return <val>\n\
+     */\n\
+        return val;\n\
+    };\n\
+    local.nop = function () {\n\
+    /*\n\
+     * this function will do nothing\n\
+     */\n\
+        return;\n\
+    };\n\
+    local.objectAssignDefault = function (target, source) {\n\
+    /*\n\
+     * this function will if items from <target> are null, undefined, or "",\n\
+     * then overwrite them with items from <source>\n\
+     */\n\
+        target = target || {};\n\
+        Object.keys(source || {}).forEach(function (key) {\n\
+            if (\n\
+                target[key] === null\n\
+                || target[key] === undefined\n\
+                || target[key] === ""\n\
+            ) {\n\
+                target[key] = target[key] || source[key];\n\
+            }\n\
+        });\n\
+        return target;\n\
+    };\n\
+    local.querySelector = function (selectors) {\n\
+    /*\n\
+     * this function will return first dom-elem that match <selectors>\n\
+     */\n\
+        return (\n\
+            typeof document === "object" && document\n\
+            && typeof document.querySelector === "function"\n\
+            && document.querySelector(selectors)\n\
+        ) || {};\n\
+    };\n\
+    local.querySelectorAll = function (selectors) {\n\
+    /*\n\
+     * this function will return dom-elem-list that match <selectors>\n\
+     */\n\
+        return (\n\
+            typeof document === "object" && document\n\
+            && typeof document.querySelectorAll === "function"\n\
+            && Array.from(document.querySelectorAll(selectors))\n\
+        ) || [];\n\
+    };\n\
+    // require builtin\n\
+    if (!local.isBrowser) {\n\
+        local.assert = require("assert");\n\
+        local.buffer = require("buffer");\n\
+        local.child_process = require("child_process");\n\
+        local.cluster = require("cluster");\n\
+        local.crypto = require("crypto");\n\
+        local.dgram = require("dgram");\n\
+        local.dns = require("dns");\n\
+        local.domain = require("domain");\n\
+        local.events = require("events");\n\
+        local.fs = require("fs");\n\
+        local.http = require("http");\n\
+        local.https = require("https");\n\
+        local.net = require("net");\n\
+        local.os = require("os");\n\
+        local.path = require("path");\n\
+        local.querystring = require("querystring");\n\
+        local.readline = require("readline");\n\
+        local.repl = require("repl");\n\
+        local.stream = require("stream");\n\
+        local.string_decoder = require("string_decoder");\n\
+        local.timers = require("timers");\n\
+        local.tls = require("tls");\n\
+        local.tty = require("tty");\n\
+        local.url = require("url");\n\
+        local.util = require("util");\n\
+        local.vm = require("vm");\n\
+        local.zlib = require("zlib");\n\
+    }\n\
+}((typeof globalThis === "object" && globalThis) || (function () {\n\
+    return Function("return this")(); // jslint ignore:line\n\
+}())));\n\
+// assets.utility2.header.js - end\n\
+'
+
+
+
 local.assetsDict["/assets.index.template.html"] =
 local.assetsDict["/assets.utility2.template.html"] = '\
 <!doctype html>\n\
@@ -50149,19 +49595,6 @@ local.assetsDict["/assets.utility2.template.html"] = '\
     box-sizing: border-box;\n\
 }\n\
 /* csslint ignore:end */\n\
-@keyframes uiAnimateShake {\n\
-0%,\n\
-50% {\n\
-    transform: translateX(10px);\n\
-}\n\
-100% {\n\
-    transform: translateX(0);\n\
-}\n\
-25%,\n\
-75% {\n\
-    transform: translateX(-10px);\n\
-}\n\
-}\n\
 @keyframes uiAnimateSpin {\n\
 0% {\n\
     transform: rotate(0deg);\n\
@@ -50180,11 +49613,6 @@ body {\n\
     margin: 0 40px;\n\
 }\n\
 body > div,\n\
-body > form > div,\n\
-body > form > input,\n\
-body > form > pre,\n\
-body > form > .button,\n\
-body > form > .textarea,\n\
 body > input,\n\
 body > pre,\n\
 body > .button,\n\
@@ -50192,19 +49620,17 @@ body > .textarea {\n\
     margin-bottom: 20px;\n\
     margin-top: 0;\n\
 }\n\
-body > form > input,\n\
-body > form > .button,\n\
 body > input,\n\
 body > .button {\n\
     width: 20rem;\n\
 }\n\
-body > form > .textarea,\n\
-body > .textarea {\n\
-    height: 10rem;\n\
-    width: 100%;\n\
-}\n\
 body > .readonly {\n\
     background: #ddd;\n\
+}\n\
+body > .textarea {\n\
+    height: 10rem;\n\
+    resize: vertical;\n\
+    width: 100%;\n\
 }\n\
 code,\n\
 pre,\n\
@@ -50240,10 +49666,6 @@ pre {\n\
     overflow: auto;\n\
     padding: 2px;\n\
 }\n\
-.uiAnimateShake {\n\
-    animation-duration: 500ms;\n\
-    animation-name: uiAnimateShake;\n\
-}\n\
 .uiAnimateSlide {\n\
     overflow-y: hidden;\n\
     transition: max-height ease-in 250ms, min-height ease-in 250ms, padding-bottom ease-in 250ms, padding-top ease-in 250ms;\n\
@@ -50259,8 +49681,6 @@ pre {\n\
 </head>\n\
 <body>\n\
 <div class="uiAnimateSpin" style="animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;"></div>\n\
-<a class="zeroPixel" download="db.persistence.json" href="" id="dbExportA1"></a>\n\
-<input class="zeroPixel" data-onevent="onEventDomDb" data-onevent-db="dbImportInput" type="file">\n\
 <script>\n\
 /* jslint utility2:true */\n\
 // init domOnEventWindowOnloadTimeElapsed\n\
@@ -50269,7 +49689,10 @@ pre {\n\
  * this function will measure and print time-elapsed for window.onload\n\
  */\n\
     "use strict";\n\
-    if (window.domOnEventWindowOnloadTimeElapsed) {\n\
+    if (!(\n\
+        typeof window === "object" && window && window.document\n\
+        && typeof document.addEventListener === "function"\n\
+    ) || window.domOnEventWindowOnloadTimeElapsed) {\n\
         return;\n\
     }\n\
     window.domOnEventWindowOnloadTimeElapsed = Date.now() + 100;\n\
@@ -50295,8 +49718,11 @@ pre {\n\
  * this function will display incrementing ajax-progress-bar\n\
  */\n\
     "use strict";\n\
-    var opt;\n\
-    if (window.domOnEventAjaxProgressUpdate) {\n\
+    let opt;\n\
+    if (!(\n\
+        typeof window === "object" && window && window.document\n\
+        && typeof document.addEventListener === "function"\n\
+    ) || window.domOnEventAjaxProgressUpdate) {\n\
         return;\n\
     }\n\
     window.domOnEventAjaxProgressUpdate = function (gotoState, onError) {\n\
@@ -50329,7 +49755,7 @@ pre {\n\
                 opt.width = 0;\n\
             }\n\
             // this algorithm will indefinitely increment ajaxProgress\n\
-            // with successively smaller increments without ever reaching 100%\n\
+            // with successively smaller increments without reaching 100%\n\
             opt.width += 1;\n\
             opt.style.width = Math.max(\n\
                 100 - 75 * Math.exp(-0.125 * opt.width),\n\
@@ -50407,49 +49833,54 @@ pre {\n\
 // init domOnEventDelegateDict\n\
 (function () {\n\
 /*\n\
- * this function will handle delegated dom-event\n\
+ * this function will handle delegated dom-evt\n\
  */\n\
     "use strict";\n\
-    var timerTimeoutDict;\n\
-    if (window.domOnEventDelegateDict) {\n\
+    let debounce;\n\
+    let timerTimeout;\n\
+    debounce = function () {\n\
+        return setTimeout(function () {\n\
+            timerTimeout = undefined;\n\
+        }, 30);\n\
+    };\n\
+    if (!(\n\
+        typeof window === "object" && window && window.document\n\
+        && typeof document.addEventListener === "function"\n\
+    ) || window.domOnEventDelegateDict) {\n\
         return;\n\
     }\n\
     window.domOnEventDelegateDict = {};\n\
-    timerTimeoutDict = {};\n\
     window.domOnEventDelegateDict.domOnEventDelegate = function (evt) {\n\
-        evt.targetOnEvent = evt.target.closest(\n\
-            "[data-onevent]"\n\
-        );\n\
+        evt.targetOnEvent = evt.target.closest("[data-onevent]");\n\
         if (\n\
             !evt.targetOnEvent\n\
             || evt.targetOnEvent.dataset.onevent === "domOnEventNop"\n\
-            || evt.target.closest(\n\
-                ".disabled, .readonly"\n\
-            )\n\
+            || evt.target.closest(".disabled,.readonly")\n\
         ) {\n\
             return;\n\
         }\n\
-        // rate-limit high-frequency-event\n\
+        // filter evt-change\n\
+        switch (evt.type !== "change" && evt.target.type) {\n\
+        case "checkbox":\n\
+        case "file":\n\
+        case "select-one":\n\
+        case "radio":\n\
+            return;\n\
+        }\n\
+        // filter evt-keyup\n\
         switch (evt.type) {\n\
-        case "keydown":\n\
         case "keyup":\n\
-            // filter non-input keyboard-event\n\
-            if (!evt.target.closest(\n\
-                "input, option, select, textarea"\n\
+            if (!timerTimeout && (\n\
+                evt.target.tagName === "INPUT"\n\
+                || evt.target.tagName === "TEXTAREA"\n\
             )) {\n\
-                return;\n\
+                timerTimeout = debounce();\n\
+                if (evt.target.dataset.valueOld !== evt.target.value) {\n\
+                    evt.target.dataset.valueOld = evt.target.value;\n\
+                    break;\n\
+                }\n\
             }\n\
-            if (timerTimeoutDict[evt.type] !== true) {\n\
-                timerTimeoutDict[evt.type] = timerTimeoutDict[\n\
-                    evt.type\n\
-                ] || setTimeout(function () {\n\
-                    timerTimeoutDict[evt.type] = true;\n\
-                    window.domOnEventDelegateDict.domOnEventDelegate(evt);\n\
-                }, 50);\n\
-                return;\n\
-            }\n\
-            timerTimeoutDict[evt.type] = null;\n\
-            break;\n\
+            return;\n\
         }\n\
         switch (evt.targetOnEvent.tagName) {\n\
         case "BUTTON":\n\
@@ -50458,32 +49889,20 @@ pre {\n\
             break;\n\
         }\n\
         evt.stopPropagation();\n\
-        window.domOnEventDelegateDict[evt.targetOnEvent.dataset.onevent](\n\
-            evt\n\
-        );\n\
+        // handle domOnEventClickTarget\n\
+        if (evt.targetOnEvent.dataset.onevent === "domOnEventClickTarget") {\n\
+            document.querySelector(\n\
+                evt.targetOnEvent.dataset.clickTarget\n\
+            ).click();\n\
+            return;\n\
+        }\n\
+        window.domOnEventDelegateDict[evt.targetOnEvent.dataset.onevent](evt);\n\
     };\n\
-    window.domOnEventDelegateDict.domOnEventResetOutput = function () {\n\
-        document.querySelectorAll(\n\
-            ".onevent-reset-output"\n\
-        ).forEach(function (elem) {\n\
-            switch (elem.tagName) {\n\
-            case "INPUT":\n\
-            case "TEXTAREA":\n\
-                elem.value = "";\n\
-                break;\n\
-            case "PRE":\n\
-                elem.textContent = "";\n\
-                break;\n\
-            default:\n\
-                elem.innerHTML = "";\n\
-            }\n\
-        });\n\
-    };\n\
-    // init event-handling\n\
+    // handle evt\n\
     [\n\
         "change",\n\
         "click",\n\
-        "keydown",\n\
+        "keyup",\n\
         "submit"\n\
     ].forEach(function (eventType) {\n\
         document.addEventListener(\n\
@@ -50498,35 +49917,32 @@ pre {\n\
 // init domOnEventSelectAllWithinPre\n\
 (function () {\n\
 /*\n\
- * this function will limit select-all within <pre tabIndex="0"> elements\n\
+ * this function will limit select-all within <pre tabIndex="0"> elem\n\
  * https://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse\n\
  */\n\
     "use strict";\n\
-    if (window.domOnEventSelectAllWithinPre) {\n\
+    if (!(\n\
+        typeof window === "object" && window && window.document\n\
+        && typeof document.addEventListener === "function"\n\
+    ) || window.domOnEventSelectAllWithinPre) {\n\
         return;\n\
     }\n\
     window.domOnEventSelectAllWithinPre = function (evt) {\n\
-        var range;\n\
-        var selection;\n\
+        let range;\n\
+        let selection;\n\
         if (\n\
-            evt\n\
-            && evt.key === "a"\n\
-            && (evt.ctrlKey || evt.metaKey)\n\
-            && evt.target.closest(\n\
-                "pre"\n\
-            )\n\
+            evt && (evt.ctrlKey || evt.metaKey) && evt.key === "a"\n\
+            && evt.target.closest("pre")\n\
         ) {\n\
             range = document.createRange();\n\
-            range.selectNodeContents(evt.target.closest(\n\
-                "pre"\n\
-            ));\n\
+            range.selectNodeContents(evt.target.closest("pre"));\n\
             selection = window.getSelection();\n\
             selection.removeAllRanges();\n\
             selection.addRange(range);\n\
             evt.preventDefault();\n\
         }\n\
     };\n\
-    // init event-handling\n\
+    // handle evt\n\
     document.addEventListener(\n\
         "keydown",\n\
         window.domOnEventSelectAllWithinPre\n\
@@ -50550,7 +49966,7 @@ utility2-comment -->\n\
 <h3>{{env.npm_package_description}}</h3>\n\
 <!-- utility2-comment\n\
 <a class="button" download href="assets.app.js">download standalone app</a><br>\n\
-<button class="button" data-onevent="testRunBrowser" id="buttonTestRun1">run internal test</button><br>\n\
+<button class="button" data-onevent="testRunBrowser" id="buttonTestRun1">run browser-tests</button><br>\n\
 <div class="uiAnimateSlide" id="htmlTestReport1" style="border-bottom: 0; border-top: 0; margin-bottom: 0; margin-top: 0; max-height: 0; padding-bottom: 0; padding-top: 0;"></div>\n\
 utility2-comment -->\n\
 \n\
@@ -50558,17 +49974,15 @@ utility2-comment -->\n\
 \n\
 <!-- custom-html-start -->\n\
 <label>stderr and stdout</label>\n\
-<pre class="onevent-reset-output readonly textarea" id="outputStdout1" tabIndex="0"></pre>\n\
+<textarea class="onevent-reset-output readonly textarea" id="outputStdout1" readonly></textarea>\n\
 <!-- custom-html-end -->\n\
 \n\
 \n\
 \n\
+<!-- utility2-comment\n\
 {{#if isRollup}}\n\
-<!-- utility2-comment\n\
 <script src="assets.app.js"></script>\n\
-utility2-comment -->\n\
 {{#unless isRollup}}\n\
-<!-- utility2-comment\n\
 <script src="assets.utility2.rollup.js"></script>\n\
 <script>window.utility2_onReadyBefore.counter += 1;</script>\n\
 <script src="jsonp.utility2.stateInit?callback=window.utility2.stateInit"></script>\n\
@@ -50577,32 +49991,12 @@ utility2-comment -->\n\
 <script src="assets.example.js"></script>\n\
 <script src="assets.test.js"></script>\n\
 <script>\n\
-if(window.utility2_onReadyBefore) {\n\
+if (window.utility2_onReadyBefore) {\n\
     window.utility2_onReadyBefore();\n\
 }\n\
 </script>\n\
-{{/if isRollup}}\n\
-<script>\n\
-/* jslint utility2:true */\n\
-(function () {\n\
-"use strict";\n\
-var htmlTestReport1;\n\
-var local;\n\
-htmlTestReport1 = document.querySelector("#htmlTestReport1");\n\
-local = window.utility2;\n\
-if (!(htmlTestReport1 && local)) {\n\
-    return;\n\
-}\n\
-local.on("utility2.testRunProgressUpdate", function (testReport) {\n\
-    htmlTestReport1.innerHTML = local.testReportMerge(testReport, {});\n\
-});\n\
-local.on("utility2.testRunStart", function (testReport) {\n\
-    local.uiAnimateSlideDown(htmlTestReport1);\n\
-    htmlTestReport1.innerHTML = local.testReportMerge(testReport, {});\n\
-});\n\
-}());\n\
-</script>\n\
 <!-- utility2-comment\n\
+{{/if isRollup}}\n\
 utility2-comment -->\n\
 <div style="text-align: center;">\n\
     [\n\
@@ -50618,194 +50012,9 @@ utility2-comment -->\n\
 
 
 
-/* validateLineSortedReset */
 // https://img.shields.io/badge/last_build-0000_00_00_00_00_00_UTC_--_master_--_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-0077ff.svg?style=flat
 local.assetsDict["/assets.buildBadge.template.svg"] =
 '<svg xmlns="http://www.w3.org/2000/svg" width="563" height="20"><linearGradient id="a" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><rect rx="0" width="563" height="20" fill="#555"/><rect rx="0" x="61" width="502" height="20" fill="#07f"/><path fill="#07f" d="M61 0h4v20h-4z"/><rect rx="0" width="563" height="20" fill="url(#a)"/><g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11"><text x="31.5" y="15" fill="#010101" fill-opacity=".3">last build</text><text x="31.5" y="14">last build</text><text x="311" y="15" fill="#010101" fill-opacity=".3">0000-00-00 00:00:00 UTC - master - aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</text><text x="311" y="14">0000-00-00 00:00:00 UTC - master - aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</text></g></svg>';
-
-
-
-local.assetsDict["/assets.example.begin.js"] = '\
-(function (globalThis) {\n\
-    "use strict";\n\
-    var consoleError;\n\
-    var local;\n\
-    // init globalThis\n\
-    globalThis.globalThis = globalThis.globalThis || globalThis;\n\
-    // init debug_inline\n\
-    if (!globalThis["debug\\u0049nline"]) {\n\
-        consoleError = console.error;\n\
-        globalThis["debug\\u0049nline"] = function (...argList) {\n\
-        /*\n\
-         * this function will both print <argList> to stderr\n\
-         * and return <argList>[0]\n\
-         */\n\
-            // debug argList\n\
-            globalThis["debug\\u0049nlineArgList"] = argList;\n\
-            consoleError("\\n\\ndebug\\u0049nline");\n\
-            consoleError.apply(console, argList);\n\
-            consoleError("\\n");\n\
-            // return arg0 for inspection\n\
-            return argList[0];\n\
-        };\n\
-    }\n\
-    // init local\n\
-    local = {};\n\
-    local.local = local;\n\
-    globalThis.globalLocal = local;\n\
-    // init isBrowser\n\
-    local.isBrowser = (\n\
-        typeof globalThis.XMLHttpRequest === "function"\n\
-        && globalThis.navigator\n\
-        && typeof globalThis.navigator.userAgent === "string"\n\
-    );\n\
-    // init function\n\
-    local.assertOrThrow = function (passed, message) {\n\
-    /*\n\
-     * this function will throw err.<message> if <passed> is falsy\n\
-     */\n\
-        var err;\n\
-        if (passed) {\n\
-            return;\n\
-        }\n\
-        err = (\n\
-            (\n\
-                message\n\
-                && typeof message.message === "string"\n\
-                && typeof message.stack === "string"\n\
-            )\n\
-            // if message is errObj, then leave as is\n\
-            ? message\n\
-            : new Error(\n\
-                typeof message === "string"\n\
-                // if message is a string, then leave as is\n\
-                ? message\n\
-                // else JSON.stringify message\n\
-                : JSON.stringify(message, null, 4)\n\
-            )\n\
-        );\n\
-        throw err;\n\
-    };\n\
-    local.fsRmrfSync = function (dir) {\n\
-    /*\n\
-     * this function will sync "rm -rf" <dir>\n\
-     */\n\
-        var child_process;\n\
-        try {\n\
-            child_process = require("child_process");\n\
-        } catch (ignore) {\n\
-            return;\n\
-        }\n\
-        child_process.spawnSync("rm", [\n\
-            "-rf", dir\n\
-        ], {\n\
-            stdio: [\n\
-                "ignore", 1, 2\n\
-            ]\n\
-        });\n\
-    };\n\
-    local.fsWriteFileWithMkdirpSync = function (file, data) {\n\
-    /*\n\
-     * this function will sync write <data> to <file> with "mkdir -p"\n\
-     */\n\
-        var fs;\n\
-        try {\n\
-            fs = require("fs");\n\
-        } catch (ignore) {\n\
-            return;\n\
-        }\n\
-        // try to write file\n\
-        try {\n\
-            fs.writeFileSync(file, data);\n\
-        } catch (ignore) {\n\
-            // mkdir -p\n\
-            require("child_process").spawnSync(\n\
-                "mkdir",\n\
-                [\n\
-                    "-p", require("path").dirname(file)\n\
-                ],\n\
-                {\n\
-                    stdio: [\n\
-                        "ignore", 1, 2\n\
-                    ]\n\
-                }\n\
-            );\n\
-            // rewrite file\n\
-            fs.writeFileSync(file, data);\n\
-        }\n\
-    };\n\
-    local.functionOrNop = function (fnc) {\n\
-    /*\n\
-     * this function will if <fnc> exists,\n\
-     * them return <fnc>,\n\
-     * else return <nop>\n\
-     */\n\
-        return fnc || local.nop;\n\
-    };\n\
-    local.identity = function (value) {\n\
-    /*\n\
-     * this function will return <value>\n\
-     */\n\
-        return value;\n\
-    };\n\
-    local.nop = function () {\n\
-    /*\n\
-     * this function will do nothing\n\
-     */\n\
-        return;\n\
-    };\n\
-    local.objectAssignDefault = function (target, source) {\n\
-    /*\n\
-     * this function will if items from <target> are\n\
-     * null, undefined, or empty-string,\n\
-     * then overwrite them with items from <source>\n\
-     */\n\
-        target = target || {};\n\
-        Object.keys(source || {}).forEach(function (key) {\n\
-            if (\n\
-                target[key] === null\n\
-                || target[key] === undefined\n\
-                || target[key] === ""\n\
-            ) {\n\
-                target[key] = target[key] || source[key];\n\
-            }\n\
-        });\n\
-        return target;\n\
-    };\n\
-    // require builtin\n\
-    if (!local.isBrowser) {\n\
-        local.assert = require("assert");\n\
-        local.buffer = require("buffer");\n\
-        local.child_process = require("child_process");\n\
-        local.cluster = require("cluster");\n\
-        local.crypto = require("crypto");\n\
-        local.dgram = require("dgram");\n\
-        local.dns = require("dns");\n\
-        local.domain = require("domain");\n\
-        local.events = require("events");\n\
-        local.fs = require("fs");\n\
-        local.http = require("http");\n\
-        local.https = require("https");\n\
-        local.net = require("net");\n\
-        local.os = require("os");\n\
-        local.path = require("path");\n\
-        local.querystring = require("querystring");\n\
-        local.readline = require("readline");\n\
-        local.repl = require("repl");\n\
-        local.stream = require("stream");\n\
-        local.string_decoder = require("string_decoder");\n\
-        local.timers = require("timers");\n\
-        local.tls = require("tls");\n\
-        local.tty = require("tty");\n\
-        local.url = require("url");\n\
-        local.util = require("util");\n\
-        local.vm = require("vm");\n\
-        local.zlib = require("zlib");\n\
-    }\n\
-}((typeof globalThis === "object" && globalThis) || (function () {\n\
-    return Function("return this")(); // jslint ignore:line\n\
-}())));\n\
-'
 
 
 
@@ -50830,13 +50039,11 @@ instruction\n\
 \n\
 \n\
 \n\
-/* istanbul instrument in package my_app */\n\
-/* istanbul ignore next */\n\
+' + local.assetsDict["/assets.utility2.header.js"] + '\
+\n\
+\n\
+\n\
 /* jslint utility2:true */\n\
-' + local.assetsDict["/assets.example.begin.js"] + '\
-\n\
-\n\
-\n\
 (function (local) {\n\
 "use strict";\n\
 \n\
@@ -50856,7 +50063,6 @@ globalThis.local = local;\n\
 \n\
 \n\
 \n\
-/* istanbul ignore next */\n\
 // run browser js\-env code - init-test\n\
 (function () {\n\
 if (!local.isBrowser) {\n\
@@ -50864,11 +50070,9 @@ if (!local.isBrowser) {\n\
 }\n\
 // log stderr and stdout to #outputStdout1\n\
 ["error", "log"].forEach(function (key) {\n\
-    var elem;\n\
-    var fnc;\n\
-    elem = document.querySelector(\n\
-        "#outputStdout1"\n\
-    );\n\
+    let elem;\n\
+    let fnc;\n\
+    elem = local.querySelector("#outputStdout1");\n\
     if (!elem) {\n\
         return;\n\
     }\n\
@@ -50880,7 +50084,7 @@ if (!local.isBrowser) {\n\
             return (\n\
                 typeof arg === "string"\n\
                 ? arg\n\
-                : JSON.stringify(arg, null, 4)\n\
+                : JSON.stringify(arg, undefined, 4)\n\
             );\n\
         }).join(" ").replace((\n\
             /\\u001b\\[\\d*m/g\n\
@@ -50891,65 +50095,15 @@ if (!local.isBrowser) {\n\
 });\n\
 local.objectAssignDefault(local, globalThis.domOnEventDelegateDict);\n\
 globalThis.domOnEventDelegateDict = local;\n\
-local.onEventDomDb = local.db && local.db.onEventDomDb;\n\
-local.testRunBrowser = function (evt) {\n\
-/*\n\
- * this function will run browser-tests\n\
- */\n\
-    switch (\n\
-        !evt.ctrlKey\n\
-        && !evt.metaKey\n\
-        && (\n\
-            evt.modeInit\n\
-            || (evt.type + "." + (evt.target && evt.target.id))\n\
-        )\n\
-    ) {\n\
-    // custom-case\n\
-    case true:\n\
-        return;\n\
-    // run browser-tests\n\
-    default:\n\
-        if (\n\
-            (evt.target && evt.target.id) !== "buttonTestRun1"\n\
-            && !(evt.modeInit && (\n\
-                /\\bmodeTest=1\\b/\n\
-            ).test(location.search))\n\
-        ) {\n\
-            return;\n\
-        }\n\
-        // show browser-tests\n\
-        if (document.querySelector(\n\
-            "#htmlTestReport1"\n\
-        ).style.maxHeight === "0px") {\n\
-            globalThis.domOnEventDelegateDict.domOnEventResetOutput();\n\
-            local.uiAnimateSlideDown(document.querySelector(\n\
-                "#htmlTestReport1"\n\
-            ));\n\
-            document.querySelector(\n\
-                "#buttonTestRun1"\n\
-            ).textContent = "hide internal test";\n\
-            local.modeTest = 1;\n\
-            local.testRunDefault(local);\n\
-            return;\n\
-        }\n\
-        // hide browser-tests\n\
-        local.uiAnimateSlideUp(document.querySelector(\n\
-            "#htmlTestReport1"\n\
-        ));\n\
-        document.querySelector(\n\
-            "#buttonTestRun1"\n\
-        ).textContent = "run internal test";\n\
-    }\n\
-};\n\
-\n\
-local.testRunBrowser({\n\
-    modeInit: true\n\
-});\n\
+if ((\n\
+    /\\bmodeTest=1\\b/\n\
+).test(location.search)) {\n\
+    local.testRunBrowser();\n\
+}\n\
 }());\n\
 \n\
 \n\
 \n\
-/* istanbul ignore next */\n\
 // run node js\-env code - init-test\n\
 (function () {\n\
 if (local.isBrowser) {\n\
@@ -50957,11 +50111,9 @@ if (local.isBrowser) {\n\
 }\n\
 // init exports\n\
 module.exports = local;\n\
-/* validateLineSortedReset */\n\
-// init assets\n\
+// init assetsDict\n\
 local.assetsDict = local.assetsDict || {};\n\
 [\n\
-    "assets.index.template.html",\n\
     "assets.swgg.swagger.json",\n\
     "assets.swgg.swagger.server.json"\n\
 ].forEach(function (file) {\n\
@@ -50976,15 +50128,19 @@ local.assetsDict = local.assetsDict || {};\n\
 });\n\
 /* jslint ignore:start */\n\
 local.assetsDict["/assets.index.template.html"] = \'\\\n\
-' + local.assetsDict["/assets.index.template.html"].replace((/\n/g), "\\n\\\n") + '\';\n\
+'
++ local.assetsDict["/assets.index.template.html"].replace((/\n/g), "\\n\\\n")
++ '\';\n\
 /* jslint ignore:end */\n\
-/* validateLineSortedReset */\n\
-/* jslint ignore:start */\n\
-local.assetsDict["/assets.my_app.js"] =\n\
-    local.assetsDict["/assets.my_app.js"] ||\n\
-    local.fs.readFileSync(local.__dirname + "/lib.my_app.js", "utf8"\n\
-).replace((/^#!\\//), "// ");\n\
-/* jslint ignore:end */\n\
+local.assetsDict["/assets.my_app.js"] = (\n\
+    local.assetsDict["/assets.my_app.js"]\n\
+    || local.fs.readFileSync(\n\
+        local.__dirname + "/lib.my_app.js",\n\
+        "utf8"\n\
+    ).replace((\n\
+        /^#!\\//\n\
+    ), "// ")\n\
+);\n\
 /* validateLineSortedReset */\n\
 local.assetsDict["/"] = local.assetsDict[\n\
     "/assets.index.template.html"\n\
@@ -51005,17 +50161,16 @@ local.assetsDict["/"] = local.assetsDict[\n\
     }\n\
 });\n\
 local.assetsDict["/assets.example.html"] = local.assetsDict["/"];\n\
-local.assetsDict["/index.html"] = local.assetsDict["/"];\n\
 // init cli\n\
 if (module !== require.main || globalThis.utility2_rollup) {\n\
     return;\n\
 }\n\
-/* validateLineSortedReset */\n\
 local.assetsDict["/assets.example.js"] = (\n\
     local.assetsDict["/assets.example.js"]\n\
     || local.fs.readFileSync(__filename, "utf8")\n\
 );\n\
 local.assetsDict["/favicon.ico"] = local.assetsDict["/favicon.ico"] || "";\n\
+local.assetsDict["/index.html"] = local.assetsDict["/"];\n\
 // if $npm_config_timeout_exit exists,\n\
 // then exit this process after $npm_config_timeout_exit ms\n\
 if (Number(process.env.npm_config_timeout_exit)) {\n\
@@ -51054,9 +50209,7 @@ local.assetsDict["/assets.my_app.template.js"] = '\
 \n\
 \n\
 /* istanbul instrument in package my_app */\n\
-/* istanbul ignore next */\n\
-/* jslint utility2:true */\n\
-' + local.assetsDict["/assets.example.begin.js"] + '\
+' + local.assetsDict["/assets.utility2.header.js"] + '\
 \n\
 \n\
 \n\
@@ -51136,13 +50289,13 @@ the greatest app in the world!\n\
 \n\
 \n\
 # documentation\n\
-#### cli help\n\
-![screenshot](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.npmPackageCliHelp.svg)\n\
-\n\
 #### api doc\n\
 - [https://kaizhu256.github.io/node-my-app-lite/build..beta..travis-ci.org/apidoc.html](https://kaizhu256.github.io/node-my-app-lite/build..beta..travis-ci.org/apidoc.html)\n\
 \n\
 [![apidoc](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png)](https://kaizhu256.github.io/node-my-app-lite/build..beta..travis-ci.org/apidoc.html)\n\
+\n\
+#### cli help\n\
+![screenshot](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.npmPackageCliHelp.svg)\n\
 \n\
 #### swagger doc\n\
 - [https://kaizhu256.github.io/node-my-app-lite/build..beta..travis-ci.org/app/assets.swgg.html](https://kaizhu256.github.io/node-my-app-lite/build..beta..travis-ci.org/app/assets.swgg.html)\n\
@@ -51291,7 +50444,7 @@ PORT=8081 node ./assets.app.js\n\
 ```shell\n\
 # build_ci.sh\n\
 \n\
-# this shell script will build-ci this package\n\
+# this shell script will run the build for this package\n\
 \n\
 shBuildCiAfter () {(set -e\n\
     # shDeployCustom\n\
@@ -51320,12 +50473,12 @@ shBuildCi\n\
 
 local.assetsDict["/assets.test.template.js"] = '\
 /* istanbul instrument in package my_app */\n\
+' + local.assetsDict["/assets.utility2.header.js"] + '\
+\n\
+\n\
+\n\
 /* istanbul ignore next */\n\
 /* jslint utility2:true */\n\
-' + local.assetsDict["/assets.example.begin.js"] + '\
-\n\
-\n\
-\n\
 (function (local) {\n\
 "use strict";\n\
 \n\
@@ -51334,9 +50487,8 @@ local.assetsDict["/assets.test.template.js"] = '\
 // run shared js\-env code - init-before\n\
 (function () {\n\
 // init local\n\
-local = (\n\
-    globalThis.utility2 || require("utility2")\n\
-).requireReadme();\n\
+local = globalThis.utility2 || require("utility2");\n\
+local = local.requireReadme();\n\
 globalThis.local = local;\n\
 // init test\n\
 local.testRunDefault(local);\n\
@@ -51510,14 +50662,14 @@ local.assetsDict["/assets.testReportBadge.template.svg"] =
 
 
 
-local.assetsDict["/assets.utility2.rollup.begin.js"] = '\
+local.assetsDict["/assets.utility2.rollup.start.js"] = '\
 /* utility2.rollup.js begin */\n\
 /* istanbul ignore all */\n\
+' + local.assetsDict["/assets.utility2.header.js"] + '\
+\n\
+\n\
+\n\
 /* jslint utility2:true */\n\
-' + local.assetsDict["/assets.example.begin.js"] + '\
-\n\
-\n\
-\n\
 (function () {\n\
     "use strict";\n\
     // init utility2_rollup\n\
@@ -51689,160 +50841,11 @@ local.cliDict["utility2.testReportCreate"] = function () {
  *
  * will create test-report
  */
-    process.exit(local.testReportCreate(JSON.parse(local.fs.readFileSync(
-        local.env.npm_config_dir_build + "/test-report.json"
-    ))).testsFailed);
+    process.exit(local.testReportCreate(local.fsReadFileOrEmptyStringSync(
+        local.env.npm_config_dir_build + "/test-report.json",
+        "json"
+    )).testsFailed);
 };
-}());
-
-
-
-/* istanbul ignore next */
-// run shared js-env code - polyfill
-(function () {
-    var ArrayPrototypeFlat;
-    var TextXxcoder;
-    ArrayPrototypeFlat = function (depth) {
-    /*
-     * this function will polyfill Array.prototype.flat
-     * https://github.com/jonathantneal/array-flat-polyfill
-     */
-        depth = (
-            globalThis.isNaN(depth)
-            ? 1
-            : Number(depth)
-        );
-        if (!depth) {
-            return Array.prototype.slice.call(this);
-        }
-        return Array.prototype.reduce.call(this, function (acc, cur) {
-            if (Array.isArray(cur)) {
-                // recurse
-                acc.push.apply(acc, ArrayPrototypeFlat.call(cur, depth - 1));
-            } else {
-                acc.push(cur);
-            }
-            return acc;
-        }, []);
-    };
-    Array.prototype.flat = Array.prototype.flat || ArrayPrototypeFlat;
-    Array.prototype.flatMap = Array.prototype.flatMap || function flatMap(
-        ...argList
-    ) {
-    /*
-     * this function will polyfill Array.prototype.flatMap
-     * https://github.com/jonathantneal/array-flat-polyfill
-     */
-        return this.map(...argList).flat();
-    };
-    if (!local.isBrowser) {
-        globalThis.TextDecoder = (
-            globalThis.TextDecoder || require("util").TextDecoder
-        );
-        globalThis.TextEncoder = (
-            globalThis.TextEncoder || require("util").TextEncoder
-        );
-    }
-    TextXxcoder = function () {
-    /*
-     * this function will polyfill TextDecoder/TextEncoder
-     * https://gist.github.com/Yaffle/5458286
-     */
-        return;
-    };
-    TextXxcoder.prototype.decode = function (octets) {
-    /*
-     * this function will polyfill TextDecoder.prototype.decode
-     * https://gist.github.com/Yaffle/5458286
-     */
-        var bytesNeeded;
-        var codePoint;
-        var ii;
-        var kk;
-        var octet;
-        var string;
-        string = "";
-        ii = 0;
-        while (ii < octets.length) {
-            octet = octets[ii];
-            bytesNeeded = 0;
-            codePoint = 0;
-            if (octet <= 0x7F) {
-                bytesNeeded = 0;
-                codePoint = octet & 0xFF;
-            } else if (octet <= 0xDF) {
-                bytesNeeded = 1;
-                codePoint = octet & 0x1F;
-            } else if (octet <= 0xEF) {
-                bytesNeeded = 2;
-                codePoint = octet & 0x0F;
-            } else if (octet <= 0xF4) {
-                bytesNeeded = 3;
-                codePoint = octet & 0x07;
-            }
-            if (octets.length - ii - bytesNeeded > 0) {
-                kk = 0;
-                while (kk < bytesNeeded) {
-                    octet = octets[ii + kk + 1];
-                    codePoint = (codePoint << 6) | (octet & 0x3F);
-                    kk += 1;
-                }
-            } else {
-                codePoint = 0xFFFD;
-                bytesNeeded = octets.length - ii;
-            }
-            string += String.fromCodePoint(codePoint);
-            ii += bytesNeeded + 1;
-        }
-        return string;
-    };
-    TextXxcoder.prototype.encode = function (string) {
-    /*
-     * this function will polyfill TextEncoder.prototype.encode
-     * https://gist.github.com/Yaffle/5458286
-     */
-        var bits;
-        var cc;
-        var codePoint;
-        var ii;
-        var length;
-        var octets;
-        octets = [];
-        length = string.length;
-        ii = 0;
-        while (ii < length) {
-            codePoint = string.codePointAt(ii);
-            cc = 0;
-            bits = 0;
-            if (codePoint <= 0x0000007F) {
-                cc = 0;
-                bits = 0x00;
-            } else if (codePoint <= 0x000007FF) {
-                cc = 6;
-                bits = 0xC0;
-            } else if (codePoint <= 0x0000FFFF) {
-                cc = 12;
-                bits = 0xE0;
-            } else if (codePoint <= 0x001FFFFF) {
-                cc = 18;
-                bits = 0xF0;
-            }
-            octets.push(bits | (codePoint >> cc));
-            cc -= 6;
-            while (cc >= 0) {
-                octets.push(0x80 | ((codePoint >> cc) & 0x3F));
-                cc -= 6;
-            }
-            ii += (
-                codePoint >= 0x10000
-                ? 2
-                : 1
-            );
-        }
-        return octets;
-    };
-    globalThis.TextDecoder = globalThis.TextDecoder || TextXxcoder;
-    globalThis.TextEncoder = globalThis.TextEncoder || TextXxcoder;
 }());
 
 
@@ -51850,28 +50853,23 @@ local.cliDict["utility2.testReportCreate"] = function () {
 // run shared js-env code - function
 (function () {
 // init lib Blob
-local.Blob = (
-    local.isBrowser
-    ? globalThis.Blob
-    : function (array, opt) {
-        /*
-         * this function will create a node-compatible Blob instance
-         * https://developer.mozilla.org/en-US/docs/Web/API/Blob/Blob
-         */
-        this.bff = local.bufferConcat(array.map(function (elem) {
-            return (
-                (
-                    typeof elem === "string"
-                    || Object.prototype.toString.call(elem)
-                    === "[object Uint8Array]"
-                )
-                ? elem
-                : String(elem)
-            );
-        }));
-        this.type = opt && opt.type;
-    }
-);
+local.Blob = globalThis.Blob || function (list, opt) {
+    /*
+     * this function will emulate in node, browser's Blob class
+     * https://developer.mozilla.org/en-US/docs/Web/API/Blob/Blob
+     */
+    this.buf = local.bufferConcat(list.map(function (elem) {
+        if (
+            typeof elem === "string"
+            || Object.prototype.toString.call(elem) === "[object Uint8Array]"
+        ) {
+            return elem;
+        }
+        // emulate in node, browser-behavior - auto-stringify arbitrary data
+        return String(elem);
+    }));
+    this.type = (opt && opt.type) || "";
+};
 
 // init lib FormData
 local.FormData = function () {
@@ -51928,11 +50926,11 @@ local.FormData.prototype.read = function (onError) {
  * --Boundary--\r\n
  * https://tools.ietf.org/html/rfc7578
  */
-    var boundary;
-    var result;
+    let boundary;
+    let result;
     // handle null-case
     if (!this.entryList.length) {
-        onError(null, "");
+        onError();
         return;
     }
     // init boundary
@@ -51942,7 +50940,7 @@ local.FormData.prototype.read = function (onError) {
     local.onParallelList({
         list: this.entryList
     }, function (option2, onParallel) {
-        var value;
+        let value;
         value = option2.elem.value;
         if (!(value && value.constructor === local.Blob)) {
             result[option2.ii] = [
@@ -51986,7 +50984,7 @@ local.FormData.prototype.read = function (onError) {
             err,
             // flatten result
             !err
-            && local.bufferConcat(Array.prototype.concat.apply([], result))
+            && local.bufferConcat(result.flat())
         );
     });
 };
@@ -51994,83 +50992,11 @@ local.FormData.prototype.read = function (onError) {
 // init lib _http
 local._http = {};
 
-// init _http.IncomingMessage
-local._http.IncomingMessage = function (xhr) {
-/*
- * An IncomingMessage object is created by http.Server or http.ClientRequest
- * and passed as the first argument to the 'req' and 'res' event
- * respectively.
- * It may be used to access res status, headers and data.
- * https://nodejs.org/dist/v0.12.18/docs/api/all.html#all_http_incomingmessage
- */
-    this.headers = xhr.headers;
-    this.httpVersion = "1.1";
-    this.method = xhr.method;
-    this.onEvent = document.createDocumentFragment();
-    this.readable = true;
-    this.url = xhr.url;
-};
-
-local._http.IncomingMessage.prototype.addListener = function (evt, onEvent) {
-/*
- * Adds a listener to the end of the listeners array for the specified event.
- * No checks are made to see if the listener has already been added.
- * Multiple calls passing the same combination of event and listener will result
- * in the listener being added multiple times.
- * https://nodejs.org/dist/v0.12.18/docs/api/all.html#all_emitter_addlistener_event_listener
- */
-    this.onEvent.addEventListener(evt, function (evt) {
-        onEvent(evt.data);
-    });
-    if (this.readable && evt === "end") {
-        this.readable = null;
-        this.emit("data", this.data);
-        this.emit("end");
-    }
-    return this;
-};
-
-local._http.IncomingMessage.prototype.emit = function (evt, data) {
-/*
- * Execute each of the listeners in order with the supplied arguments.
- * https://nodejs.org/dist/v0.12.18/docs/api/all.html#all_emitter_emit_event_arg1_arg2
- */
-    evt = new Event(evt);
-    evt.data = data;
-    this.onEvent.dispatchEvent(evt);
-};
-
-/*
- * Adds a listener to the end of the listeners array for the specified event.
- * No checks are made to see if the listener has already been added.
- * Multiple calls passing the same combination of event and listener will result
- * in the listener being added multiple times.
- * https://nodejs.org/dist/v0.12.18/docs/api/all.html#all_emitter_on_event_listener
- */
-local._http.IncomingMessage.prototype.on = (
-    local._http.IncomingMessage.prototype.addListener
-);
-
-local._http.IncomingMessage.prototype.pipe = function (writable) {
-/*
- * This method pulls all the data out of a readable stream, and writes it
- * to the supplied destination, automatically managing the flow
- * so that the destination is not overwhelmed by a fast readable stream.
- * https://nodejs.org/dist/v0.12.18/docs/api/all.html#all_readable_pipe_destination_options
- */
-    this.on("data", function (chunk) {
-        writable.write(chunk);
-    });
-    this.on("end", function () {
-        writable.end();
-    });
-    return writable;
-};
-
 local._http.STATUS_CODES = {
     "100": "Continue",
     "101": "Switching Protocols",
     "102": "Processing",
+    "103": "Early Hints",
     "200": "OK",
     "201": "Created",
     "202": "Accepted",
@@ -52107,7 +51033,7 @@ local._http.STATUS_CODES = {
     "415": "Unsupported Media Type",
     "416": "Range Not Satisfiable",
     "417": "Expectation Failed",
-    "418": "I'm a teapot",
+    "418": "I'm a Teapot",
     "421": "Misdirected Request",
     "422": "Unprocessable Entity",
     "423": "Locked",
@@ -52132,141 +51058,116 @@ local._http.STATUS_CODES = {
     "511": "Network Authentication Required"
 };
 
-// init _http.ServerResponse
-local._http.ServerResponse = function (onResponse) {
-/*
- * This object is created internally by a HTTP server--not by the user.
- * It is passed as the second parameter to the 'req' event.
- * https://nodejs.org/dist/v0.12.18/docs/api/all.html#all_class_http_serverresponse
- */
-    this.chunkList = [];
-    this.onEvent = document.createDocumentFragment();
-    this.onResponse = onResponse;
-    this.resHeaders = {};
-    this.statusCode = 200;
-};
-
-/*
- * Adds a listener to the end of the listeners array for the specified event.
- * No checks are made to see if the listener has already been added.
- * Multiple calls passing the same combination of event and listener will result
- * in the listener being added multiple times.
- * https://nodejs.org/dist/v0.12.18/docs/api/all.html#all_emitter_addlistener_event_listener
- */
-local._http.ServerResponse.prototype.addListener = (
-    local._http.IncomingMessage.prototype.addListener
-);
-/*
- * Execute each of the listeners in order with the supplied arguments.
- * https://nodejs.org/dist/v0.12.18/docs/api/all.html#all_emitter_emit_event_arg1_arg2
- */
-local._http.ServerResponse.prototype.emit = (
-    local._http.IncomingMessage.prototype.emit
-);
-
-local._http.ServerResponse.prototype.end = function (data) {
-/*
- * This method signals to the server that all of the res headers and body
- * have been sent; that server should consider this message complete.
- * The method, res.end(), MUST be called on each res.
- * https://nodejs.org/dist/v0.12.18/docs/api/all.html#all_response_end_data_encoding_callback
- */
-    var that;
-    that = this;
-    if (that._isDone) {
-        return;
-    }
-    that._isDone = true;
-    that.chunkList.push(data);
-    // notify server res is finished
-    that.emit("finish");
-    // async send res from server to client
-    setTimeout(function () {
-        that.onResponse(that);
-        that.emit("data", local.bufferConcat(that.chunkList));
-        that.emit("end");
-    });
-};
-
-/*
- * Adds a listener to the end of the listeners array for the specified event.
- * No checks are made to see if the listener has already been added.
- * Multiple calls passing the same combination of event and listener
- * will result in the listener being added multiple times.
- * https://nodejs.org/dist/v0.12.18/docs/api/all.html#all_emitter_on_event_listener
- */
-local._http.ServerResponse.prototype.on = (
-    local._http.IncomingMessage.prototype.addListener
-);
-
-local._http.ServerResponse.prototype.setHeader = function (key, value) {
-/*
- * Sets a single header value for implicit headers.
- * If this header already exists in the to-be-sent headers,
- * its value will be replaced.
- * Use an array of strings here if you need to send multiple headers
- * with the same name.
- * https://nodejs.org/dist/v0.12.18/docs/api/all.html#all_response_setheader_name_value
- */
-    this.resHeaders[key.toLowerCase()] = value;
-};
-
-local._http.ServerResponse.prototype.write = function (data) {
-/*
- * This sends a chunk of the res body.
- * This method may be called multiple times
- * to provide successive parts of the body.
- * https://nodejs.org/dist/v0.12.18/docs/api/all.html#all_response_write_chunk_encoding_callback
- */
-    this.chunkList.push(data);
-};
-
 local._http.createServer = function () {
 /*
- * Returns a new instance of http.Server.
+ * this function will emulate in browser, node's http.createServer function
  * https://nodejs.org/dist/v0.12.18/docs/api/all.html#all_http_createserver_requestlistener
  */
     return {
         listen: function (port, onError) {
-        /*
-         * This will cause the server to accept connections
-         * on the specified handle,
-         * but it is presumed that the file descriptor or handle
-         * has already been bound to a port or domain socket.
-         * https://nodejs.org/dist/v0.12.18/docs/api/all.html#all_server_listen_handle_callback
-         */
-            onError(null, port);
+            onError(undefined, port);
         }
     };
 };
 
 local._http.request = function (xhr, onResponse) {
-    var isDone;
+/*
+ * this function will emulate in browser, node's http.request function
+ * https://nodejs.org/dist/v0.12.18/docs/api/all.html#all_http_request_options_callback
+ */
+    let bufList;
+    let data;
+    let handler;
+    let isDone;
+    let req;
+    let res;
     xhr = {
+        end: function (_data) {
+            if (isDone) {
+                return;
+            }
+            isDone = true;
+            data = _data;
+            // async send req from client to server
+            setTimeout(function () {
+                local.serverLocalReqHandler(req, res);
+            });
+        },
         headers: xhr.headers,
         method: xhr.method,
+        on: function () {
+            return xhr;
+        },
         timeout: xhr.timeout,
         url: xhr.href
     };
-    xhr.end = function (data) {
-        if (isDone) {
-            return;
+    bufList = [];
+    handler = new globalThis.EventTarget();
+    req = {
+        emit: function (type, data) {
+            handler.dispatchEvent(new globalThis.CustomEvent("req." + type, {
+                detail: data
+            }));
+        },
+        headers: xhr.headers,
+        httpVersion: "1.1",
+        method: xhr.method,
+        on: function (type, onEvent) {
+            handler.addEventListener("req." + type, function (evt) {
+                onEvent(evt.detail);
+            });
+            if (req.readable && type === "end") {
+                req.readable = null;
+                req.emit("data", data);
+                req.emit("end");
+            }
+            return req;
+        },
+        pipe: function (writable) {
+            req.on("data", function (buf) {
+                writable.write(buf);
+            });
+            req.on("end", function () {
+                writable.end();
+            });
+            return writable;
+        },
+        readable: true,
+        url: xhr.url
+    };
+    res = {
+        emit: function (type, data) {
+            handler.dispatchEvent(new globalThis.CustomEvent("res." + type, {
+                detail: data
+            }));
+        },
+        end: function (data) {
+            if (res._isDone) {
+                return;
+            }
+            res._isDone = true;
+            bufList.push(data);
+            // notify server res is finished
+            res.emit("finish");
+            // pass res to client
+            onResponse(res);
+            res.emit("data", local.bufferConcat(bufList));
+            res.emit("end");
+        },
+        on: function (type, onEvent) {
+            handler.addEventListener("res." + type, function (evt) {
+                onEvent(evt.detail);
+            });
+            return res;
+        },
+        setHeader: function (key, val) {
+            xhr.resHeaders[key.toLowerCase()] = val;
+        },
+        statusCode: 200,
+        write: function (data) {
+            bufList.push(data);
         }
-        isDone = true;
-        xhr.serverReq.data = data;
-        // async send req from client -> server
-        setTimeout(function () {
-            local.serverLocalReqHandler(
-                xhr.serverReq,
-                xhr.serverResponse
-            );
-        });
     };
-    xhr.on = function () {
-        return xhr;
-    };
-    xhr.serverReq = new local._http.IncomingMessage(xhr);
-    xhr.serverResponse = new local._http.ServerResponse(onResponse);
     return xhr;
 };
 
@@ -52274,13 +51175,76 @@ local._testCase_buildApidoc_default = function (opt, onError) {
 /*
  * this function will test buildApidoc's default handling-behavior
  */
+    let require2;
+    require2 = function (file) {
+    /*
+     * this function will require <file> in sandbox-env
+     */
+        let exports;
+        let mockDict;
+        let mockList;
+        mockList = [
+            [
+                globalThis, {
+                    setImmediate: local.nop,
+                    setInterval: local.nop,
+                    setTimeout: local.nop
+                }
+            ]
+        ];
+        [
+            [
+                local, "child_process"
+            ], [
+                local, "cluster"
+            ], [
+                local, "http"
+            ], [
+                local, "https"
+            ], [
+                local, "net"
+            ], [
+                local, "repl"
+            ], [
+                local.events, "prototype"
+            ], [
+                globalThis, "process"
+            ], [
+                local.stream, "prototype"
+            ], [
+                process, "stdin"
+            ]
+        ].forEach(function (elem, tmp) {
+            tmp = elem[0][elem[1]];
+            mockDict = {};
+            Object.keys(tmp).forEach(function (key) {
+                if (typeof tmp[key] === "function" && !(
+                    /^(?:fs\.Read|fs\.read|process\.binding|process\.dlopen)/
+                ).test(elem[1] + "." + key)) {
+                    mockDict[key] = function () {
+                        return;
+                    };
+                }
+            });
+            mockList.push([
+                tmp, mockDict
+            ]);
+        });
+        local.testMock(mockList, function (onError) {
+            local.tryCatchOnError(function () {
+                exports = require(file);
+            }, local.onErrorDefault);
+            onError();
+        }, local.onErrorThrow);
+        return exports;
+    };
     if (
         local.isBrowser
         || local.env.npm_config_mode_coverage
         || local.env.npm_config_mode_test_case
         !== "testCase_buildApidoc_default"
     ) {
-        onError(null, opt);
+        onError(undefined, opt);
         return;
     }
     // save apidoc.html
@@ -52288,11 +51252,11 @@ local._testCase_buildApidoc_default = function (opt, onError) {
         "tmp/build/apidoc.html",
         local.apidocCreate(local.objectAssignDefault(opt, {
             blacklistDict: local,
-            require: local.requireInSandbox
+            require: require2
         }))
     );
     console.error(
-        "created apidoc file " + process.cwd() + "/apidoc.html\n"
+        "created apidoc file " + process.cwd() + "/tmp/build/apidoc.html\n"
     );
     onError();
 };
@@ -52302,7 +51266,7 @@ local._testCase_buildApp_default = function (opt, onError) {
  * this function will test buildApp's default handling-behavior
  */
     if (local.isBrowser) {
-        onError(null, opt);
+        onError(undefined, opt);
         return;
     }
     globalThis.local.testCase_buildReadme_default(opt, local.onErrorThrow);
@@ -52316,7 +51280,7 @@ local._testCase_buildLib_default = function (opt, onError) {
  * this function will test buildLib's default handling-behavior
  */
     if (local.isBrowser) {
-        onError(null, opt);
+        onError(undefined, opt);
         return;
     }
     return local.buildLib({}, onError);
@@ -52327,7 +51291,7 @@ local._testCase_buildReadme_default = function (opt, onError) {
  * this function will test buildReadme's default handling-behavior
  */
     if (local.isBrowser) {
-        onError(null, opt);
+        onError(undefined, opt);
         return;
     }
     return local.buildReadme({}, onError);
@@ -52338,7 +51302,7 @@ local._testCase_buildTest_default = function (opt, onError) {
  * this function will test buildTest's default handling-behavior
  */
     if (local.isBrowser) {
-        onError(null, opt);
+        onError(undefined, opt);
         return;
     }
     return local.buildTest({}, onError);
@@ -52350,7 +51314,7 @@ local._testCase_webpage_default = function (opt, onError) {
  */
     local.domStyleValidate();
     if (local.isBrowser) {
-        onError(null, opt);
+        onError(undefined, opt);
         return;
     }
     local.browserTest({
@@ -52359,16 +51323,12 @@ local._testCase_webpage_default = function (opt, onError) {
             + "/screenshot." + local.env.MODE_BUILD + ".browser.%2F.png"
         ),
         url: (
-            local.assetsDict["/"].indexOf(
-                "<script src=\"assets.test.js\"></script>"
-            ) >= 0
-            ? local.serverLocalHost + "?modeTest=1&timeoutDefault="
-            + local.timeoutDefault
-            : local.serverLocalHost
-            + "/assets.utility2.base.html?modeTest=1&timeoutDefault=1"
-        ) + "&modeTestCase=" + local.modeTestCase.replace((
-            /_?testCase_webpage_default/
-        ), "")
+            local.serverLocalHost
+            + "/?modeTest=1&timeoutDefault=" + local.timeoutDefault
+            + "&modeTestCase=" + local.modeTestCase.replace((
+                /_?testCase_webpage_default/
+            ), "")
+        )
     }, onError);
 };
 
@@ -52388,18 +51348,18 @@ local.ajax = function (opt, onError) {
         console.log(xhr.responseText);
     });
  */
-    var ajaxProgressUpdate;
-    var bufferValidateAndCoerce;
-    var isDone;
-    var local2;
-    var onError2;
-    var onEvent;
-    var stack;
-    var streamCleanup;
-    var timeout;
-    var tmp;
-    var xhr;
-    var xhrInit;
+    let ajaxProgressUpdate;
+    let bufferValidateAndCoerce;
+    let isDone;
+    let local2;
+    let onError2;
+    let onEvent;
+    let stack;
+    let streamCleanup;
+    let timeout;
+    let tmp;
+    let xhr;
+    let xhrInit;
     // init local2
     local2 = opt.local2 || local.utility2 || {};
     // init function
@@ -52407,22 +51367,22 @@ local.ajax = function (opt, onError) {
         return;
     };
     bufferValidateAndCoerce = local2.bufferValidateAndCoerce || function (
-        bff,
+        buf,
         mode
     ) {
     /*
-     * this function will validate and coerce/convert <bff> -> Buffer
-     * (or String if <mode> = "string")
+     * this function will validate and coerce/convert
+     * <buf> to Buffer/Uint8Array, or String if <mode> = "string"
      */
-        // coerce ArrayBuffer -> Buffer
-        if (Object.prototype.toString.call(bff) === "[object ArrayBuffer]") {
-            bff = new Uint8Array(bff);
+        // coerce ArrayBuffer to Buffer
+        if (Object.prototype.toString.call(buf) === "[object ArrayBuffer]") {
+            buf = new Uint8Array(buf);
         }
-        // convert Buffer -> utf8
-        if (mode === "string" && typeof bff !== "string") {
-            bff = String(bff);
+        // convert Buffer to utf8
+        if (mode === "string" && typeof buf !== "string") {
+            buf = String(buf);
         }
-        return bff;
+        return buf;
     };
     onEvent = function (evt) {
     /*
@@ -52486,8 +51446,8 @@ local.ajax = function (opt, onError) {
             if (xhr.getAllResponseHeaders) {
                 xhr.getAllResponseHeaders().replace((
                     /(.*?):\u0020*(.*?)\r\n/g
-                ), function (ignore, match1, match2) {
-                    xhr.resHeaders[match1.toLowerCase()] = match2;
+                ), function (ignore, key, val) {
+                    xhr.resHeaders[key.toLowerCase()] = val;
                 });
             }
             // debug ajaxResponse
@@ -52548,7 +51508,7 @@ local.ajax = function (opt, onError) {
     /*
      * this function will try to end or destroy <stream>
      */
-        var err;
+        let err;
         // try to end stream
         try {
             stream.end();
@@ -52586,7 +51546,7 @@ local.ajax = function (opt, onError) {
         Object.keys(xhr.headers).forEach(function (key) {
             xhr.headers[key.toLowerCase()] = xhr.headers[key];
         });
-        // coerce Uint8Array -> Buffer
+        // coerce Uint8Array to Buffer
         if (
             !local.isBrowser
             && !Buffer.isBuffer(xhr.data)
@@ -52622,20 +51582,20 @@ local.ajax = function (opt, onError) {
         /*
          * this function will read <resStream>
          */
-            var chunkList;
-            chunkList = [];
-            xhr.resHeaders = resStream.resHeaders || resStream.headers;
+            let bufList;
+            bufList = [];
+            xhr.resHeaders = resStream.headers || xhr.resHeaders;
             xhr.resStream = resStream;
             xhr.statusCode = resStream.statusCode;
             resStream.dataLength = 0;
-            resStream.on("data", function (chunk) {
-                chunkList.push(chunk);
+            resStream.on("data", function (buf) {
+                bufList.push(buf);
             });
             resStream.on("end", function () {
                 xhr.response = (
                     local.isBrowser
-                    ? chunkList[0]
-                    : Buffer.concat(chunkList)
+                    ? bufList[0]
+                    : Buffer.concat(bufList)
                 );
                 resStream.dataLength = (
                     xhr.response.byteLength || xhr.response.length
@@ -52678,7 +51638,7 @@ local.ajax = function (opt, onError) {
     // increment counter
     ajaxProgressUpdate.counter |= 0;
     ajaxProgressUpdate.counter += 1;
-    // init event-handling
+    // handle evt
     xhr.addEventListener("abort", xhr.onEvent);
     xhr.addEventListener("error", xhr.onEvent);
     xhr.addEventListener("load", xhr.onEvent);
@@ -52749,21 +51709,21 @@ local.assertJsonNotEqual = function (aa, bb, message) {
     ], message || aa);
 };
 
-local.base64FromBuffer = function (bff) {
+local.base64FromBuffer = function (buf) {
 /*
- * this function will convert Uint8Array <bff> to base64
+ * this function will convert Uint8Array <buf> to base64
  * https://developer.mozilla.org/en-US/Add-ons/Code_snippets/StringView#The_code
  */
-    var ii;
-    var mod3;
-    var text;
-    var uint24;
-    var uint6ToB64;
-    // convert utf8 -> Uint8Array
-    if (typeof bff === "string") {
-        bff = new TextEncoder().encode(bff);
+    let ii;
+    let mod3;
+    let text;
+    let uint24;
+    let uint6ToB64;
+    // convert utf8 to Uint8Array
+    if (typeof buf === "string") {
+        buf = new TextEncoder().encode(buf);
     }
-    bff = bff || [];
+    buf = buf || [];
     text = "";
     uint24 = 0;
     uint6ToB64 = function (uint6) {
@@ -52780,10 +51740,10 @@ local.base64FromBuffer = function (bff) {
         );
     };
     ii = 0;
-    while (ii < bff.length) {
+    while (ii < buf.length) {
         mod3 = ii % 3;
-        uint24 |= bff[ii] << (16 >>> mod3 & 24);
-        if (mod3 === 2 || bff.length - ii === 1) {
+        uint24 |= buf[ii] << (16 >>> mod3 & 24);
+        if (mod3 === 2 || buf.length - ii === 1) {
             text += String.fromCharCode(
                 uint6ToB64(uint24 >>> 18 & 63),
                 uint6ToB64(uint24 >>> 12 & 63),
@@ -52804,15 +51764,15 @@ local.base64ToBuffer = function (b64, mode) {
  * this function will convert <b64> to Uint8Array
  * https://gist.github.com/wang-bin/7332335
  */
-    var bff;
-    var byte;
-    var chr;
-    var ii;
-    var jj;
-    var map64;
-    var mod4;
+    let buf;
+    let byte;
+    let chr;
+    let ii;
+    let jj;
+    let map64;
+    let mod4;
     b64 = b64 || "";
-    bff = new Uint8Array(b64.length); // 3/4
+    buf = new Uint8Array(b64.length); // 3/4
     byte = 0;
     jj = 0;
     map64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -52826,21 +51786,21 @@ local.base64ToBuffer = function (b64, mode) {
                 byte = chr;
             } else {
                 byte = byte * 64 + chr;
-                bff[jj] = 255 & (byte >> ((-2 * (mod4 + 1)) & 6));
+                buf[jj] = 255 & (byte >> ((-2 * (mod4 + 1)) & 6));
                 jj += 1;
             }
             mod4 += 1;
         }
         ii += 1;
     }
-    // optimization - create resized-view of bff
-    bff = bff.subarray(0, jj);
-    return local.bufferValidateAndCoerce(bff, mode);
+    // optimization - create resized-view of buf
+    buf = buf.subarray(0, jj);
+    return local.bufferValidateAndCoerce(buf, mode);
 };
 
 local.base64ToUtf8 = function (b64) {
 /*
- * this function will convert <b64> -> utf8
+ * this function will convert <b64> to utf8
  */
     return local.base64ToBuffer(b64, "string");
 };
@@ -52849,14 +51809,14 @@ local.blobRead = function (blob, onError) {
 /*
  * this function will read from <blob>
  */
-    var isDone;
-    var reader;
+    let isDone;
+    let reader;
     if (blob && blob.constructor && blob.constructor === local.FormData) {
         blob.read(onError);
         return;
     }
     if (!local.isBrowser) {
-        onError(null, local.bufferValidateAndCoerce(blob.bff));
+        onError(undefined, local.bufferValidateAndCoerce(blob.buf));
         return;
     }
     reader = new FileReader();
@@ -52872,10 +51832,10 @@ local.blobRead = function (blob, onError) {
             break;
         case "load":
             onError(
-                null,
+                undefined,
                 Object.prototype.toString.call(reader.result)
                 === "[object ArrayBuffer]"
-                // convert ArrayBuffer -> Uint8Array
+                // convert ArrayBuffer to Uint8Array
                 ? new Uint8Array(reader.result)
                 : reader.result
             );
@@ -52891,14 +51851,14 @@ local.browserTest = function (opt, onError) {
 /*
  * this function will spawn google-puppeteer-process to test <opt>.url
  */
-    var browser;
-    var fileScreenshot;
-    var isDone;
-    var onParallel;
-    var page;
-    var testId;
-    var testName;
-    var timerTimeout;
+    let browser;
+    let fileScreenshot;
+    let isDone;
+    let onParallel;
+    let page;
+    let testId;
+    let testName;
+    let timerTimeout;
     // init utility2_testReport
     globalThis.utility2_testReport = globalThis.utility2_testReport || {
         coverage: globalThis.__coverage__,
@@ -52927,15 +51887,13 @@ local.browserTest = function (opt, onError) {
             onParallel.counter += 1;
             isDone = 0;
             testId = Math.random().toString(16);
-            testName = new local.url.URL(opt.url).pathname;
-            testName = (
-                local.env.MODE_BUILD + ".browser."
-                + encodeURIComponent(testName.replace(
+            testName = local.env.MODE_BUILD + ".browser." + encodeURIComponent(
+                new local.url.URL(opt.url).pathname.replace(
                     "/build.."
                     + local.env.CI_BRANCH
                     + ".." + local.env.CI_HOST,
                     "/build"
-                ))
+                )
             );
             fileScreenshot = (
                 local.env.npm_config_dir_build + "/screenshot."
@@ -52960,7 +51918,7 @@ local.browserTest = function (opt, onError) {
                     "--no-sandbox",
                     "--remote-debugging-port=0"
                 ],
-                dumpio: true,
+                dumpio: !opt.modeSilent,
                 executablePath: local.env.CHROME_BIN,
                 ignoreDefaultArgs: true
             }).then(opt.gotoNextData);
@@ -52987,9 +51945,6 @@ local.browserTest = function (opt, onError) {
                     onParallel();
                 });
             }, 100);
-            page.evaluate(function (testId) {
-                window.utility2_testId = testId;
-            }, testId);
             page.on("metrics", function (metric) {
                 if (isDone >= 1 || metric.title !== testId) {
                     return;
@@ -52997,10 +51952,20 @@ local.browserTest = function (opt, onError) {
                 isDone = 1;
                 opt.gotoNext();
             });
+            page.evaluate(function (testId) {
+                window.utility2_testId = testId;
+                if (!window.utility2_modeTest) {
+                    console.timeStamp(window.utility2_testId);
+                }
+            }, testId);
             break;
         case 5:
             page.evaluate(function () {
-                return JSON.stringify(window.utility2_testReport);
+                return JSON.stringify(window.utility2_testReport || {
+                    testPlatformList: [
+                        {}
+                    ]
+                });
             }).then(opt.gotoNextData);
             break;
         case 6:
@@ -53012,10 +51977,7 @@ local.browserTest = function (opt, onError) {
             // merge browser-coverage
             local.istanbulCoverageMerge(globalThis.__coverage__, data.coverage);
             // merge browser-test-report
-            local.testReportMerge(
-                globalThis.utility2_testReport,
-                !opt.modeSilent && data
-            );
+            local.testReportMerge(globalThis.utility2_testReport, data);
             // save test-report.json
             onParallel.counter += 1;
             local.fs.writeFile(
@@ -53047,33 +52009,33 @@ local.browserTest = function (opt, onError) {
     opt.gotoNext();
 };
 
-local.bufferConcat = function (bffList) {
+local.bufferConcat = function (bufList) {
 /*
- * this function will emulate node's Buffer.concat for Uint8Array in browser
+ * this function will emulate in browser, node's Buffer.concat
  */
-    var byteLength;
-    var ii;
-    var isString;
-    var jj;
-    var result;
+    let byteLength;
+    let ii;
+    let isString;
+    let jj;
+    let result;
     isString = true;
     result = [
         ""
     ];
     byteLength = 0;
-    bffList.forEach(function (bff) {
-        if (bff !== 0 && !(bff && bff.length)) {
+    bufList.forEach(function (buf) {
+        if (buf !== 0 && !(buf && buf.length)) {
             return;
         }
         // optimization - concat string
-        if (isString && typeof bff === "string") {
-            result[0] += bff;
+        if (isString && typeof buf === "string") {
+            result[0] += buf;
             return;
         }
         isString = null;
-        bff = local.bufferValidateAndCoerce(bff);
-        byteLength += bff.byteLength;
-        result.push(bff);
+        buf = local.bufferValidateAndCoerce(buf);
+        byteLength += buf.byteLength;
+        result.push(buf);
     });
     // optimization - return string
     if (isString) {
@@ -53081,13 +52043,13 @@ local.bufferConcat = function (bffList) {
     }
     result[0] = local.bufferValidateAndCoerce(result[0]);
     byteLength += result[0].byteLength;
-    bffList = result;
+    bufList = result;
     result = local.bufferValidateAndCoerce(new Uint8Array(byteLength));
     ii = 0;
-    bffList.forEach(function (bff) {
+    bufList.forEach(function (buf) {
         jj = 0;
-        while (jj < bff.byteLength) {
-            result[ii] = bff[jj];
+        while (jj < buf.byteLength) {
+            result[ii] = buf[jj];
             ii += 1;
             jj += 1;
         }
@@ -53095,22 +52057,22 @@ local.bufferConcat = function (bffList) {
     return result;
 };
 
-local.bufferIndexOfSubBuffer = function (bff, subBff, fromIndex) {
+local.bufferIndexOfSubBuffer = function (buf, subBff, fromIndex) {
 /*
- * this function will search <bff> for <fromIndex> position of <subBff>
+ * this function will search <buf> from <fromIndex> for position of <subBff>
  */
-    var ii;
-    var jj;
-    var kk;
+    let ii;
+    let jj;
+    let kk;
     if (!subBff.length) {
         return 0;
     }
     ii = fromIndex || 0;
-    while (ii < bff.length) {
+    while (ii < buf.length) {
         kk = ii;
         jj = 0;
         while (jj < subBff.length) {
-            if (subBff[jj] !== bff[kk]) {
+            if (subBff[jj] !== buf[kk]) {
                 break;
             }
             kk += 1;
@@ -53140,48 +52102,44 @@ local.bufferRandomBytes = function (length) {
     );
 };
 
-local.bufferToUtf8 = function (bff) {
+local.bufferToUtf8 = function (buf) {
 /*
- * this function will convert Uint8Array <bff> -> utf8
+ * this function will convert Uint8Array <buf> to utf8
  */
-    return local.bufferValidateAndCoerce(bff, "string");
+    return local.bufferValidateAndCoerce(buf, "string");
 };
 
-local.bufferValidateAndCoerce = function (bff, mode) {
+local.bufferValidateAndCoerce = function (buf, mode) {
 /*
- * this function will validate and coerce/convert <bff> -> Buffer
- * (or String if <mode> = "string")
+ * this function will validate and coerce/convert
+ * <buf> to Buffer/Uint8Array, or String if <mode> = "string"
  */
     // validate not 0
-    if (bff !== 0) {
-        bff = bff || "";
+    if (buf !== 0) {
+        buf = buf || "";
     }
-    if (typeof bff === "string" && mode === "string") {
-        return bff;
+    if (typeof buf === "string" && mode === "string") {
+        return buf;
     }
-    // convert utf8 -> Uint8Array
-    if (typeof bff === "string") {
-        bff = (
-            local.isBrowser
-            ? new TextEncoder().encode(bff)
-            : Buffer.from(bff)
-        );
+    // convert utf8 to Uint8Array
+    if (typeof buf === "string") {
+        buf = new TextEncoder().encode(buf);
     // validate instanceof Uint8Array
-    } else if (Object.prototype.toString.call(bff) !== "[object Uint8Array]") {
+    } else if (Object.prototype.toString.call(buf) !== "[object Uint8Array]") {
         throw new Error(
             "bufferValidateAndCoerce - value is not instanceof "
             + "ArrayBuffer, String, or Uint8Array"
         );
     }
-    // convert Uint8Array -> utf8
+    // convert Uint8Array to utf8
     if (mode === "string") {
-        return new TextDecoder().decode(bff);
+        return new TextDecoder().decode(buf);
     }
-    // coerce Uint8Array -> Buffer
-    if (!local.isBrowser && !Buffer.isBuffer(bff)) {
-        Object.setPrototypeOf(bff, Buffer.prototype);
+    // coerce Uint8Array to Buffer
+    if (globalThis.Buffer && Buffer.isBuffer && !Buffer.isBuffer(buf)) {
+        Object.setPrototypeOf(buf, Buffer.prototype);
     }
-    return bff;
+    return buf;
 };
 
 local.buildApp = function (opt, onError) {
@@ -53232,9 +52190,6 @@ local.buildApp = function (opt, onError) {
                 file: "/assets.utility2.html",
                 url: "/assets.utility2.html"
             }, {
-                file: "/assets.utility2.base.html",
-                url: "/assets.utility2.base.html"
-            }, {
                 file: "/assets.utility2.rollup.js",
                 url: "/assets.utility2.rollup.js"
             }, {
@@ -53255,14 +52210,14 @@ local.buildApp = function (opt, onError) {
         option2 = option2.elem;
         onParallel.counter += 1;
         local.ajax(option2, function (err, xhr) {
-            // validate no err occurred
+            // handle err
             local.assertOrThrow(!err, err);
             // jslint file
             local.jslintAndPrint(xhr.responseText, option2.file, {
                 conditional: true,
                 coverage: local.env.npm_config_mode_coverage
             });
-            // validate no err occurred
+            // handle err
             local.assertOrThrow(
                 !local.jslint.jslintResult.errMsg,
                 local.jslint.jslintResult.errMsg
@@ -53274,7 +52229,7 @@ local.buildApp = function (opt, onError) {
             onParallel();
         });
     }, function (err) {
-        // validate no err occurred
+        // handle err
         local.assertOrThrow(!err, err);
         // test standalone assets.app.js
         local.fsWriteFileWithMkdirpSync(
@@ -53305,7 +52260,7 @@ local.buildLib = function (opt, onError) {
 /*
  * this function will build lib with given <opt>
  */
-    var result;
+    let result;
     local.objectSetDefault(opt, {
         customize: local.nop,
         dataFrom: local.fsReadFileOrEmptyStringSync(
@@ -53323,14 +52278,14 @@ local.buildLib = function (opt, onError) {
         (
             /\n\u0020\*\n(?:[\S\s]*?\n)?\u0020\*\/\n/
         ),
-        // customize body after /* validateLineSortedReset */
+        // customize code after /* validateLineSortedReset */
         (
             /\n\/\*\u0020validateLineSortedReset\u0020\*\/\n[\S\s]*?$/
         )
     ].forEach(function (rgx) {
         opt.dataTo = local.stringMerge(opt.dataTo, opt.dataFrom, rgx);
     });
-    // customize local for assets.utility2.rollup.js
+    // customize assets.utility2.rollup.js
     if (
         local.fs.existsSync("./assets.utility2.rollup.js")
         && local.env.npm_package_nameLib !== "swgg"
@@ -53360,7 +52315,7 @@ local.buildReadme = function (opt, onError) {
 /*
  * this function will build readme with given <opt> my-app-lite template
  */
-    var result;
+    let result;
     local.objectSetDefault(opt, {
         customize: local.nop,
         // reset toc
@@ -53381,7 +52336,7 @@ local.buildReadme = function (opt, onError) {
     );
     // init package.json
     opt.dataFrom.replace(opt.packageJsonRgx, function (match0, match1) {
-        // remove null-items from package.json
+        // remove null from package.json
         opt.packageJson = JSON.parse(match1.replace((
             /\u0020{4}".*?":\u0020null,?$/gm
         ), ""));
@@ -53423,7 +52378,7 @@ local.buildReadme = function (opt, onError) {
         // save package.json
         local.fs.writeFileSync(
             "package.json",
-            local.jsonStringifyOrdered(opt.packageJson, null, 4) + "\n"
+            local.jsonStringifyOrdered(opt.packageJson, undefined, 4) + "\n"
         );
         // re-render dataTo
         opt.dataTo = local.templateRenderMyApp(
@@ -53434,7 +52389,7 @@ local.buildReadme = function (opt, onError) {
             opt.packageJsonRgx,
             match0.replace(
                 match1,
-                local.jsonStringifyOrdered(opt.packageJson, null, 4)
+                local.jsonStringifyOrdered(opt.packageJson, undefined, 4)
             )
         );
     });
@@ -53463,10 +52418,6 @@ local.buildReadme = function (opt, onError) {
         // customize example.js - html-body
         (
             /\n<!--\u0020custom-html-start\u0020-->\\n\\\n[^`]*?\n<!--\u0020custom-html-end\u0020-->\\n\\\n/
-        ),
-        // customize example.js - testRunBrowser
-        (
-            /\n\u0020{4}\/\/\u0020custom-case\n[^`]*?\n\u0020{4}\/\/\u0020run\u0020browser-tests\n/
         ),
         // customize build_ci - shBuildCiAfter
         (
@@ -53542,7 +52493,7 @@ local.buildReadme = function (opt, onError) {
         ), "\n");
     }
     // customize shDeployCustom
-    if (opt.dataFrom.indexOf("    shDeployCustom\n") >= 0) {
+    if (opt.dataFrom.indexOf("    shDeployCustom\n") !== -1) {
         [
             // customize example.sh
             (
@@ -53661,7 +52612,7 @@ local.buildReadme = function (opt, onError) {
     if (opt.swaggerJson.swagger) {
         local.fs.writeFileSync(
             "assets.swgg.swagger.json",
-            local.jsonStringifyOrdered(opt.swaggerJson, null, 4) + "\n"
+            local.jsonStringifyOrdered(opt.swaggerJson, undefined, 4) + "\n"
         );
     }
     onError();
@@ -53672,7 +52623,7 @@ local.buildTest = function (opt, onError) {
 /*
  * this function will build test with given <opt>
  */
-    var result;
+    let result;
     local.objectSetDefault(opt, {
         customize: local.nop,
         dataFrom: local.fsReadFileOrEmptyStringSync("test.js", "utf8"),
@@ -53715,7 +52666,7 @@ local.childProcessSpawnWithTimeout = function (command, args, opt) {
  * this function will run like child_process.spawn,
  * but with auto-timeout after timeout milliseconds
  * example usage:
-    var child = local.childProcessSpawnWithTimeout(
+    let child = local.childProcessSpawnWithTimeout(
         "/bin/sh",
         ["-c", "echo hello world"],
         {stdio: ["ignore", 1, 2], timeout: 5000}
@@ -53725,9 +52676,9 @@ local.childProcessSpawnWithTimeout = function (command, args, opt) {
         console.error("exitCode " + exitCode);
     });
  */
-    var child;
-    var child_process;
-    var timerTimeout;
+    let child;
+    let child_process;
+    let timerTimeout;
     child_process = require("child_process");
     // spawn child
     child = child_process.spawn(command, args, opt).on("exit", function () {
@@ -53785,18 +52736,16 @@ local.cliRun = function (opt) {
         globalThis.local = local;
         local.vm.runInThisContext(process.argv[3]);
     };
-    local.cliDict["--eval"] = local.cliDict["--eval"] || local.cliDict._eval;
-    local.cliDict["-e"] = local.cliDict["-e"] || local.cliDict._eval;
     local.cliDict._help = local.cliDict._help || function () {
     /*
      *
      * will print help
      */
-        var commandList;
-        var file;
-        var packageJson;
-        var text;
-        var textDict;
+        let commandList;
+        let file;
+        let packageJson;
+        let text;
+        let textDict;
         commandList = [
             {
                 argList: "<arg2>  ...",
@@ -53839,14 +52788,14 @@ local.cliRun = function (opt) {
             try {
                 commandList[ii] = opt.rgxComment.exec(text);
                 commandList[ii] = {
-                    argList: (commandList[ii][1] || "").trim(),
+                    argList: local.coalesce(commandList[ii][1], "").trim(),
                     command: [
                         key
                     ],
                     description: commandList[ii][2]
                 };
             } catch (ignore) {
-                local.assertOrThrow(null, new Error(
+                local.assertOrThrow(undefined, new Error(
                     "cliRun - cannot parse comment in COMMAND "
                     + key
                     + ":\nnew RegExp("
@@ -53886,15 +52835,15 @@ local.cliRun = function (opt) {
             }
             return (
                 elem.description + "\n  " + file
-                + ("  " + elem.command.sort().join("|") + "  ").replace((
-                    /^\u0020{4}$/
-                ), "  ")
+                + "  " + elem.command.sort().join("|") + "  "
                 + elem.argList.join("  ")
             );
         }).join("\n\n");
         console.log(text);
     };
+    local.cliDict["--eval"] = local.cliDict["--eval"] || local.cliDict._eval;
     local.cliDict["--help"] = local.cliDict["--help"] || local.cliDict._help;
+    local.cliDict["-e"] = local.cliDict["-e"] || local.cliDict._eval;
     local.cliDict["-h"] = local.cliDict["-h"] || local.cliDict._help;
     local.cliDict._default = local.cliDict._default || local.cliDict._help;
     local.cliDict.help = local.cliDict.help || local.cliDict._help;
@@ -53989,26 +52938,26 @@ local.cryptoAesXxxCbcRawDecrypt = function (opt, onError) {
  * example usage:
     data = new Uint8Array([1,2,3]);
     key = '0123456789abcdef0123456789abcdef';
-    mode = null;
+    mode = undefined;
     local.cryptoAesXxxCbcRawEncrypt({
-        data: data,
-        key: key,
-        mode: mode
+        data,
+        key,
+        mode
     }, function (err, data) {
         console.assert(!err, err);
         local.cryptoAesXxxCbcRawDecrypt({
-            data: data,
-            key: key,
-            mode: mode
+            data,
+            key,
+            mode
         }, console.log);
     });
  */
-    var cipher;
-    var crypto;
-    var data;
-    var ii;
-    var iv;
-    var key;
+    let cipher;
+    let crypto;
+    let data;
+    let ii;
+    let iv;
+    let key;
     // init key
     key = new Uint8Array(0.5 * opt.key.length);
     ii = 0;
@@ -54038,7 +52987,7 @@ local.cryptoAesXxxCbcRawDecrypt = function (opt, onError) {
                 key,
                 iv
             );
-            onError(null, Buffer.concat([
+            onError(undefined, Buffer.concat([
                 cipher.update(data), cipher.final()
             ]));
         });
@@ -54053,7 +53002,7 @@ local.cryptoAesXxxCbcRawDecrypt = function (opt, onError) {
             iv,
             name: "AES-CBC"
         }, key, data).then(function (data) {
-            onError(null, new Uint8Array(data));
+            onError(undefined, new Uint8Array(data));
         }).catch(onError);
     }).catch(onError);
 };
@@ -54065,26 +53014,26 @@ local.cryptoAesXxxCbcRawEncrypt = function (opt, onError) {
  * example usage:
     data = new Uint8Array([1,2,3]);
     key = '0123456789abcdef0123456789abcdef';
-    mode = null;
+    mode = undefined;
     local.cryptoAesXxxCbcRawEncrypt({
-        data: data,
-        key: key,
-        mode: mode
+        data,
+        key,
+        mode
     }, function (err, data) {
         console.assert(!err, err);
         local.cryptoAesXxxCbcRawDecrypt({
-            data: data,
-            key: key,
-            mode: mode
+            data,
+            key,
+            mode
         }, console.log);
     });
  */
-    var cipher;
-    var crypto;
-    var data;
-    var ii;
-    var iv;
-    var key;
+    let cipher;
+    let crypto;
+    let data;
+    let ii;
+    let iv;
+    let key;
     // init key
     key = new Uint8Array(0.5 * opt.key.length);
     ii = 0;
@@ -54113,7 +53062,7 @@ local.cryptoAesXxxCbcRawEncrypt = function (opt, onError) {
                 iv = local.base64FromBuffer(iv);
                 iv += "\n";
             }
-            onError(null, iv);
+            onError(undefined, iv);
         });
         return;
     }
@@ -54134,7 +53083,7 @@ local.cryptoAesXxxCbcRawEncrypt = function (opt, onError) {
                 iv = local.base64FromBuffer(iv);
                 iv += "\n";
             }
-            onError(null, iv);
+            onError(undefined, iv);
         }).catch(onError);
     }).catch(onError);
 };
@@ -54221,7 +53170,7 @@ local.domFragmentRender = function (template, dict) {
 /*
  * this function will return dom-elem rendered from <template>
  */
-    var tmp;
+    let tmp;
     tmp = document.createElement("template");
     tmp.innerHTML = local.templateRender(template, dict);
     return tmp.content;
@@ -54231,9 +53180,9 @@ local.domQuerySelectorAllTagName = function (selector) {
 /*
  * this function will return all tagName that match <selector>
  */
-    var set;
+    let set;
     set = new Set();
-    document.querySelectorAll(selector).forEach(function (elem) {
+    local.querySelectorAll(selector).forEach(function (elem) {
         set.add(elem.tagName);
     });
     return Array.from(set).sort();
@@ -54251,32 +53200,20 @@ local.domStyleValidate = function () {
 /*
  * this function will validate <style> tags
  */
-    var rgx;
-    var tmp;
+    let rgx;
+    let tmp;
     rgx = (
-        /^0\u0020(?:(body\u0020>\u0020)?(?:form\u0020>\u0020)?(?:\.testReportDiv\u0020.+|\.x-istanbul\u0020.+|\.button|\.colorError|\.readonly|\.textarea|\.uiAnimateShake|\.uiAnimateSlide|a|body|code|div|input|pre|textarea)(?:,|\u0020\{))|^[1-9]\d*?\u0020#/m
+        /^0\u0020(?:(body\u0020>\u0020)?(?:\.testReportDiv\u0020.+|\.x-istanbul\u0020.+|\.button|\.colorError|\.readonly|\.textarea|\.uiAnimateSlide|a|body|code|div|input|pre|textarea)(?:,|\u0020\{))|^[1-9]\d*?\u0020#/m
     );
     tmp = [];
-    Array.from(
-        (
-            typeof document === "object"
-            && document
-            && typeof document.querySelector === "function"
-        )
-        ? document.querySelectorAll(
-            "style"
-        )
-        : []
-    ).map(function (elem, ii) {
+    local.querySelectorAll("style").map(function (elem, ii) {
         elem.innerHTML.replace((
             /\/\*[\S\s]*?\*\/|;|\}/g
         ), "\n").replace((
             /^([^\n\u0020@].*?)[,{:].*?$/gm
         ), function (match0, match1) {
             try {
-                ii = document.querySelectorAll(
-                    match1
-                ).length;
+                ii = local.querySelectorAll(match1).length;
             } catch (errCaught) {
                 console.error(errCaught);
             }
@@ -54306,10 +53243,87 @@ local.errorMessagePrepend = function (err, message) {
     return err;
 };
 
+local.eventEmitterCreate = function (that = {}) {
+/*
+ * this function will create a simple, node-like event-emitter with <that>,
+ * with methods emit, on, once, removeListener
+ */
+    let dict;
+    let emit;
+    let on;
+    let once;
+    let remove;
+    emit = function (type, msg) {
+    /*
+     * this function will emit evt <type> with <msg>
+     */
+        Array.from(dict[type] || []).forEach(function (listener) {
+            listener(msg);
+        });
+    };
+    on = function (type, listener, opt = {}) {
+    /*
+     * this function will listen to evt <type> with <listener>
+     */
+        let isDone;
+        if (typeof listener === "function") {
+            dict[type] = dict[type] || [];
+            dict[type].push(
+                opt.once
+                ? function listener2(msg) {
+                    remove(type, listener2);
+                    if (!isDone) {
+                        isDone = true;
+                        listener(msg);
+                    }
+                }
+                : listener
+            );
+        }
+        return that;
+    };
+    once = function (type, listener, opt = {}) {
+    /*
+     * this function will listen to evt <type> once with <listener>
+     */
+        opt.once = true;
+        return on(type, listener, opt);
+    };
+    remove = function (type, listener) {
+    /*
+     * this function will stop listening to evt <type> with <listener>
+     */
+        let ii;
+        let list;
+        list = dict[type] || [];
+        ii = list.length;
+        while (ii > 0) {
+            ii -= 1;
+            if (list[ii] === listener) {
+                list.splice(ii, 1);
+            }
+        }
+        return that;
+    };
+    dict = {};
+    that.emit = that.emit || emit;
+    that.listenerEmit = that.listenerEmit || emit;
+    that.on = that.on || on;
+    that.once = that.once || once;
+    that.removeListener = that.removeListener || remove;
+    that.removeEventListener = that.removeEventListener || remove;
+    that.listenerOn = that.listenerOn || on;
+    that.listenerOnce = that.listenerOnce || once;
+    that.listenerRemove = that.listenerRemove || remove;
+    return that;
+};
+
+local.eventEmitterCreate(local);
+
 local.fsReadFileOrEmptyStringSync = function (file, opt) {
 /*
  * this function will try to read file or return empty-string, or
- * if <opt> === "json", then try to JSON.parse file or return null
+ * if <opt> === "json", then try to JSON.parse file or return {}
  */
     try {
         return (
@@ -54351,31 +53365,31 @@ local.gotoNext = function (opt, onError) {
         } catch (errCaught) {
             // throw errCaught to break infinite recursion-loop
             if (opt.errCaught) {
-                local.assertOrThrow(null, opt.errCaught);
+                local.assertOrThrow(undefined, opt.errCaught);
             }
             opt.errCaught = errCaught;
             opt.gotoNext(errCaught, data, meta);
         }
     });
-    opt.gotoNextData = opt.gotoNext.bind(null, null);
+    opt.gotoNextData = opt.gotoNext.bind(undefined, undefined);
     return opt;
 };
 
-local.isNullOrUndefined = function (arg0) {
+local.isNullOrUndefined = function (val) {
 /*
- * this function will test if arg0 is null or undefined
+ * this function will test if val is null or undefined
  */
-    return arg0 === null || arg0 === undefined;
+    return val === null || val === undefined;
 };
 
 local.jslintAutofixLocalFunction = function (code, file) {
 /*
  * this function will jslint-autofix local-function
  */
-    var code2;
-    var dictFnc;
-    var dictProp;
-    var tmp;
+    let code2;
+    let dictFnc;
+    let dictProp;
+    let tmp;
     if (local.isBrowser) {
         return code;
     }
@@ -54385,7 +53399,6 @@ local.jslintAutofixLocalFunction = function (code, file) {
     case "lib." + process.env.npm_package_nameLib + ".js":
     case "lib." + process.env.npm_package_nameLib + ".sh":
     case "lib.apidoc.js":
-    case "lib.db.js":
     case "lib.github_crud.js":
     case "lib.istanbul.js":
     case "lib.jslint.js":
@@ -54399,10 +53412,10 @@ local.jslintAutofixLocalFunction = function (code, file) {
     default:
         return code;
     }
-    // autofix - assets.example.begin.js
+    // autofix - assets.utility2.header.js
     code = code.replace((
-        /^\(function\u0020\(globalThis\)\u0020\{\n[\S\s]*?\n\}\(this\)\);\n/m
-    ), local.assetsDict["/assets.example.begin.js"]);
+        /\n\/\/\u0020assets.utility2\.header\.js\u0020-\u0020start\n[\S\s]*?\n\/\/\u0020assets.utility2\.header\.js\u0020-\u0020end\n/
+    ), "\n" + local.assetsDict["/assets.utility2.header.js"]);
     // autofix - assets.my_app.template.js
     code = local.stringMerge(
         code,
@@ -54432,7 +53445,7 @@ local.jslintAutofixLocalFunction = function (code, file) {
         [
             "utility2", "swgg"
         ], [
-            "utility2", "apidoc", "db", "github_crud", "swgg"
+            "utility2", "apidoc", "github_crud", "swgg"
         ]
     ].forEach(function (dictList, ii) {
         tmp = (
@@ -54488,7 +53501,7 @@ local.jslintAutofixLocalFunction = function (code, file) {
                 /\$\$|\$/g
             ), "$$$$"));
         }
-        return match0.trimRight() + "\n\n";
+        return match0.trimEnd() + "\n\n";
     });
     // comment
     code2 = code;
@@ -54522,10 +53535,15 @@ local.jslintAutofixLocalFunction = function (code, file) {
     dictProp = local.jsonCopy(dictProp);
     [
         "assertOrThrow",
+        "coalesce",
+        "fsRmrfSync",
+        "fsWriteFileWithMkdirpSync",
         "functionOrNop",
         "identity",
         "nop",
-        "objectAssignDefault"
+        "objectAssignDefault",
+        "querySelector",
+        "querySelectorAll"
     ].forEach(function (key) {
         dictFnc[key] = true;
         dictProp[key] = true;
@@ -54555,11 +53573,6 @@ local.jslintAutofixLocalFunction = function (code, file) {
         break;
     default:
         Object.keys(dictFnc).forEach(function (key) {
-            switch (key) {
-            case "fsRmrfSync":
-            case "fsWriteFileWithMkdirpSync":
-                return;
-            }
             if (!dictProp.hasOwnProperty(key)) {
                 console.error(
                     "local-function - unused (" + file + ") local." + key
@@ -54587,9 +53600,9 @@ local.jsonStringifyOrdered = function (obj, replacer, space) {
  * with object-keys sorted and circular-references removed
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#Syntax
  */
-    var circularSet;
-    var stringify;
-    var tmp;
+    let circularSet;
+    let stringify;
+    let tmp;
     stringify = function (obj) {
     /*
      * this function will recursively JSON.stringify obj,
@@ -54608,7 +53621,7 @@ local.jsonStringifyOrdered = function (obj, replacer, space) {
             return;
         }
         circularSet.add(obj);
-        // if obj is an array, then recurse its items
+        // if obj is an array, then recurse items
         if (Array.isArray(obj)) {
             tmp = "[" + obj.map(function (obj) {
                 // recurse
@@ -54677,7 +53690,7 @@ local.jwtAes256GcmEncrypt = function (data, key) {
  * aes-256-gcm-encrypt <data> with given base64url-encoded <key>
  * https://tools.ietf.org/html/rfc7516
  */
-    var adata;
+    let adata;
     adata = local.jwtAes256KeyCreate();
     data = local.jwtHs256Encode(data, key);
     data = JSON.parse(local.sjcl.encrypt(
@@ -54722,8 +53735,8 @@ local.jwtHs256Decode = function (token, key) {
  * this function will decode json-web-token with given base64-encoded <key>
  * https://jwt.io/
  */
-    var Hmac;
-    var timeNow;
+    let Hmac;
+    let timeNow;
     Hmac = local.sjcl.misc.hmac;
     timeNow = Date.now() / 1000;
     // try to decode token
@@ -54756,7 +53769,7 @@ local.jwtHs256Encode = function (data, key) {
  * with given base64-encoded <key>
  * https://jwt.io/
  */
-    var Hmac;
+    let Hmac;
     Hmac = local.sjcl.misc.hmac;
     data = (
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
@@ -54783,9 +53796,9 @@ local.listShuffle = function (list) {
  * this function will inplace shuffle <list> using fisher-yates algorithm
  * https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
  */
-    var ii;
-    var random;
-    var swap;
+    let ii;
+    let random;
+    let swap;
     ii = list.length;
     while (ii > 1) {
         ii -= 1;
@@ -54796,68 +53809,6 @@ local.listShuffle = function (list) {
     }
     return list;
 };
-
-local.listenerAdd = function (type, listener) {
-/*
- * this function will listen to evt <type> with <listener>
- */
-    local.listenerDict[type] = local.listenerDict[type] || [];
-    local.listenerDict[type].push(listener);
-    return local;
-};
-
-local.listenerAddOnce = function (type, listener) {
-/*
- * this function will listen to evt <type> once with <listener>
- */
-    var fired;
-    var listener2;
-    listener2 = function (msg) {
-        local.listenerRemove(type, listener2);
-        if (!fired) {
-            fired = true;
-            listener(msg);
-        }
-    };
-    local.listenerAdd(type, listener2);
-    return local;
-};
-
-local.listenerDict = local.listenerDict || {};
-
-local.listenerEmit = function (type, msg) {
-/*
- * this function will emit evt <type> with <msg>
- */
-    (local.listenerDict[type] || []).forEach(function (listener) {
-        listener(msg);
-    });
-};
-
-local.listenerRemove = function (type, listener) {
-/*
- * this function will stop listening to evt <type> with <listener>
- */
-    var ii;
-    var list;
-    list = local.listenerDict[type] || [];
-    ii = list.length;
-    while (ii > 0) {
-        ii -= 1;
-        if (list[ii] === listener) {
-            list.splice(ii, 1);
-        }
-    }
-    return local;
-};
-
-/* validateLineSortedReset */
-local.addListener = local.listenerAdd;
-local.emit = local.listenerEmit;
-local.on = local.listenerAdd;
-local.once = local.listenerAddOnce;
-local.removeListener = local.listenerRemove;
-/* validateLineSortedReset */
 
 local.localStorageSetItemOrClear = function (key, value) {
 /*
@@ -54875,55 +53826,34 @@ local.middlewareAssetsCached = function (req, res, next) {
 /*
  * this function will run middleware to serve cached-assets
  */
-    var opt;
-    opt = {};
-    local.gotoNext(opt, function (err, data) {
-        opt.result = opt.result || local.assetsDict[req.urlParsed.pathname];
-        if (opt.result === undefined) {
-            next(err);
+    if (!local.assetsDict.hasOwnProperty(req.urlParsed.pathname)) {
+        next();
+        return;
+    }
+    // do not cache if headers already sent or url has '?' search indicator
+    if (!(res.headersSent || req.url.indexOf("?") >= 0)) {
+        // init serverResponseHeaderLastModified
+        local.serverResponseHeaderLastModified = (
+            local.serverResponseHeaderLastModified
+            // resolve to 1000 ms
+            || new Date(new Date().toUTCString())
+        );
+        // respond with 304 If-Modified-Since serverResponseHeaderLastModified
+        if (
+            new Date(req.headers["if-modified-since"])
+            >= local.serverResponseHeaderLastModified
+        ) {
+            res.statusCode = 304;
+            res.end();
             return;
         }
-        switch (opt.gotoState) {
-        case 1:
-            // skip gzip
-            if (res.headersSent || !(
-                /\bgzip\b/
-            ).test(req.headers["accept-encoding"])) {
-                opt.gotoState += 1;
-                opt.gotoNext();
-                return;
-            }
-            // gzip and cache result
-            local.taskCreateCached({
-                cacheDict: "middlewareAssetsCachedGzip",
-                key: req.urlParsed.pathname
-            }, function (onError) {
-                local.zlib.gzip(opt.result, function (err, data) {
-                    onError(err, !err && data.toString("base64"));
-                });
-            }, opt.gotoNext);
-            break;
-        case 2:
-            // set gzip header
-            opt.result = local.base64ToBuffer(data);
-            res.setHeader("Content-Encoding", "gzip");
-            res.setHeader("Content-Length", opt.result.length);
-            opt.gotoNext();
-            break;
-        case 3:
-            local.middlewareCacheControlLastModified(
-                req,
-                res,
-                opt.gotoNext
-            );
-            break;
-        case 4:
-            res.end(opt.result);
-            break;
-        }
-    });
-    opt.gotoState = 0;
-    opt.gotoNext();
+        res.setHeader("Cache-Control", "no-cache");
+        res.setHeader(
+            "Last-Modified",
+            local.serverResponseHeaderLastModified.toUTCString()
+        );
+    }
+    res.end(local.assetsDict[req.urlParsed.pathname]);
 };
 
 local.middlewareBodyRead = function (req, ignore, next) {
@@ -54936,51 +53866,19 @@ local.middlewareBodyRead = function (req, ignore, next) {
         next();
         return;
     }
-    var chunkList;
-    chunkList = [];
-    req.on("data", function (chunk) {
-        chunkList.push(chunk);
+    let bufList;
+    bufList = [];
+    req.on("data", function (buf) {
+        bufList.push(buf);
     }).on("end", function () {
         req.bodyRaw = (
             local.isBrowser
-            ? chunkList[0]
-            : Buffer.concat(chunkList)
+            ? bufList[0]
+            : Buffer.concat(bufList)
         );
         next();
     // on event-error, pass error to onError
     }).on("error", next);
-};
-
-local.middlewareCacheControlLastModified = function (req, res, next) {
-/*
- * this function will run middleware to update res-header last-modified
- */
-    // do not cache if headers already sent or url has '?' search indicator
-    if (res.headersSent || req.url.indexOf("?") >= 0) {
-        next();
-        return;
-    }
-    // init serverResponseHeaderLastModified
-    local.serverResponseHeaderLastModified = (
-        local.serverResponseHeaderLastModified
-        // resolve to 1000 ms
-        || new Date(new Date().toUTCString())
-    );
-    // respond with 304 If-Modified-Since serverResponseHeaderLastModified
-    if (
-        new Date(req.headers["if-modified-since"])
-        >= local.serverResponseHeaderLastModified
-    ) {
-        res.statusCode = 304;
-        res.end();
-        return;
-    }
-    res.setHeader("Cache-Control", "no-cache");
-    res.setHeader(
-        "Last-Modified",
-        local.serverResponseHeaderLastModified.toUTCString()
-    );
-    next();
 };
 
 local.middlewareError = function (err, req, res) {
@@ -55008,40 +53906,30 @@ local.middlewareFileServer = function (req, res, next) {
 /*
  * this function will run middleware to serve files
  */
+    let file;
     if (req.method !== "GET" || local.isBrowser) {
         next();
         return;
     }
-    req.urlFile = (process.cwd() + req.urlParsed.pathname.replace((
-        // security - disable parent directory lookup
-        /.*\/\.\.\//g
-    ), "/")).replace((
-        // replace trailing '/' with '/index.html'
+    // security - disable parent directory lookup
+    file = local.path.resolve("/", req.urlParsed.pathname).slice(1);
+    // replace trailing '/' with '/index.html'
+    file = file.replace((
         /\/$/
     ), "/index.html");
-    // serve file from cache
-    local.taskCreateCached({
-        cacheDict: "middlewareFileServer",
-        key: req.urlFile
-    // run background-task to re-cache file
-    }, function (onError) {
-        local.fs.readFile(req.urlFile, function (err, data) {
-            onError(err, data && local.base64FromBuffer(data));
-        });
-    }, function (err, data) {
+    local.fs.readFile(file, function (err, data) {
         // default to next
         if (err) {
             next();
             return;
         }
-        // init res-header content-type
-        local.serverRespondHeadSet(req, res, null, {
+        // respond with data
+        local.serverRespondHeadSet(req, res, undefined, {
             "Content-Type": local.contentTypeDict[(
                 /\.[^.]*?$|$/m
-            ).exec(req.urlParsed.pathname)[0]]
+            ).exec(file)[0]]
         });
-        // serve file from cache
-        res.end(local.base64ToBuffer(data));
+        res.end(data);
     });
 };
 
@@ -55050,10 +53938,10 @@ local.middlewareForwardProxy = function (req, res, next) {
  * this function will run middleware to forward-proxy <req>
  * to its destination-host
  */
-    var isDone;
-    var onError;
-    var opt;
-    var timerTimeout;
+    let isDone;
+    let onError;
+    let opt;
+    let timerTimeout;
     // handle preflight-cors
     if (req.method === "OPTIONS" && (
         /forward-proxy-url/
@@ -55091,7 +53979,7 @@ local.middlewareForwardProxy = function (req, res, next) {
         }
         // cleanup clientReq and clientRes
         local.streamCleanup(opt.clientReq);
-        local.streamCleanup(opt.clientResponse);
+        local.streamCleanup(opt.clientReq);
         next(err);
     };
     // init opt
@@ -55115,17 +54003,17 @@ local.middlewareForwardProxy = function (req, res, next) {
         opt.protocol === "https:"
         ? local.https
         : local.http
-    ).request(opt, function (clientResponse) {
-        opt.clientResponse = clientResponse.on("error", onError);
-        res.statusCode = opt.clientResponse.statusCode;
-        // pipe clientResponse to serverResponse
-        opt.clientResponse.pipe(res);
+    ).request(opt, function (clientReq) {
+        opt.clientReq = clientReq.on("error", onError);
+        res.statusCode = opt.clientReq.statusCode;
+        // pipe clientReq to res
+        opt.clientReq.pipe(res);
     }).on("error", onError);
     opt.timeStart = Date.now();
-    // init event-handling
+    // handle evt
     req.on("error", onError);
     res.on("finish", onError).on("error", onError);
-    // pipe serverReq to clientReq
+    // pipe req to clientReq
     req.pipe(opt.clientReq);
 };
 
@@ -55146,14 +54034,14 @@ local.middlewareInit = function (req, res, next) {
     // init req.urlParsed
     req.urlParsed = local.urlParse(req.url);
     // init res-header content-type
-    local.serverRespondHeadSet(req, res, null, {
+    local.serverRespondHeadSet(req, res, undefined, {
         "Content-Type": local.contentTypeDict[(
             /\.[^.]*?$|$/m
         ).exec(req.urlParsed.pathname)[0]]
     });
     // set main-page content-type to text/html
     if (req.urlParsed.pathname === "/") {
-        local.serverRespondHeadSet(req, res, null, {
+        local.serverRespondHeadSet(req, res, undefined, {
             "Content-Type": "text/html; charset=utf-8"
         });
     }
@@ -55164,9 +54052,9 @@ local.middlewareInit = function (req, res, next) {
 local.middlewareJsonpStateInit = function (req, res, next) {
 /*
  * this function will run middleware to
- * serve the browser-state wrapped in given jsonp-callback
+ * serve browser-state wrapped in given jsonp-callback
  */
-    var state;
+    let state;
     if (!(req.stateInit || (
         req.urlParsed
         && req.urlParsed.pathname === "/jsonp.utility2.stateInit"
@@ -55183,14 +54071,11 @@ local.middlewareJsonpStateInit = function (req, res, next) {
                 "/assets.swgg.swagger.json":
                 local.assetsDict["/assets.swgg.swagger.json"],
                 "/assets.test.js": local.assetsDict["/assets.test.js"],
-                "/assets.utility2.base.html":
-                local.assetsDict["/assets.utility2.base.rollup.html"],
                 "/index.rollup.html": local.assetsDict["/index.rollup.html"]
             },
             env: {
                 NODE_ENV: local.env.NODE_ENV,
                 npm_config_mode_backend: local.env.npm_config_mode_backend,
-                npm_package_assetsList: local.env.npm_package_assetsList,
                 npm_package_description: local.env.npm_package_description,
                 npm_package_homepage: local.env.npm_package_homepage,
                 npm_package_name: local.env.npm_package_name,
@@ -55199,15 +54084,6 @@ local.middlewareJsonpStateInit = function (req, res, next) {
             }
         }
     };
-    (local.env.npm_package_assetsList || "").split(" ").forEach(function (
-        file
-    ) {
-        local.assetsDict["/" + file] = (
-            local.assetsDict["/" + file]
-            || local.fsReadFileOrEmptyStringSync(file, "utf8")
-        );
-        state.utility2.assetsDict["/" + file] = local.assetsDict["/" + file];
-    });
     if (req.stateInit) {
         return state;
     }
@@ -55216,41 +54092,35 @@ local.middlewareJsonpStateInit = function (req, res, next) {
     );
 };
 
-local.moduleDirname = function (module, modulePathList) {
+local.moduleDirname = function (module, pathList) {
 /*
- * this function will search modulePathList for the module's __dirname
+ * this function will search <pathList> for <module>'s __dirname
  */
-    var result;
+    let result;
     // search process.cwd()
     if (!module || module === "." || module.indexOf("/") >= 0) {
         return require("path").resolve(process.cwd(), module || "");
     }
-    // search modulePathList
-    [
-        "node_modules"
-    ].concat(modulePathList).concat(require("module").globalPaths).concat([
-        process.env.HOME + "/node_modules", "/usr/local/lib/node_modules"
-    ]).some(function (modulePath) {
+    // search pathList
+    Array.from([
+        pathList,
+        require("module").globalPaths,
+        [
+            process.env.HOME + "/node_modules", "/usr/local/lib/node_modules"
+        ]
+    ]).flat().some(function (path) {
         try {
             result = require("path").resolve(
                 process.cwd(),
-                modulePath + "/" + module
+                path + "/" + module
             );
             result = require("fs").statSync(result).isDirectory() && result;
             return result;
         } catch (ignore) {
-            result = null;
+            result = "";
         }
-        return result;
     });
-    return result || "";
-};
-
-local.normalizeChunk = function (chunk) {
-/*
- * this function will normalize the chunk
- */
-    return chunk || "";
+    return result;
 };
 
 local.normalizeJwt = function (data) {
@@ -55258,7 +54128,7 @@ local.normalizeJwt = function (data) {
  * this function will normalize the jwt-data with registered-headers
  * https://tools.ietf.org/html/rfc7519#section-4.1
  */
-    var timeNow;
+    let timeNow;
     timeNow = Date.now() / 1000;
     return local.objectSetDefault(data, {
         exp: timeNow + 5 * 60,
@@ -55286,10 +54156,10 @@ local.numberToRomanNumerals = function (num) {
  * this function will convert num to a roman-numeral
  * https://stackoverflow.com/questions/9083037/convert-a-number-into-a-roman-numeral-in-javascript
  */
-    var digits;
-    var ii;
-    var key;
-    var roman;
+    let digits;
+    let ii;
+    let key;
+    let roman;
     digits = String(num).split("");
     key = [
         "", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM",
@@ -55312,8 +54182,8 @@ local.objectSetDefault = function (dict, defaults, depth) {
     dict = dict || {};
     defaults = defaults || {};
     Object.keys(defaults).forEach(function (key) {
-        var defaults2;
-        var dict2;
+        let defaults2;
+        let dict2;
         dict2 = dict[key];
         // handle misbehaving getter
         try {
@@ -55330,13 +54200,13 @@ local.objectSetDefault = function (dict, defaults, depth) {
             dict[key] = defaults2;
             return;
         }
-        // if dict2 and defaults2 are both non-null and non-array objects,
+        // if dict2 and defaults2 are both non-undefined and non-array objects,
         // then recurse with dict2 and defaults2
         if (
             depth > 1
-            // dict2 is a non-null and non-array object
+            // dict2 is a non-undefined and non-array object
             && typeof dict2 === "object" && dict2 && !Array.isArray(dict2)
-            // defaults2 is a non-null and non-array object
+            // defaults2 is a non-undefined and non-array object
             && typeof defaults2 === "object" && defaults2
             && !Array.isArray(defaults2)
         ) {
@@ -55355,20 +54225,20 @@ local.objectSetOverride = function (dict, overrides, depth, env) {
     env = env || (typeof process === "object" && process.env) || {};
     overrides = overrides || {};
     Object.keys(overrides).forEach(function (key) {
-        var dict2;
-        var overrides2;
+        let dict2;
+        let overrides2;
         dict2 = dict[key];
         overrides2 = overrides[key];
         if (overrides2 === undefined) {
             return;
         }
-        // if both dict2 and overrides2 are non-null and non-array objects,
+        // if both dict2 and overrides2 are non-undefined and non-array objects,
         // then recurse with dict2 and overrides2
         if (
             depth > 1
-            // dict2 is a non-null and non-array object
+            // dict2 is a non-undefined and non-array object
             && typeof dict2 === "object" && dict2 && !Array.isArray(dict2)
-            // overrides2 is a non-null and non-array object
+            // overrides2 is a non-undefined and non-array object
             && typeof overrides2 === "object" && overrides2
             && !Array.isArray(overrides2)
         ) {
@@ -55408,11 +54278,10 @@ local.onErrorThrow = function (err) {
 
 local.onErrorWithStack = function (onError) {
 /*
- * this function will create wrapper around <onError>
- * that will append current-stack to err.stack
+ * this function will wrap <onError> with wrapper preserving current-stack
  */
-    var onError2;
-    var stack;
+    let onError2;
+    let stack;
     stack = new Error().stack.replace((
         /(.*?)\n.*?$/m
     ), "$1");
@@ -55464,7 +54333,7 @@ local.onParallel = function (onError, onEach, onRetry) {
  * 1. run async tasks in parallel
  * 2. if counter === 0 or err occurred, then call onError(err)
  */
-    var onParallel;
+    let onParallel;
     onError = local.onErrorWithStack(onError);
     onEach = onEach || local.nop;
     onRetry = onRetry || local.nop;
@@ -55509,9 +54378,9 @@ local.onParallelList = function (opt, onEach, onError) {
  *    with given <opt>.rateLimit and <opt>.retryLimit
  * 2. call <onError> when onParallel.ii + 1 === <opt>.list.length
  */
-    var isListEnd;
-    var onEach2;
-    var onParallel;
+    let isListEnd;
+    let onEach2;
+    let onParallel;
     opt.list = opt.list || [];
     onEach2 = function () {
         while (true) {
@@ -55543,7 +54412,7 @@ local.onParallelList = function (opt, onEach, onError) {
         }
         // restart if opt.list has grown
         if (isListEnd && (onParallel.ii + 1 < opt.list.length)) {
-            isListEnd = null;
+            isListEnd = undefined;
             onEach2();
         }
     });
@@ -55574,7 +54443,7 @@ local.profile = function (fnc, onError) {
  * this function will profile async <fnc> in milliseconds
  * with callback <onError>
  */
-    var timeStart;
+    let timeStart;
     timeStart = Date.now();
     // run async fnc
     fnc(function (err) {
@@ -55588,7 +54457,7 @@ local.profileSync = function (fnc) {
 /*
  * this function will profile sync <fnc> in milliseconds
  */
-    var timeStart;
+    let timeStart;
     timeStart = Date.now();
     // run sync fnc
     fnc();
@@ -55598,9 +54467,9 @@ local.profileSync = function (fnc) {
 
 local.replStart = function () {
 /*
- * this function will start the repl-debugger
+ * this function will start repl-debugger
  */
-    var that;
+    let that;
     if (globalThis.utility2_repl1) {
         return;
     }
@@ -55609,30 +54478,15 @@ local.replStart = function () {
         useGlobal: true
     });
     globalThis.utility2_repl1 = that;
-    that.onError = function (err) {
-    /*
-     * this function will debug repl-err
-     */
-        globalThis.utility2_debugReplError = err;
-        console.error(err);
-    };
     // save eval-function
     that.evalDefault = that.eval;
     // hook custom-eval-function
     that.eval = function (script, context, file, onError) {
-        var onError2;
-        onError2 = function (err, data) {
-            // debug err
-            globalThis.utility2_debugReplError = (
-                err || globalThis.utility2_debugReplError
-            );
-            onError(err, data);
-        };
         script.replace((
             /^(\S+)\u0020(.*?)\n/
         ), function (ignore, match1, match2) {
             switch (match1) {
-            // syntax-sugar - run async shell-command
+            // syntax-sugar - run shell-command
             case "$":
                 switch (match2) {
                 // syntax-sugar - run git diff
@@ -55643,7 +54497,7 @@ local.replStart = function () {
                 case "git log":
                     match2 = "git log -n 4 | cat";
                     break;
-                // syntax-sugar - run git log
+                // syntax-sugar - run ll
                 case "ll":
                     match2 = "ls -Fal";
                     break;
@@ -55658,21 +54512,16 @@ local.replStart = function () {
                         + "/lib.utility2.sh;" + match2
                     );
                 }
-                // run async shell-command
+                // run shell-command
                 require("child_process").spawn(match2, {
                     shell: true,
                     stdio: [
                         "ignore", 1, 2
                     ]
-                // on shell exit, print return prompt
+                // print exitCode
                 }).on("exit", function (exitCode) {
-                    console.error("exit-code " + exitCode);
-                    that.evalDefault(
-                        "\n",
-                        context,
-                        file,
-                        onError2
-                    );
+                    console.error("exitCode " + exitCode);
+                    that.evalDefault("\n", context, file, onError);
                 });
                 script = "\n";
                 break;
@@ -55695,7 +54544,7 @@ local.replStart = function () {
                 break;
             // syntax-sugar - grep current dir
             case "grep":
-                // run async shell-command
+                // run shell-command
                 require("child_process").spawn((
                     "find . -type f | grep -v -E "
 /* jslint ignore:start */
@@ -55725,19 +54574,13 @@ vendor)s{0,1}(\\b|_)\
                     stdio: [
                         "ignore", 1, 2
                     ]
-                // on shell exit, print return prompt
                 }).on("exit", function (exitCode) {
-                    console.error("exit-code " + exitCode);
-                    that.evalDefault(
-                        "\n",
-                        context,
-                        file,
-                        onError2
-                    );
+                    console.error("exitCode " + exitCode);
+                    that.evalDefault("\n", context, file, onError);
                 });
                 script = "\n";
                 break;
-            // syntax-sugar - list object's keys, sorted by item-type
+            // syntax-sugar - list obj's keys, sorted by item-type
             // console.error(Object.keys(global).map(function(key){return(typeof global[key]==='object'&&global[key]&&global[key]===global[key]?'global':typeof global[key])+' '+key;}).sort().join('\n')) // jslint ignore:line
             case "keys":
                 script = (
@@ -55752,135 +54595,24 @@ vendor)s{0,1}(\\b|_)\
                     + "}).sort().join('\\n'))\n"
                 );
                 break;
-            // syntax-sugar - print stringified arg
+            // syntax-sugar - print String(val)
             case "print":
                 script = "console.error(String(" + match2 + "))\n";
                 break;
-            // syntax-sugar - read file
-            case "readFile":
-                try {
-                    console.error(JSON.stringify(
-                        require("fs").readFileSync(match2, "utf8")
-                    ));
-                } catch (errCaught) {
-                    console.error(errCaught);
-                }
-                script = "\n";
-                break;
             }
         });
-        // eval the script
-        that.evalDefault(script, context, file, onError2);
+        // eval script
+        that.evalDefault(script, context, file, onError);
     };
-    that.socket = {
-        end: local.nop,
-        on: local.nop,
-        write: local.nop
-    };
-    // init process.stdout
-    process.stdout._writeDefault = (
-        process.stdout._writeDefault
-        || process.stdout._write
-    );
-    process.stdout._write = function (chunk, encoding, callback) {
-        process.stdout._writeDefault(chunk, encoding, callback);
-        // hack-istanbul - ignore else-statement
-        local.nop(that.socket.writable && (function () {
-            that.socket.write(chunk, encoding);
-        }()));
-    };
-    // start serverRepl1
-    globalThis.utility2_serverRepl1 = require("net").createServer(function (
-        socket
-    ) {
-        // init socket
-        that.socket = socket;
-        that.socket.on("data", that.write.bind(that));
-        that.socket.on("error", that.onError);
-        that.socket.setKeepAlive(true);
-    });
-    // hack-istanbul - ignore else-statement
-    local.nop(process.env.PORT_REPL && (function () {
-        console.error(
-            "repl-server listening on port " + process.env.PORT_REPL
-        );
-        globalThis.utility2_serverRepl1.listen(process.env.PORT_REPL);
-    }()));
-};
-
-local.requireInSandbox = function (file) {
-/*
- * this function will require <file> in sandbox-env
- */
-    var exports;
-    var mockDict;
-    var mockList;
-    var tmp;
-    mockList = [
-        [
-            globalThis, {
-                setImmediate: local.nop,
-                setInterval: local.nop,
-                setTimeout: local.nop
-            }
-        ]
-    ];
-    [
-        [
-            local, "child_process"
-        ], [
-            local, "cluster"
-        ], [
-            local, "http"
-        ], [
-            local, "https"
-        ], [
-            local, "net"
-        ], [
-            local, "repl"
-        ], [
-            local.events, "prototype"
-        ], [
-            globalThis, "process"
-        ], [
-            local.stream, "prototype"
-        ], [
-            process, "stdin"
-        ]
-    ].forEach(function (elem) {
-        tmp = elem[0][elem[1]];
-        mockDict = {};
-        Object.keys(tmp).forEach(function (key) {
-            if (typeof tmp[key] === "function" && !(
-                /^(?:fs\.Read|fs\.read|process\.binding|process\.dlopen)/
-            ).test(elem[1] + "." + key)) {
-                mockDict[key] = function () {
-                    return;
-                };
-                // hack-istanbul
-                mockDict[key]();
-            }
-        });
-        mockList.push([
-            tmp, mockDict
-        ]);
-    });
-    local.testMock(mockList, function (onError) {
-        local.tryCatchOnError(function () {
-            exports = require(file);
-        }, local.onErrorDefault);
-        onError();
-    }, local.onErrorThrow);
-    return exports;
 };
 
 local.requireReadme = function () {
 /*
  * this function will require and export example.js embedded in README.md
  */
-    var code;
-    var module;
-    var tmp;
+    let code;
+    let module;
+    let tmp;
     // init module.exports
     module = {};
     if (local.isBrowser) {
@@ -55913,7 +54645,7 @@ local.requireReadme = function () {
         case "assets.swgg.swagger.json":
             local.fs.readFile(file, "utf8", function (err, data) {
                 local.tryCatchOnError(function () {
-                    // validate no err occurred
+                    // handle err
                     local.assertOrThrow(!err, err);
                     local.swgg.swaggerValidate(JSON.parse(data));
                 }, local.onErrorDefault);
@@ -55932,16 +54664,16 @@ local.requireReadme = function () {
                 + ", {autofix:true,conditional:true}, process.exit);"
             )
         ], {
-            env: local.objectAssignDefault({
+            env: Object.assign({}, local.env, {
                 npm_config_mode_library: "1"
-            }, local.env),
+            }),
             stdio: [
                 "ignore", "ignore", 2
             ]
         });
     }
     if (globalThis.utility2_rollup || local.env.npm_config_mode_start) {
-        // init assets
+        // init assets index.html
         local.assetsDict["/index.html"] = (
             local.fsReadFileOrEmptyStringSync("index.html")
             || local.assetsDict["/index.rollup.html"] || ""
@@ -55990,26 +54722,32 @@ local.requireReadme = function () {
     tmp = process.cwd() + "/example.js";
     // jslint code
     local.jslintAndPrint(code, tmp);
-    // cover code
+    // instrument code
     code = local.istanbulInstrumentInPackage(code, tmp);
     // init module.exports
     module = new local.Module(tmp);
     require.cache[tmp] = module;
-    // load code into module
     module._compile(code, tmp);
     // init exports
     module.exports.utility2 = local;
     module.exports[local.env.npm_package_nameLib] = (
         globalThis.utility2_moduleExports
     );
-    // init assets
+    // init assets lib.xxx.js
     tmp = process.cwd() + "/" + local.env.npm_package_main;
-    local.assetsDict["/assets." + local.env.npm_package_nameLib + ".js"] = (
-        local.fs.readFileSync(tmp, "utf8").replace((
+    [
+        "css", "js"
+    ].forEach(function (extname) {
+        local.assetsDict[
+            "/assets." + local.env.npm_package_nameLib + "." + extname
+        ] = local.fsReadFileOrEmptyStringSync(tmp.replace((
+            /\.[^.]*?$/
+        ), "." + extname), "utf8").replace((
             /^#!\//
-        ), "// ")
-    );
-    local.objectSetOverride(local.assetsDict, module.exports.assetsDict);
+        ), "// ");
+    });
+    Object.assign(local.assetsDict, module.exports.assetsDict);
+    // instrument assets lib.xxx.js
     local.assetsDict["/assets." + local.env.npm_package_nameLib + ".js"] = (
         local.istanbulInstrumentInPackage(
             local.assetsDict[
@@ -56026,41 +54764,44 @@ local.requireReadme = function () {
     );
     // init assets index.html
     [
-        "", ".rollup"
-    ].forEach(function (isRollup) {
         [
-            "index", "utility2"
-        ].forEach(function (file) {
-            tmp = "assets." + file + ".template.html";
-            local.assetsDict["/" + tmp] = (
-                local.fsReadFileOrEmptyStringSync(tmp, "utf8")
-                || local.assetsDict["/" + tmp]
-            );
-            file = (
-                file.replace("utility2", "assets.utility2.base") + isRollup
-                + ".html"
-            );
-            local.assetsDict["/" + file] = local.fsReadFileOrEmptyStringSync(
-                file,
-                "utf8"
-            ) || local.templateRender(
-                // uncomment utility2-comment
-                local.assetsDict["/" + tmp].replace((
-                    /<!--\u0020utility2-comment\b([\S\s]*?)\butility2-comment\u0020-->/g
-                ), "$1"),
-                {
-                    env: local.env,
-                    isRollup
+            "index", ""
+        ],
+        [
+            "index", ".rollup"
+        ]
+    ].forEach(function ([
+        file, isRollup
+    ]) {
+        tmp = "assets." + file + ".template.html";
+        local.assetsDict["/" + tmp] = (
+            local.fsReadFileOrEmptyStringSync(tmp, "utf8")
+            || local.assetsDict["/" + tmp]
+        );
+        file = file + isRollup + ".html";
+        local.assetsDict["/" + file] = local.fsReadFileOrEmptyStringSync(
+            file,
+            "utf8"
+        ) || local.templateRender(
+            // uncomment utility2-comment
+            local.assetsDict["/" + tmp].replace((
+                /<!--\u0020utility2-comment\b([\S\s]*?)\butility2-comment\u0020-->/g
+            ), "$1"),
+            {
+                env: local.env,
+                isRollup,
+                packageJson: {
+                    nameLib: local.env.npm_package_nameLib
                 }
-            );
-        });
+            }
+        );
     });
     local.assetsDict["/"] = local.assetsDict["/index.html"];
     // init assets.app.js
     local.assetsDict["/assets.app.js"] = [
         "header",
         "/assets.utility2.rollup.js",
-        "/assets.utility2.rollup.begin.js",
+        "/assets.utility2.rollup.start.js",
         "local.stateInit",
         "/assets.my_app.js",
         "/assets.example.js",
@@ -56089,7 +54830,7 @@ instruction\n\
     3. open a browser to http://127.0.0.1:8081 and play with the web-demo\n\
     4. edit this script to suit your needs\n\
 */\n\
-' + local.assetsDict["/assets.utility2.rollup.begin.js"].replace((
+' + local.assetsDict["/assets.utility2.rollup.start.js"].replace((
     /utility2_rollup/g
 ), "utility2_app");
 /* jslint ignore:end */
@@ -56135,7 +54876,11 @@ instruction\n\
                     tmp.utility2.assetsDict[file] = local.assetsDict[file];
                 }
             });
-            code.splice(1, 0, key + "(" + JSON.stringify(tmp, null, 4) + ");");
+            code.splice(
+                1,
+                0,
+                key + "(" + JSON.stringify(tmp, undefined, 4) + ");"
+            );
             code = code.join("");
             break;
         default:
@@ -56174,8 +54919,8 @@ local.semverCompare = function (aa, bb) {
     semverCompare("1.2.3", "1.2.3");  //  0
     semverCompare("10.2.2", "2.2.2"); //  1
  */
-    var ii;
-    var len;
+    let ii;
+    let len;
     [
         aa, bb
     ] = [
@@ -56229,7 +54974,7 @@ local.serverRespondCors = function (req, res) {
  * this function will enable cors for the req
  * http://en.wikipedia.org/wiki/Cross-origin_resource_sharing
  */
-    local.serverRespondHeadSet(req, res, null, local.jsonCopy({
+    local.serverRespondHeadSet(req, res, undefined, local.jsonCopy({
         "access-control-allow-headers":
         req.headers["access-control-request-headers"],
         "access-control-allow-methods":
@@ -56308,14 +55053,14 @@ local.serverRespondTimeoutDefault = function (req, res, timeout) {
 /*
  * this function will create <timeout>-handler for server-<req>
  */
-    var isDone;
-    var onError;
+    let isDone;
+    let onError;
     onError = function () {
         if (isDone) {
             return;
         }
         isDone = true;
-        // debug serverResponse
+        // debug res
         console.error("serverLog - " + JSON.stringify({
             time: new Date(req.timeStart).toISOString(),
             type: "serverResponse",
@@ -56324,13 +55069,12 @@ local.serverRespondTimeoutDefault = function (req, res, timeout) {
             statusCode: res.statusCode | 0,
             timeElapsed: Date.now() - req.timeStart,
             // extra
-            requestContentLength: req.dataLength || 0,
+            reqContentLength: req.dataLength || 0,
             resContentLength: res.contentLength,
-            requestHeaderXForwardedFor:
-            req.headers["x-forwarded-for"] || "",
-            requestHeaderOrigin: req.headers.origin || "",
-            requestHeaderReferer: req.headers.referer || "",
-            requestHeaderUserAgent: req.headers["user-agent"]
+            reqHeaderXForwardedFor: req.headers["x-forwarded-for"] || "",
+            reqHeaderOrigin: req.headers.origin || "",
+            reqHeaderReferer: req.headers.referer || "",
+            reqHeaderUserAgent: req.headers["user-agent"]
         }));
         // cleanup timerTimeout
         clearTimeout(req.timerTimeout);
@@ -56352,10 +55096,10 @@ local.serverRespondTimeoutDefault = function (req, res, timeout) {
     );
     res.contentLength = 0;
     res.writeContentLength = res.writeContentLength || res.write;
-    res.write = function (chunk, encoding, callback) {
-        chunk = local.normalizeChunk(chunk);
-        res.contentLength += chunk.length;
-        res.writeContentLength(chunk, encoding, callback);
+    res.write = function (buf, encoding, callback) {
+        buf = local.bufferValidateAndCoerce(buf, typeof buf);
+        res.contentLength += buf.length;
+        res.writeContentLength(buf, encoding, callback);
     };
     res.on("error", onError);
     res.on("finish", onError);
@@ -56384,7 +55128,7 @@ local.sjclHashScryptCreate = function (password, opt) {
  * https://github.com/wg/scrypt
  */
     // init opt
-    opt = (opt || "$s0$10801").split("$");
+    opt = String(opt || "$s0$10801").split("$");
     // init salt
     if (!opt[3]) {
         opt[3] = local.sjcl.codec.base64.fromBits(
@@ -56431,7 +55175,7 @@ local.sjclHmacSha1Create = function (key, data) {
  * this function will create a base64-encoded sha1 hmac
  * from the string key and string data
  */
-    var Hmac;
+    let Hmac;
     Hmac = local.sjcl.misc.hmac;
     return local.sjcl.codec.base64.fromBits(
         (new Hmac(
@@ -56446,7 +55190,7 @@ local.sjclHmacSha256Create = function (key, data) {
  * this function will create a base64-encoded sha256 hmac
  * from the string key and string data
  */
-    var Hmac;
+    let Hmac;
     Hmac = local.sjcl.misc.hmac;
     return local.sjcl.codec.base64.fromBits(
         (new Hmac(
@@ -56469,7 +55213,7 @@ local.streamCleanup = function (stream) {
 /*
  * this function will try to end or destroy the stream
  */
-    var err;
+    let err;
     // try to end the stream
     try {
         stream.end();
@@ -56553,7 +55297,7 @@ local.stringTruncate = function (text, maxLength) {
  */
     return (
         text.length > maxLength
-        ? text.slice(0, maxLength - 3).trimRight() + "..."
+        ? text.slice(0, maxLength - 3).trimEnd() + "..."
         : text
     );
 };
@@ -56562,180 +55306,72 @@ local.stringUniqueKey = function (text) {
 /*
  * this function will return a string-key that is unique in given text
  */
-    var key;
+    let key;
     // seed the key with the least frequent letters in the english-language
     // https://en.wikipedia.org/wiki/Letter_frequency
     key = "zqxj";
     do {
-        key += ((1 + Math.random()) * 0x10000000000000).toString(36).slice(1);
+        key += Number(
+            (1 + Math.random()) * 0x10000000000000
+        ).toString(36).slice(1);
     } while (text.indexOf(key) >= 0);
     return key;
 };
 
-local.taskCreate = function (opt, onTask, onError) {
+local.templateRender = function (template, dict, opt, ii) {
 /*
- * this function will create the task onTask named <opt>.key,
- * if it does not exist, and push onError to its onErrorList
+ * this function will render <template> with given <dict>
  */
-    var task;
-    // init task
-    local.taskOnTaskDict[opt.key] = (
-        local.taskOnTaskDict[opt.key]
-        || {
-            onErrorList: []
-        }
-    );
-    task = local.taskOnTaskDict[opt.key];
-    // push callback onError to the task
-    if (onError) {
-        onError = local.onErrorWithStack(onError);
-        task.onErrorList.push(onError);
-    }
-    // if task exists, then return it
-    if (!onTask || task.onTask) {
-        return task;
-    }
-    task.onDone = function (err, data, meta) {
-        // if isDone, then do nothing
-        if (task.isDone) {
-            return;
-        }
-        task.isDone = true;
-        // cleanup timerTimeout
-        clearTimeout(task.timerTimeout);
-        // cleanup task
-        delete local.taskOnTaskDict[opt.key];
-        // preserve err.message and err.stack
-        task.result = JSON.stringify([
-            (
-                (err && err.stack)
-                ? Object.assign(local.jsonCopy(err), {
-                    message: err.message,
-                    name: err.name,
-                    stack: err.stack
-                })
-                : err
-            ), data, meta
-        ]);
-        // pass result to callbacks in onErrorList
-        task.onErrorList.forEach(function (onError) {
-            onError.apply(null, JSON.parse(task.result));
-        });
-    };
-    // init timerTimeout
-    task.timerTimeout = local.onTimeout(
-        task.onDone,
-        opt.timeout || local.timeoutDefault,
-        "taskCreate " + opt.key
-    );
-    task.onTask = onTask;
-    // run onTask
-    task.onTask(task.onDone);
-    return task;
-};
-
-local.taskCreateCached = function (opt, onTask, onError) {
-/*
- * this function will
- * 1. if cache-hit, then call onError with cacheValue
- * 2. run onTask in background to update cache
- * 3. save onTask's result to cache
- * 4. if cache-miss, then call onError with onTask's result
- */
-    local.gotoNext(opt, function (err, data) {
-        switch (opt.gotoState) {
-        // 1. if cache-hit, then call onError with cacheValue
-        case 1:
-            // read cacheValue from memory-cache
-            local.cacheDict[opt.cacheDict] = (
-                local.cacheDict[opt.cacheDict]
-                || {}
-            );
-            opt.cacheValue = local.cacheDict[opt.cacheDict][opt.key];
-            if (opt.cacheValue) {
-                // call onError with cacheValue
-                opt.modeCacheHit = true;
-                onError(null, JSON.parse(opt.cacheValue));
-                if (!opt.modeCacheUpdate) {
-                    break;
-                }
-            }
-            // run background-task with lower priority for cache-hit
-            setTimeout(opt.gotoNext, opt.modeCacheHit && opt.cacheTtl);
-            break;
-        // 2. run onTask in background to update cache
-        case 2:
-            local.taskCreate(opt, onTask, opt.gotoNext);
-            break;
-        default:
-            // 3. save onTask's result to cache
-            // JSON.stringify data to prevent side-effects on cache
-            opt.cacheValue = JSON.stringify(data);
-            if (!err && opt.cacheValue) {
-                local.cacheDict[opt.cacheDict][opt.key] = opt.cacheValue;
-            }
-            // 4. if cache-miss, then call onError with onTask's result
-            if (!opt.modeCacheHit) {
-                onError(err, opt.cacheValue && JSON.parse(opt.cacheValue));
-            }
-            local.functionOrNop(opt.onCacheWrite)();
-        }
-    });
-    opt.gotoState = 0;
-    opt.gotoNext();
-};
-
-local.templateRender = function (template, dict, opt) {
-/*
- * this function will render the template with given dict
- */
-    var argList;
-    var getValue;
-    var match;
-    var renderPartial;
-    var rgx;
-    var skip;
-    var value;
+    let argList;
+    let getVal;
+    let match;
+    let renderPartial;
+    let rgx;
+    let skip;
+    let val;
     if (dict === null || dict === undefined) {
         dict = {};
     }
     opt = opt || {};
-    getValue = function (key) {
+    getVal = function (key) {
         argList = key.split(" ");
-        value = dict;
+        val = dict;
         if (argList[0] === "#this/") {
-            return value;
+            return val;
         }
-        // iteratively lookup nested values in the dict
+        if (argList[0] === "#ii/") {
+            return ii;
+        }
+        // iteratively lookup nested val in dict
         argList[0].split(".").forEach(function (key) {
-            value = value && value[key];
+            val = val && val[key];
         });
-        return value;
+        return val;
     };
     renderPartial = function (match0, helper, key, partial) {
         switch (helper) {
         case "each":
-        case "eachTrimRightComma":
-            value = getValue(key);
-            value = (
-                Array.isArray(value)
-                ? value.map(function (dict) {
+        case "eachTrimEndComma":
+            val = getVal(key);
+            val = (
+                Array.isArray(val)
+                ? val.map(function (dict, ii) {
                     // recurse with partial
-                    return local.templateRender(partial, dict, opt);
+                    return local.templateRender(partial, dict, opt, ii);
                 }).join("")
                 : ""
             );
             // remove trailing-comma from last elem
-            if (helper === "eachTrimRightComma") {
-                value = value.trimRight().replace((
+            if (helper === "eachTrimEndComma") {
+                val = val.trimEnd().replace((
                     /,$/
                 ), "");
             }
-            return value;
+            return val;
         case "if":
             partial = partial.split("{{#unless " + key + "}}");
             partial = (
-                getValue(key)
+                getVal(key)
                 ? partial[0]
                 // handle 'unless' case
                 : partial.slice(1).join("{{#unless " + key + "}}")
@@ -56744,7 +55380,7 @@ local.templateRender = function (template, dict, opt) {
             return local.templateRender(partial, dict, opt);
         case "unless":
             return (
-                getValue(key)
+                getVal(key)
                 ? ""
                 // recurse with partial
                 : local.templateRender(partial, dict, opt)
@@ -56776,35 +55412,50 @@ local.templateRender = function (template, dict, opt) {
     return template.replace((
         /\{\{[^}]+?\}\}/g
     ), function (match0) {
-        var markdownToHtml;
-        var notHtmlSafe;
+        let markdownToHtml;
+        let notHtmlSafe;
         notHtmlSafe = opt.notHtmlSafe;
         try {
-            getValue(match0.slice(2, -2));
-            if (value === undefined) {
+            val = getVal(match0.slice(2, -2));
+            if (val === undefined) {
                 return match0;
             }
             argList.slice(1).forEach(function (fmt, ii, list) {
                 switch (fmt) {
+                case "*":
+                case "+":
+                case "-":
+                case "/":
+                    skip = ii + 1;
+                    val = String(
+                        fmt === "*"
+                        ? Number(val) * Number(list[skip])
+                        : fmt === "+"
+                        ? Number(val) + Number(list[skip])
+                        : fmt === "-"
+                        ? Number(val) - Number(list[skip])
+                        : Number(val) / Number(list[skip])
+                    );
+                    break;
                 case "alphanumeric":
-                    value = value.replace((
+                    val = val.replace((
                         /\W/g
                     ), "_");
                     break;
                 case "decodeURIComponent":
-                    value = decodeURIComponent(value);
+                    val = decodeURIComponent(val);
                     break;
                 case "encodeURIComponent":
-                    value = encodeURIComponent(value);
+                    val = encodeURIComponent(val);
                     break;
                 case "jsonStringify":
-                    value = JSON.stringify(value);
+                    val = JSON.stringify(val);
                     break;
                 case "jsonStringify4":
-                    value = JSON.stringify(value, null, 4);
+                    val = JSON.stringify(val, undefined, 4);
                     break;
                 case "markdownSafe":
-                    value = value.replace((
+                    val = val.replace((
                         /`/g
                     ), "'");
                     break;
@@ -56816,20 +55467,21 @@ local.templateRender = function (template, dict, opt) {
                     break;
                 case "padEnd":
                 case "padStart":
+                case "replace":
                 case "slice":
                     skip = ii + 2;
-                    value = String(value)[fmt](
+                    val = String(val)[fmt](
                         list[skip - 1],
-                        list[skip]
+                        list[skip].replace("\"\"", "").replace("\"_\"", " ")
                     );
                     break;
                 case "truncate":
                     skip = ii + 1;
-                    if (value.length > list[skip]) {
-                        value = value.slice(
+                    if (val.length > list[skip]) {
+                        val = val.slice(
                             0,
                             Math.max(list[skip] - 3, 0)
-                        ).trimRight() + "...";
+                        ).trimEnd() + "...";
                     }
                     break;
                 // default to String.prototype[fmt]()
@@ -56837,13 +55489,13 @@ local.templateRender = function (template, dict, opt) {
                     if (ii <= skip) {
                         break;
                     }
-                    value = value[fmt]();
+                    val = val[fmt]();
                 }
             });
-            value = String(value);
+            val = String(val);
             // default to htmlSafe
             if (!notHtmlSafe) {
-                value = value.replace((
+                val = val.replace((
                     /&/g
                 ), "&amp;").replace((
                     /"/g
@@ -56862,18 +55514,17 @@ local.templateRender = function (template, dict, opt) {
                 && (typeof local.marked === "function" && local.marked)
             );
             if (markdownToHtml) {
-                value = markdownToHtml(value).replace((
+                val = markdownToHtml(val).replace((
                     /&amp;(amp;|apos;|gt;|lt;|quot;)/ig
                 ), "&$1");
             }
-            return value;
+            return val;
         } catch (errCaught) {
             errCaught.message = (
                 "templateRender could not render expression "
-                + JSON.stringify(match0)
-                + "\n"
+                + JSON.stringify(match0) + "\n"
             ) + errCaught.message;
-            local.assertOrThrow(null, errCaught);
+            local.assertOrThrow(undefined, errCaught);
         }
     });
 };
@@ -56931,14 +55582,14 @@ local.testCase_nop_default = function (opt, onError) {
  * this function will test nop's default handling-behavior
  */
     local.nop();
-    onError(null, opt);
+    onError(undefined, opt);
 };
 
 local.testMock = function (mockList, onTestCase, onError) {
 /*
  * this function will mock the objects in mockList while running the onTestCase
  */
-    var onError2;
+    let onError2;
     onError2 = function (err) {
         // restore mock[0] from mock[2]
         mockList.reverse().forEach(function (mock) {
@@ -57002,9 +55653,15 @@ local.testReportCreate = function (testReport) {
         }).map(function (testPlatform) {
             return (
                 "| test-report - " + testPlatform.name + "\n|"
-                + (testPlatform.timeElapsed + " ms     ").padStart(16, " ")
-                + (testPlatform.testsFailed + " failed ").padStart(16, " ")
-                + (testPlatform.testsPassed + " passed ").padStart(16, " ")
+                + String(
+                    testPlatform.timeElapsed + " ms     "
+                ).padStart(16, " ")
+                + String(
+                    testPlatform.testsFailed + " failed "
+                ).padStart(16, " ")
+                + String(
+                    testPlatform.testsPassed + " passed "
+                ).padStart(16, " ")
                 + "     |\n" + new Array(56).join("-")
             );
         }).join("\n") + "\n"
@@ -57012,7 +55669,7 @@ local.testReportCreate = function (testReport) {
     // create test-report.html
     local.fsWriteFileWithMkdirpSync(
         "tmp/build/test-report.html",
-        local.testReportMerge(testReport, {})
+        local.testReportMerge(testReport)
     );
     // create build.badge.svg
     local.fs.writeFileSync(
@@ -57043,7 +55700,7 @@ local.testReportCreate = function (testReport) {
         "created test-report file "
         + process.cwd() + "/tmp/build/test-report.html\n"
     );
-    // if any test failed, then exit with non-zero exit-code
+    // if any test failed, then exit with non-zero exitCode
     console.error(
         "\n" + local.env.MODE_BUILD
         + " - " + testReport.testsFailed + " failed tests\n"
@@ -57052,7 +55709,7 @@ local.testReportCreate = function (testReport) {
     testReport.testPlatformList.forEach(function (testPlatform) {
         testPlatform.testCaseList.forEach(function (testCase) {
             if (testCase.status !== "passed") {
-                console.error(JSON.stringify(testCase, null, 4));
+                console.error(JSON.stringify(testCase, undefined, 4));
             }
         });
     });
@@ -57065,9 +55722,9 @@ local.testReportMerge = function (testReport1, testReport2) {
  * 1. merge testReport2 into testReport1
  * 2. return testReport1 in html-format
  */
-    var errorStackList;
-    var testCaseNumber;
-    var testReport;
+    let errorStackList;
+    let testCaseNumber;
+    let testReport;
     testReport2 = testReport2 || {};
     // 1. merge testReport2 into testReport1
     [
@@ -57242,7 +55899,7 @@ local.testReportMerge = function (testReport1, testReport2) {
                 return testPlatform.testCaseList.length;
             }).map(function (testPlatform, ii) {
                 errorStackList = [];
-                return local.objectSetOverride(testPlatform, {
+                return Object.assign(testPlatform, {
                     errorStackList,
                     name: testPlatform.name,
                     screenshot: testPlatform.screenshot,
@@ -57285,14 +55942,39 @@ local.testReportMerge = function (testReport1, testReport2) {
     );
 };
 
+local.testRunBrowser = function () {
+/*
+ * this function will run browser-tests
+ */
+    // hide browser-tests
+    if (local.querySelector("#htmlTestReport1").style.maxHeight !== "0px") {
+        local.uiAnimateSlideUp(local.querySelector("#htmlTestReport1"));
+        local.querySelector(
+            "#buttonTestRun1"
+        ).textContent = "run browser-tests";
+        return;
+    }
+    // show browser-tests
+    local.uiAnimateSlideDown(local.querySelector("#htmlTestReport1"));
+    local.querySelector("#buttonTestRun1").textContent = "hide browser-tests";
+    local.modeTest = 1;
+    local.testRunDefault(local);
+    // reset output
+    local.querySelectorAll(".onevent-reset-output").forEach(function (elem) {
+        elem.textContent = "";
+    });
+};
+
 local.testRunDefault = function (opt) {
 /*
- * this function will run the tests in testPlatform.testCaseList
+ * this function will run tests in testPlatform.testCaseList
  */
-    var processExit;
-    var testPlatform;
-    var testReport;
-    var timerInterval;
+    let consoleError;
+    let isCoverage;
+    let processExit;
+    let testPlatform;
+    let testReport;
+    let timerInterval;
     // run-server
     if (!local.isBrowser) {
         local.testRunServer(opt);
@@ -57308,12 +55990,6 @@ local.testRunDefault = function (opt) {
     case 1:
         globalThis.utility2_modeTest += 1;
         // reset db
-        if (local.db && typeof local.db.dbReset === "function") {
-            local.db.dbReset(
-                globalThis.utility2_dbSeedList,
-                local.onErrorThrow
-            );
-        }
         globalThis.utility2_onReadyAfter(function () {
             local.testRunDefault(opt);
         });
@@ -57333,21 +56009,24 @@ local.testRunDefault = function (opt) {
     }
     // visual notification - testRun
     local.ajaxProgressUpdate();
-    // mock serverLog
-    local._testRunConsoleError = local._testRunConsoleError || console.error;
+    // mock console.error
+    consoleError = console.error;
+    isCoverage = (
+        typeof globalThis.__coverage__ === "object" && globalThis.__coverage__
+        && Object.keys(globalThis.__coverage__).length
+    );
     console.error = function (...argList) {
     /*
      * this function will ignore serverLog-messages during test-run
      */
-        /* istanbul ignore next */
-        if (!globalThis.__coverage__ && !(
+        if (!isCoverage && !(
             /^serverLog\u0020-\u0020\{/
         ).test(argList[0])) {
-            local._testRunConsoleError(...argList);
+            consoleError(...argList);
         }
     };
+    // mock proces.exit
     if (!local.isBrowser) {
-        // mock proces.exit
         processExit = process.exit;
         process.exit = local.nop;
     }
@@ -57386,21 +56065,27 @@ local.testRunDefault = function (opt) {
             });
         }
     });
-    local.testReportMerge(testReport, {});
+    local.testReportMerge(testReport);
+    local.querySelectorAll("#htmlTestReport1").forEach(function (elem) {
+        local.uiAnimateSlideDown(elem);
+        elem.innerHTML = local.testReportMerge(testReport);
+    });
     local.emit("utility2.testRunStart", testReport);
-    // testRunProgressUpdate every 1000 ms until isDone
+    // testRunProgressUpdate every 2000 ms until isDone
     timerInterval = setInterval(function () {
         // update testPlatform.timeElapsed
         local.timeElapsedPoll(testPlatform);
-        local.testReportMerge(testReport, {});
+        local.querySelector(
+            "#htmlTestReport1"
+        ).innerHTML = local.testReportMerge(testReport);
         local.emit("utility2.testRunProgressUpdate", testReport);
         // cleanup timerInterval
         if (!testReport.testsPending) {
             clearInterval(timerInterval);
         }
         // list pending testCase every 5000 ms
-        if (testPlatform.timeElapsed % 5000 < 1000) {
-            local._testRunConsoleError(
+        if (testPlatform.timeElapsed % 5000 < 2000) {
+            consoleError(
                 "testRunDefault - "
                 + testPlatform.timeElapsed + " ms - testCase pending - "
                 + testPlatform.testCaseList.filter(function (testCase) {
@@ -57410,14 +56095,14 @@ local.testRunDefault = function (opt) {
                 }).join(", ") + " ..."
             );
         }
-    }, 1000);
+    }, 2000);
     // shallow-copy testPlatform.testCaseList to prevent side-effects
     // from in-place sort from testReportMerge
     local.onParallelList({
         list: testPlatform.testCaseList.slice()
     }, function (testCase, onParallel) {
-        var onError;
-        var timerTimeout;
+        let onError;
+        let timerTimeout;
         onError = function (err) {
             // update testPlatform.timeElapsed
             local.timeElapsedPoll(testPlatform);
@@ -57434,9 +56119,9 @@ local.testRunDefault = function (opt) {
             // if err occurred, then fail testCase
             if (err) {
                 // restore console.log
-                console.error = local._testRunConsoleError;
+                console.error = consoleError;
                 testCase.status = "failed";
-                local._testRunConsoleError(
+                consoleError(
                     "\ntestRunDefault - "
                     + testPlatform.timeElapsed + " ms - testCase failed - "
                     + testCase.name + "\n" + err.message + "\n" + err.stack
@@ -57460,7 +56145,7 @@ local.testRunDefault = function (opt) {
             }
             // stop testCase timer
             local.timeElapsedPoll(testCase);
-            local._testRunConsoleError(
+            consoleError(
                 "testRunDefault - "
                 + testPlatform.timeElapsed + " ms - [" + (
                     local.isBrowser
@@ -57488,7 +56173,7 @@ local.testRunDefault = function (opt) {
         local.tryCatchOnError(function () {
             // start testCase timer
             local.timeElapsedStart(testCase);
-            testCase.onTestCase(null, onError);
+            testCase.onTestCase(undefined, onError);
         }, onError);
     }, function () {
     /*
@@ -57505,34 +56190,29 @@ local.testRunDefault = function (opt) {
             );
         }
         // finalize testReport
-        local.testReportMerge(testReport, {});
+        local.testReportMerge(testReport);
         // create test-report.json
         delete testReport.coverage;
         local.fsWriteFileWithMkdirpSync(
             local.env.npm_config_dir_build + "/test-report.json",
-            JSON.stringify(testReport, null, 4)
+            JSON.stringify(testReport, undefined, 4)
         );
-        setTimeout(function () {
-            // restore console.log
-            console.error = local._testRunConsoleError;
-            // restore process.exit
-            if (processExit) {
-                process.exit = processExit;
-            }
-            // reset utility2_modeTest
-            globalThis.utility2_modeTest = 0;
-            // save testReport and coverage
-            if (testReport === globalThis.utility2_testReport) {
-                testReport.coverage = globalThis.__coverage__;
-                console.timeStamp(globalThis.utility2_testId);
-            }
-            local.emit("utility2.testRunEnd", testReport);
-            // exit with number of tests failed
-            if (processExit) {
-                process.exit(testReport.testsFailed, testReport);
-            }
-        // hack-istanbul - wait 1000 ms for timerInterval
-        }, 1000);
+        // restore console.log
+        console.error = consoleError;
+        // restore process.exit
+        if (processExit) {
+            process.exit = processExit;
+        }
+        // reset utility2_modeTest
+        globalThis.utility2_modeTest = 0;
+        // save testReport and coverage
+        testReport.coverage = globalThis.__coverage__;
+        console.timeStamp(globalThis.utility2_testId);
+        local.emit("utility2.testRunEnd", testReport);
+        // exit with number of tests failed
+        if (processExit) {
+            process.exit(testReport.testsFailed, testReport);
+        }
     });
 };
 
@@ -57543,10 +56223,6 @@ local.testRunServer = function (opt) {
  * 2. start server on local.env.PORT
  * 3. run tests
  */
-    if (globalThis.utility2_serverHttp1) {
-        return;
-    }
-    globalThis.utility2_onReadyBefore.counter += 1;
     // 1. create server from local.middlewareList
     local.middlewareList = local.middlewareList || [
         local.middlewareInit,
@@ -57555,8 +56231,12 @@ local.testRunServer = function (opt) {
         local.middlewareJsonpStateInit,
         local.middlewareFileServer
     ];
+    if (local.env.npm_config_mode_library || globalThis.utility2_serverHttp1) {
+        return;
+    }
+    globalThis.utility2_onReadyBefore.counter += 1;
     local.serverLocalReqHandler = function (req, res) {
-        var that;
+        let that;
         that = {};
         local.gotoNext(that, function (err) {
             if (err || that.gotoState >= local.middlewareList.length) {
@@ -57573,10 +56253,6 @@ local.testRunServer = function (opt) {
         local.serverLocalReqHandler
     );
     // 2. start server on local.env.PORT
-    if (local.env.npm_config_mode_library) {
-        globalThis.utility2_onReadyBefore();
-        return;
-    }
     console.error("http-server listening on port " + local.env.PORT);
     globalThis.utility2_onReadyBefore.counter += 1;
     globalThis.utility2_serverHttp1.listen(
@@ -57618,7 +56294,7 @@ local.tryCatchOnError = function (fnc, onError) {
  * this function will run the fnc in a tryCatch block,
  * else call onError with errCaught
  */
-    var result;
+    let result;
     // validate onError
     local.assertOrThrow(typeof onError === "function", typeof onError);
     try {
@@ -57632,42 +56308,6 @@ local.tryCatchOnError = function (fnc, onError) {
         local._debugTryCatchError = errCaught;
         return onError(errCaught);
     }
-};
-
-local.uiAnimateShake = function (elem, onError) {
-/*
- * this function will shake dom-<elem>
- */
-    if (!elem || elem.classList.contains("uiAnimateShake")) {
-        local.setTimeoutOnError(onError);
-        return;
-    }
-    elem.classList.add("uiAnimateShake");
-    setTimeout(function () {
-        elem.classList.remove("uiAnimateShake");
-        local.setTimeoutOnError(onError);
-    }, 500);
-};
-
-local.uiAnimateShakeIfError = function (err, elem, onError) {
-/*
- * this function will shake dom-<elem> if <err> occurred
- */
-    var hasError;
-    if (!elem) {
-        local.setTimeoutOnError(onError);
-        return;
-    }
-    hasError = elem.classList.contains("hasError");
-    if (err && !hasError) {
-        elem.classList.add("hasError");
-        local.uiAnimateShake(elem, onError);
-        return;
-    }
-    if (!err && hasError) {
-        elem.classList.remove("hasError");
-    }
-    local.setTimeoutOnError(onError);
 };
 
 local.uiAnimateSlideAccordian = function (elem, elemList, onError) {
@@ -57766,7 +56406,7 @@ local.urlParse = function (url) {
  * this function will parse <url> according to below spec, plus a query param
  * https://developer.mozilla.org/en-US/docs/Web/API/URL
  */
-    var urlParsed;
+    let urlParsed;
     urlParsed = {};
     // try to parse url
     local.tryCatchOnError(function () {
@@ -57813,7 +56453,7 @@ local.urlParse = function (url) {
         }
         // init query
         urlParsed.query = {};
-        (urlParsed.search || "").slice(1).replace((
+        local.coalesce(urlParsed.search, "").slice(1).replace((
             /[^&]+/g
         ), function (item) {
             item = item.split("=");
@@ -57857,8 +56497,8 @@ local.uuid4Create = function () {
  * with format 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
  */
     // code derived from http://jsperf.com/uuid4
-    var id;
-    var ii;
+    let id;
+    let ii;
     id = "";
     ii = 0;
     while (ii < 32) {
@@ -57867,7 +56507,7 @@ local.uuid4Create = function () {
         case 20:
             id += "-";
             // coerce to finite integer
-            id += ((Math.random() * 16) | 0).toString(16);
+            id += local.identity((Math.random() * 16) | 0).toString(16);
             break;
         case 12:
             id += "-";
@@ -57875,11 +56515,11 @@ local.uuid4Create = function () {
             break;
         case 16:
             id += "-";
-            id += ((Math.random() * 4) | 8).toString(16);
+            id += local.identity((Math.random() * 4) | 8).toString(16);
             break;
         default:
             // coerce to finite integer
-            id += ((Math.random() * 16) | 0).toString(16);
+            id += local.identity((Math.random() * 16) | 0).toString(16);
         }
         ii += 1;
     }
@@ -57889,6 +56529,7 @@ local.uuid4Create = function () {
 
 
 
+/* istanbul ignore next */
 // run shared js-env code - init-after
 (function () {
 local.ajaxProgressUpdate = (
@@ -57928,7 +56569,10 @@ local.env = (
     : process.env
 );
 local.objectSetDefault(local.env, {
-    npm_package_nameLib: (local.env.npm_package_name || "").replace((
+    npm_package_nameLib: local.coalesce(
+        local.env.npm_package_name,
+        ""
+    ).replace((
         /\W/g
     ), "_")
 });
@@ -58032,9 +56676,7 @@ globalThis.utility2_onReadyAfter = (
      * this function will call onError when utility2_onReadyBefore.counter === 0
      */
         globalThis.utility2_onReadyBefore.counter += 1;
-        local.taskCreate({
-            key: "globalThis.utility2_onReadyAfter"
-        }, null, onError);
+        local.once("utility2_onReadyAfter", onError);
         setTimeout(globalThis.utility2_onReadyBefore);
         return onError;
     }
@@ -58044,11 +56686,7 @@ globalThis.utility2_onReadyBefore = (
     /*
      * this function will keep track of utility2_onReadyBefore.counter
      */
-        local.taskCreate({
-            key: "globalThis.utility2_onReadyAfter"
-        }, function (onError) {
-            onError(err);
-        }, local.onErrorThrow);
+        local.emit("utility2_onReadyAfter", err);
     })
 );
 globalThis.utility2_onReadyAfter(local.nop);
@@ -58116,7 +56754,6 @@ if (module === require.main && (!globalThis.utility2_rollup || (
         }
     }
 }
-/* validateLineSortedReset */
 // override assets
 [
     "/assets.index.template.html",
@@ -58148,7 +56785,6 @@ if (globalThis.utility2_rollup) {
     "/assets.utility2.html",
     "/assets.utility2.test.js",
     "lib.apidoc.js",
-    "lib.db.js",
     "lib.github_crud.js",
     "lib.istanbul.js",
     "lib.jslint.js",
@@ -58179,9 +56815,10 @@ if (globalThis.utility2_rollup) {
             local.fs.readFileSync(__dirname + "/README.md", "utf8").replace((
                 /<!doctype\u0020html>[\S\s]*?<\/html>\\n\\\n/
             ), function (match0) {
-                local.assetsDict[key] = local.templateRender(match0.replace((
+                match0 = match0.replace((
                     /\\n\\$/gm
-                ), "").replace(
+                ), "");
+                match0 = match0.replace(
                     "<script src=\"assets.app.js\"></script>\n",
                     (
                         "<script "
@@ -58191,17 +56828,22 @@ if (globalThis.utility2_rollup) {
                         + "<script "
                         + "src=\"assets.utility2.test.js\"></script>\n"
                     )
-                ).replace(
+                );
+                match0 = match0.replace(
                     "assets.example.js",
                     "assets.utility2.example.js"
-                ).replace(
+                );
+                match0 = match0.replace(
                     "assets.test.js",
                     "assets.utility2.test.js"
-                ).replace((
+                );
+                match0 = match0.replace((
                     /npm_package_/g
-                ), "").replace((
+                ), "");
+                match0 = match0.replace((
                     /<!--\u0020utility2-comment\b([\S\s]*?)\butility2-comment\u0020-->/g
-                ), "$1"), {
+                ), "$1");
+                local.assetsDict[key] = local.templateRender(match0, {
                     env: local.objectSetDefault({
                         version: "0.0.1"
                     }, require(__dirname + "/package.json")),
@@ -58239,9 +56881,8 @@ if (globalThis.utility2_rollup) {
 });
 local.assetsDict["/assets.utility2.rollup.js"] = [
     "header",
-    "/assets.utility2.rollup.begin.js",
+    "/assets.utility2.rollup.start.js",
     "lib.apidoc.js",
-    "lib.db.js",
     "lib.github_crud.js",
     "lib.istanbul.js",
     "lib.jslint.js",
@@ -58255,7 +56896,7 @@ local.assetsDict["/assets.utility2.rollup.js"] = [
     "/assets.utility2.test.js",
     "/assets.utility2.rollup.end.js"
 ].map(function (key) {
-    var script;
+    let script;
     switch (key) {
     case "/assets.utility2.example.js":
     case "/assets.utility2.html":
@@ -58264,7 +56905,7 @@ local.assetsDict["/assets.utility2.rollup.js"] = [
         script = local.assetsDict["/assets.utility2.rollup.content.js"].split(
             "/* utility2.rollup.js content */"
         );
-        script.splice(1, 0, (
+        script.splice(1, 0, local.identity(
             "local.assetsDict[\"" + key + "\"] = "
             + JSON.stringify(local.assetsDict[key])
         ).replace((
@@ -58277,7 +56918,7 @@ local.assetsDict["/assets.utility2.rollup.js"] = [
         script = script.join("");
         script += "\n";
         break;
-    case "/assets.utility2.rollup.begin.js":
+    case "/assets.utility2.rollup.start.js":
     case "/assets.utility2.rollup.end.js":
         script = local.assetsDict[key];
         break;
@@ -58306,7 +56947,7 @@ local.assetsDict["/assets.utility2.rollup.js"] = [
 [
     "swgg"
 ].forEach(function (lib) {
-    var file;
+    let file;
     file = __dirname + "/lib." + lib + ".js";
     if (local.fs.existsSync(file)) {
         local[lib] = require(file);
@@ -58321,7 +56962,7 @@ local.assetsDict["/assets.utility2.rollup.js"] = [
 /* script-begin /assets.swgg.js */
 // usr/bin/env node
 /*
- * lib.swgg.js (2019.8.1)
+ * lib.swgg.js (2019.9.15)
  * https://github.com/kaizhu256/node-swgg
  * this zero-dependency package will run a virtual swagger-ui server with persistent-storage in the browser, that your webapp can use (in-place of a real backend), with a working web-demo
  *
@@ -58330,31 +56971,184 @@ local.assetsDict["/assets.utility2.rollup.js"] = [
 
 
 /* istanbul instrument in package swgg */
+// assets.utility2.header.js - start
 /* istanbul ignore next */
 /* jslint utility2:true */
 (function (globalThis) {
     "use strict";
-    var consoleError;
-    var local;
+    let ArrayPrototypeFlat;
+    let TextXxcoder;
+    let consoleError;
+    let debugName;
+    let local;
+    debugName = "debug" + String("Inline");
     // init globalThis
     globalThis.globalThis = globalThis.globalThis || globalThis;
     // init debug_inline
-    if (!globalThis["debug\u0049nline"]) {
+    if (!globalThis[debugName]) {
         consoleError = console.error;
-        globalThis["debug\u0049nline"] = function (...argList) {
+        globalThis[debugName] = function (...argList) {
         /*
          * this function will both print <argList> to stderr
          * and return <argList>[0]
          */
-            // debug argList
-            globalThis["debug\u0049nlineArgList"] = argList;
-            consoleError("\n\ndebug\u0049nline");
+            consoleError("\n\n" + debugName);
             consoleError.apply(console, argList);
             consoleError("\n");
             // return arg0 for inspection
             return argList[0];
         };
     }
+    // polyfill
+    ArrayPrototypeFlat = function (depth) {
+    /*
+     * this function will polyfill Array.prototype.flat
+     * https://github.com/jonathantneal/array-flat-polyfill
+     */
+        depth = (
+            globalThis.isNaN(depth)
+            ? 1
+            : Number(depth)
+        );
+        if (!depth) {
+            return Array.prototype.slice.call(this);
+        }
+        return Array.prototype.reduce.call(this, function (acc, cur) {
+            if (Array.isArray(cur)) {
+                // recurse
+                acc.push.apply(acc, ArrayPrototypeFlat.call(cur, depth - 1));
+            } else {
+                acc.push(cur);
+            }
+            return acc;
+        }, []);
+    };
+    Array.prototype.flat = Array.prototype.flat || ArrayPrototypeFlat;
+    Array.prototype.flatMap = Array.prototype.flatMap || function flatMap(
+        ...argList
+    ) {
+    /*
+     * this function will polyfill Array.prototype.flatMap
+     * https://github.com/jonathantneal/array-flat-polyfill
+     */
+        return this.map(...argList).flat();
+    };
+    String.prototype.trimEnd = (
+        String.prototype.trimEnd || String.prototype.trimRight
+    );
+    String.prototype.trimStart = (
+        String.prototype.trimStart || String.prototype.trimLeft
+    );
+    (function () {
+        try {
+            globalThis.TextDecoder = (
+                globalThis.TextDecoder || require("util").TextDecoder
+            );
+            globalThis.TextEncoder = (
+                globalThis.TextEncoder || require("util").TextEncoder
+            );
+        } catch (ignore) {}
+    }());
+    TextXxcoder = function () {
+    /*
+     * this function will polyfill TextDecoder/TextEncoder
+     * https://gist.github.com/Yaffle/5458286
+     */
+        return;
+    };
+    TextXxcoder.prototype.decode = function (octets) {
+    /*
+     * this function will polyfill TextDecoder.prototype.decode
+     * https://gist.github.com/Yaffle/5458286
+     */
+        let bytesNeeded;
+        let codePoint;
+        let ii;
+        let kk;
+        let octet;
+        let string;
+        string = "";
+        ii = 0;
+        while (ii < octets.length) {
+            octet = octets[ii];
+            bytesNeeded = 0;
+            codePoint = 0;
+            if (octet <= 0x7F) {
+                bytesNeeded = 0;
+                codePoint = octet & 0xFF;
+            } else if (octet <= 0xDF) {
+                bytesNeeded = 1;
+                codePoint = octet & 0x1F;
+            } else if (octet <= 0xEF) {
+                bytesNeeded = 2;
+                codePoint = octet & 0x0F;
+            } else if (octet <= 0xF4) {
+                bytesNeeded = 3;
+                codePoint = octet & 0x07;
+            }
+            if (octets.length - ii - bytesNeeded > 0) {
+                kk = 0;
+                while (kk < bytesNeeded) {
+                    octet = octets[ii + kk + 1];
+                    codePoint = (codePoint << 6) | (octet & 0x3F);
+                    kk += 1;
+                }
+            } else {
+                codePoint = 0xFFFD;
+                bytesNeeded = octets.length - ii;
+            }
+            string += String.fromCodePoint(codePoint);
+            ii += bytesNeeded + 1;
+        }
+        return string;
+    };
+    TextXxcoder.prototype.encode = function (string) {
+    /*
+     * this function will polyfill TextEncoder.prototype.encode
+     * https://gist.github.com/Yaffle/5458286
+     */
+        let bits;
+        let cc;
+        let codePoint;
+        let ii;
+        let length;
+        let octets;
+        octets = [];
+        length = string.length;
+        ii = 0;
+        while (ii < length) {
+            codePoint = string.codePointAt(ii);
+            cc = 0;
+            bits = 0;
+            if (codePoint <= 0x0000007F) {
+                cc = 0;
+                bits = 0x00;
+            } else if (codePoint <= 0x000007FF) {
+                cc = 6;
+                bits = 0xC0;
+            } else if (codePoint <= 0x0000FFFF) {
+                cc = 12;
+                bits = 0xE0;
+            } else if (codePoint <= 0x001FFFFF) {
+                cc = 18;
+                bits = 0xF0;
+            }
+            octets.push(bits | (codePoint >> cc));
+            cc -= 6;
+            while (cc >= 0) {
+                octets.push(0x80 | ((codePoint >> cc) & 0x3F));
+                cc -= 6;
+            }
+            ii += (
+                codePoint >= 0x10000
+                ? 2
+                : 1
+            );
+        }
+        return octets;
+    };
+    globalThis.TextDecoder = globalThis.TextDecoder || TextXxcoder;
+    globalThis.TextEncoder = globalThis.TextEncoder || TextXxcoder;
     // init local
     local = {};
     local.local = local;
@@ -58365,12 +57159,16 @@ local.assetsDict["/assets.utility2.rollup.js"] = [
         && globalThis.navigator
         && typeof globalThis.navigator.userAgent === "string"
     );
+    // init isWebWorker
+    local.isWebWorker = (
+        local.isBrowser && typeof globalThis.importScript === "function"
+    );
     // init function
     local.assertOrThrow = function (passed, message) {
     /*
      * this function will throw err.<message> if <passed> is falsy
      */
-        var err;
+        let err;
         if (passed) {
             return;
         }
@@ -58387,16 +57185,32 @@ local.assetsDict["/assets.utility2.rollup.js"] = [
                 // if message is a string, then leave as is
                 ? message
                 // else JSON.stringify message
-                : JSON.stringify(message, null, 4)
+                : JSON.stringify(message, undefined, 4)
             )
         );
         throw err;
+    };
+    local.coalesce = function (...argList) {
+    /*
+     * this function will coalesce null, undefined, or "" in <argList>
+     */
+        let arg;
+        let ii;
+        ii = 0;
+        while (ii < argList.length) {
+            arg = argList[ii];
+            if (arg !== null && arg !== undefined && arg !== "") {
+                break;
+            }
+            ii += 1;
+        }
+        return arg;
     };
     local.fsRmrfSync = function (dir) {
     /*
      * this function will sync "rm -rf" <dir>
      */
-        var child_process;
+        let child_process;
         try {
             child_process = require("child_process");
         } catch (ignore) {
@@ -58414,7 +57228,7 @@ local.assetsDict["/assets.utility2.rollup.js"] = [
     /*
      * this function will sync write <data> to <file> with "mkdir -p"
      */
-        var fs;
+        let fs;
         try {
             fs = require("fs");
         } catch (ignore) {
@@ -58443,16 +57257,16 @@ local.assetsDict["/assets.utility2.rollup.js"] = [
     local.functionOrNop = function (fnc) {
     /*
      * this function will if <fnc> exists,
-     * them return <fnc>,
+     * return <fnc>,
      * else return <nop>
      */
         return fnc || local.nop;
     };
-    local.identity = function (value) {
+    local.identity = function (val) {
     /*
-     * this function will return <value>
+     * this function will return <val>
      */
-        return value;
+        return val;
     };
     local.nop = function () {
     /*
@@ -58462,8 +57276,7 @@ local.assetsDict["/assets.utility2.rollup.js"] = [
     };
     local.objectAssignDefault = function (target, source) {
     /*
-     * this function will if items from <target> are
-     * null, undefined, or empty-string,
+     * this function will if items from <target> are null, undefined, or "",
      * then overwrite them with items from <source>
      */
         target = target || {};
@@ -58477,6 +57290,26 @@ local.assetsDict["/assets.utility2.rollup.js"] = [
             }
         });
         return target;
+    };
+    local.querySelector = function (selectors) {
+    /*
+     * this function will return first dom-elem that match <selectors>
+     */
+        return (
+            typeof document === "object" && document
+            && typeof document.querySelector === "function"
+            && document.querySelector(selectors)
+        ) || {};
+    };
+    local.querySelectorAll = function (selectors) {
+    /*
+     * this function will return dom-elem-list that match <selectors>
+     */
+        return (
+            typeof document === "object" && document
+            && typeof document.querySelectorAll === "function"
+            && Array.from(document.querySelectorAll(selectors))
+        ) || [];
     };
     // require builtin
     if (!local.isBrowser) {
@@ -58511,6 +57344,7 @@ local.assetsDict["/assets.utility2.rollup.js"] = [
 }((typeof globalThis === "object" && globalThis) || (function () {
     return Function("return this")(); // jslint ignore:line
 }())));
+// assets.utility2.header.js - end
 
 
 
@@ -59409,11 +58243,6 @@ local.templateUiMain = '\
         download standalone app\n\
     </a><br>\n\
     {{/if x-swgg-downloadStandaloneApp}}\n\
-    {{#if x-swgg-onEventDomDb}}\n\
-    <button class="button" data-onevent="onEventDomDb" data-onevent-db="dbReset">reset database</button><br>\n\
-    <button class="button" data-onevent="onEventDomDb" data-onevent-db="dbExport">export database -&gt; file</button><br>\n\
-    <button class="button" data-onevent="onEventDomDb" data-onevent-db="dbImport">import database &lt;- file</button><br>\n\
-    {{/if x-swgg-onEventDomDb}}\n\
     <ul>\n\
         {{#if externalDocs.url}}\n\
         <li>\n\
@@ -59463,7 +58292,7 @@ local.templateUiMain = '\
  * 3. run code below to initialize nodejs swgg-client\n\
  * 4. (optional) edit file swagger.json to suit your needs\n\
  */\n\
-var swgg;\n\
+let swgg;\n\
 swgg = require("swgg");\n\
 swgg.apiUpdate(require("./swagger.json"));\n\
 console.log("printing currently loaded apis ...");\n\
@@ -60069,10 +58898,10 @@ local.assetsDict["/assets.swgg.html"] = local.assetsDict["/assets.utility2.templ
  * with class=".domOnEventMediaHotkeysInit"\n\
  */\n\
     "use strict";\n\
-    var currentTarget;\n\
-    var identity;\n\
-    var input;\n\
-    var onEvent;\n\
+    let currentTarget;\n\
+    let identity;\n\
+    let input;\n\
+    let onEvent;\n\
     if (window.domOnEventMediaHotkeys) {\n\
         return;\n\
     }\n\
@@ -60083,7 +58912,7 @@ local.assetsDict["/assets.swgg.html"] = local.assetsDict["/assets.utility2.templ
         return value;\n\
     };\n\
     window.domOnEventMediaHotkeys = function (evt) {\n\
-        var media;\n\
+        let media;\n\
         if (evt === "init") {\n\
             document.querySelectorAll(\n\
                 ".domOnEventMediaHotkeysInit"\n\
@@ -60215,7 +59044,7 @@ local.apiAjax = function (that, opt, onError) {
 /*
  * this function will send a swagger-api ajax-req with the operation that
  */
-    var tmp;
+    let tmp;
     local.objectSetDefault(opt, {
         data: "",
         operation: that,
@@ -60413,8 +59242,8 @@ local.apiUpdate = function (swaggerJson) {
 /*
  * this function will update the swagger-api dict of api-calls
  */
-    var pathDict;
-    var tmp;
+    let pathDict;
+    let tmp;
     swaggerJson = swaggerJson || {};
     // normalize swaggerJson
     swaggerJson = local.normalizeSwaggerJson(swaggerJson, {
@@ -60580,7 +59409,7 @@ local.apiUpdate = function (swaggerJson) {
             })
         );
         tmp = swaggerJson.definitions[schemaName];
-        (tmp.allOf || []).forEach(function (element) {
+        local.coalesce(tmp.allOf, []).forEach(function (element) {
             local.objectSetDefault(
                 tmp,
                 local.jsonCopy(local.swaggerValidateDataSchema({
@@ -60600,7 +59429,7 @@ local.apiUpdate = function (swaggerJson) {
     // init apiDict from paths
     Object.keys(swaggerJson.paths).forEach(function (path) {
         Object.keys(swaggerJson.paths[path]).forEach(function (method) {
-            var that;
+            let that;
             that = local.jsonCopy(swaggerJson.paths[path][method]);
             that._method = method.toUpperCase();
             that._path = path;
@@ -60620,7 +59449,7 @@ local.apiUpdate = function (swaggerJson) {
     });
     // init apiDict
     Object.keys(local.apiDict).forEach(function (key) {
-        var that;
+        let that;
         if (key.indexOf("operationId.") !== 0) {
             return;
         }
@@ -60725,7 +59554,7 @@ local.apiUpdate = function (swaggerJson) {
             that["x-swgg-notRequired"],
             that["x-swgg-required"]
         ].forEach(function (element, ii) {
-            (element || []).forEach(function (name) {
+            local.coalesce(element, []).forEach(function (name) {
                 that._schemaPDict[name].required = Boolean(ii);
             });
         });
@@ -60748,37 +59577,35 @@ local.apiUpdate = function (swaggerJson) {
         that.ajax = function (swaggerJson, onError) {
             return local.apiAjax(that, swaggerJson, onError);
         };
-        that._ajaxToString = (
-            that.ajax.toString().replace("{", (
-                "{\n"
-                + "/*\n"
-                + " * this function will run the api-call "
-                + JSON.stringify(that._methodPath) + "\n"
-                + " * example usage:" + (
-                    "\n"
-                    + "swgg.apiDict["
-                    + JSON.stringify(key.join("."))
-                    + "].ajax("
-                    + JSON.stringify(local.normalizeSwaggerParamDict({
-                        modeDefault: true,
-                        operation: that,
-                        paramDict: {}
-                    }).paramDict, null, 4)
-                    + ", function (err, data) {\n"
-                    + "    if (err) {\n"
-                    + "        console.error(err);\n"
-                    + "        return;\n"
-                    + "    }\n"
-                    + "    console.log(data.responseJson"
-                    + " || data.responseText);\n"
-                    + "});"
-                ).replace((
-                    /\n/g
-                ), "\n    ") + "\n */"
+        that._ajaxToString = that.ajax.toString().replace("{", String(
+            "{\n"
+            + "/*\n"
+            + " * this function will run the api-call "
+            + JSON.stringify(that._methodPath) + "\n"
+            + " * example usage:" + String(
+                "\n"
+                + "swgg.apiDict["
+                + JSON.stringify(key.join("."))
+                + "].ajax("
+                + JSON.stringify(local.normalizeSwaggerParamDict({
+                    modeDefault: true,
+                    operation: that,
+                    paramDict: {}
+                }).paramDict, null, 4)
+                + ", function (err, data) {\n"
+                + "    if (err) {\n"
+                + "        console.error(err);\n"
+                + "        return;\n"
+                + "    }\n"
+                + "    console.log(data.responseJson"
+                + " || data.responseText);\n"
+                + "});"
             ).replace((
                 /\n/g
-            ), "\n                "))
-        );
+            ), "\n    ") + "\n */"
+        ).replace((
+            /\n/g
+        ), "\n                "));
         that.ajax.toString = function () {
             return that._ajaxToString;
         };
@@ -60818,12 +59645,12 @@ local.dbFieldRandomCreate = function (opt) {
 /*
  * this function will create a random dbField from <opt>.schemaP
  */
-    var depth;
-    var ii;
-    var max;
-    var min;
-    var schemaP;
-    var value;
+    let depth;
+    let ii;
+    let max;
+    let min;
+    let schemaP;
+    let value;
     depth = (
         Number.isFinite(opt.depth)
         ? opt.depth
@@ -60943,7 +59770,9 @@ local.dbFieldRandomCreate = function (opt) {
         value = (
             opt.modeNotRandom
             ? "abcd1234"
-            : ((1 + Math.random()) * 0x10000000000000).toString(36).slice(1)
+            : Number(
+                (1 + Math.random()) * 0x10000000000000
+            ).toString(36).slice(1)
         );
         switch (schemaP.format) {
         case "byte":
@@ -60999,7 +59828,7 @@ local.dbRowListRandomCreate = function (opt) {
 /*
  * this function will create a dbRowList of <opt>.length random dbRow's
  */
-    var ii;
+    let ii;
     ii = 0;
     while (ii < opt.length) {
         opt.dbRowList.push(local.dbRowRandomCreate(opt));
@@ -61012,9 +59841,9 @@ local.dbRowRandomCreate = function (opt) {
 /*
  * this function will create a random dbRow from opt.properties
  */
-    var dbRow;
-    var ii;
-    var properties;
+    let dbRow;
+    let ii;
+    let properties;
     dbRow = {};
     opt = local.objectSetDefault(opt, {
         override: local.nop,
@@ -61082,8 +59911,8 @@ local.idNameInit = function (opt) {
 /*
  * this function will init <opt>.idBackend, <opt>.idName, and <opt>.queryById
  */
-    var idBackend;
-    var idName;
+    let idBackend;
+    let idName;
     // init idName
     idName = opt.crudType[1] || "id";
     opt.idName = idName;
@@ -61106,13 +59935,13 @@ local.middlewareBodyParse = function (req, res, next) {
 /*
  * this function will run middleware to parse <req>.bodyRaw
  */
-    var boundary;
-    var crlf;
-    var data;
-    var headerParse;
-    var ii;
-    var jj;
-    var name;
+    let boundary;
+    let crlf;
+    let data;
+    let headerParse;
+    let ii;
+    let jj;
+    let name;
     // if req is already parsed, then goto next
     if (!req.swgg.operation || !local.isNullOrUndefined(req.swgg.bodyParsed)) {
         next();
@@ -61233,11 +60062,11 @@ local.middlewareCrudBuiltin = function (req, res, next) {
  * this function will run middleware to
  * run the builtin crud-operations backed by db-lite
  */
-    var crud;
-    var onParallel;
-    var opt;
-    var tmp;
-    var user;
+    let crud;
+    let onParallel;
+    let opt;
+    let tmp;
+    let user;
     opt = {};
     local.gotoNext(opt, function (err, data, meta) {
         switch (opt.gotoState) {
@@ -61268,7 +60097,7 @@ local.middlewareCrudBuiltin = function (req, res, next) {
                 crud.body[crud.idBackend] = crud.data[crud.idName];
                 crud.dbTable.crudUpdateOneById(crud.body, opt.gotoNext);
                 break;
-            // hack-istanbul - test err handling-behavior
+            // hack-coverage - test err handling-behavior
             case "crudErrorDelete":
             case "crudErrorGet":
             case "crudErrorHead":
@@ -61347,7 +60176,7 @@ local.middlewareCrudBuiltin = function (req, res, next) {
                     return typeof req.swgg.bodyMeta[key].filename === "string";
                 }).map(function (key) {
                     tmp = local.jsonCopy(req.swgg.paramDict);
-                    tmp.id = tmp.id || (
+                    tmp.id = tmp.id || Number(
                         (1 + Math.random()) * 0x10000000000000
                     ).toString(36).slice(1);
                     local.objectSetOverride(tmp, {
@@ -61468,7 +60297,7 @@ local.middlewareRouter = function (req, res, next) {
  * this function will run middleware to
  * map the req's method-path to swagger's tags[0]-crudType
  */
-    var tmp;
+    let tmp;
     // init swgg object
     local.objectSetDefault(req, {
         swgg: {
@@ -61518,9 +60347,9 @@ local.middlewareUserLogin = function (req, res, next) {
 /*
  * this function will run middleware to handle user login
  */
-    var crud;
-    var opt;
-    var user;
+    let crud;
+    let opt;
+    let user;
     opt = {};
     local.gotoNext(opt, function (err, data) {
         switch (opt.gotoState) {
@@ -61537,7 +60366,7 @@ local.middlewareUserLogin = function (req, res, next) {
             );
             user.jwtDecrypted = local.jwtAes256GcmDecrypt(user.jwtEncrypted);
             switch (crud.crudType[0]) {
-            // hack-istanbul - test err handling-behavior
+            // hack-coverage - test err handling-behavior
             case "crudErrorLogin":
                 opt.gotoNext(local.errDefault);
                 return;
@@ -61627,9 +60456,9 @@ local.middlewareValidate = function (req, res, next) {
 /*
  * this function will run middleware to validate the swagger-<req>
  */
-    var crud;
-    var opt;
-    var tmp;
+    let crud;
+    let opt;
+    let tmp;
     opt = {};
     local.gotoNext(opt, function (err) {
         switch (opt.gotoState) {
@@ -61830,8 +60659,8 @@ local.normalizeSwaggerJson = function (swaggerJson, opt) {
 /*
  * this function will normalize swaggerJson and filter $npm_package_swggTags0
  */
-    var pathDict;
-    var tmp;
+    let pathDict;
+    let tmp;
     opt = local.objectSetDefault(opt, {
         objectSetDescription: function (dict) {
             if (
@@ -61880,7 +60709,7 @@ local.normalizeSwaggerJson = function (swaggerJson, opt) {
                 });
             }
             // normalize parameter.required
-            (tmp.parameters || []).forEach(function (schemaP) {
+            local.coalesce(tmp.parameters, []).forEach(function (schemaP) {
                 if (schemaP.required === false) {
                     delete schemaP.required;
                 }
@@ -61931,7 +60760,10 @@ local.normalizeSwaggerJson = function (swaggerJson, opt) {
         Object.keys(swaggerJson.paths[path]).forEach(function (method) {
             tmp = swaggerJson.paths[path][method];
             opt.objectSetDescription(tmp);
-            (tmp.parameters || []).forEach(opt.objectSetDescription);
+            local.coalesce(
+                tmp.parameters,
+                []
+            ).forEach(opt.objectSetDescription);
             Object.keys(tmp.responses || {}).forEach(function (key) {
                 opt.objectSetDescription(tmp.responses[key]);
             });
@@ -61999,7 +60831,7 @@ local.normalizeSwaggerParamDict = function (opt) {
 /*
  * this function will parse the <opt> according to <opt>.operation.parameters
  */
-    var tmp;
+    let tmp;
     opt.operation.parameters.forEach(function (schemaP) {
         tmp = opt.paramDict[schemaP.name];
         // init default
@@ -62159,7 +60991,7 @@ local.operationIdFromAjax = function (opt) {
  * this function will create a sortable operationId
  * from given ajax-<opt>
  */
-    var urlParsed;
+    let urlParsed;
     urlParsed = local.urlParseWithBraket(opt.url);
     return encodeURIComponent(
         urlParsed.pathname + urlParsed.hash + " " + opt.method.toUpperCase()
@@ -62220,13 +61052,13 @@ local.swaggerJsonFromAjax = function (swaggerJson, opt) {
  * this function will update swaggerJson
  * with definitions and paths created from given ajax-<opt>
  */
-    var data;
-    var isArray;
-    var operation;
-    var pathDict;
-    var type;
-    var upsertSchemaP;
-    var urlParsed;
+    let data;
+    let isArray;
+    let operation;
+    let pathDict;
+    let type;
+    let upsertSchemaP;
+    let urlParsed;
     upsertSchemaP = function (schemaP) {
         if (!operation.parameters.some(function (element) {
             if (element.in === schemaP.in && element.name === schemaP.name) {
@@ -62373,11 +61205,11 @@ local.swaggerJsonFromCurl = function (swaggerJson, text) {
  * this function will update swaggerJson
  * with definitions and paths created from given curl-command-text
  */
-    var arg;
-    var argList;
-    var doubleBackslash;
-    var opt;
-    var quote;
+    let arg;
+    let argList;
+    let doubleBackslash;
+    let opt;
+    let quote;
     arg = "";
     argList = [];
     doubleBackslash = local.stringUniqueKey(text);
@@ -62477,12 +61309,12 @@ local.swaggerJsonFromPostBody = function (swaggerJson, opt) {
  * this function will update swaggerJson
  * with definitions created from the post-body-data
  */
-    var definition;
-    var isArray;
-    var prefix;
-    var schemaP;
-    var type;
-    var value;
+    let definition;
+    let isArray;
+    let prefix;
+    let schemaP;
+    let type;
+    let value;
     prefix = opt.prefix + "." + encodeURIComponent(opt.key);
     definition = {
         properties: {},
@@ -62541,12 +61373,12 @@ local.swaggerValidate = function (swaggerJson) {
 /*
  * this function will validate the json-object swaggerJson
  */
-    var operation;
-    var operationIdDict;
-    var pathDict;
-    var prefix;
-    var test;
-    var tmp;
+    let operation;
+    let operationIdDict;
+    let pathDict;
+    let prefix;
+    let test;
+    let tmp;
     operationIdDict = {};
     swaggerJson = swaggerJson || {};
     local.swaggerValidateDataSchema({
@@ -62671,7 +61503,10 @@ local.swaggerValidate = function (swaggerJson) {
                 tmp.path[match0] = tmp.path[match0] || [];
                 tmp.path[match0][0] = true;
             });
-            (operation.parameters || []).forEach(function (schemaP, ii) {
+            local.coalesce(
+                operation.parameters,
+                []
+            ).forEach(function (schemaP, ii) {
                 // dereference schemaP
                 String(schemaP["x-swgg-$ref"] || schemaP.$ref).replace((
                     /#\/parameters\/(.+?$)/m
@@ -62750,7 +61585,7 @@ local.swaggerValidate = function (swaggerJson) {
             // validate semanticFormData4
             test = (
                 !tmp.type.file
-                || (operation.consumes || []).indexOf(
+                || local.coalesce(operation.consumes, []).indexOf(
                     "multipart/form-data"
                 ) >= 0
             );
@@ -62762,10 +61597,10 @@ local.swaggerValidate = function (swaggerJson) {
             // validate semanticFormData5
             test = (
                 !tmp.in.formData
-                || (operation.consumes || []).indexOf(
+                || local.coalesce(operation.consumes, []).indexOf(
                     "application/x-www-form-urlencoded"
                 ) >= 0
-                || (operation.consumes || []).indexOf(
+                || local.coalesce(operation.consumes, []).indexOf(
                     "multipart/form-data"
                 ) >= 0
             );
@@ -62784,7 +61619,7 @@ local.swaggerValidateDataParameters = function (opt) {
  * this function will validate the items in <opt>.paramDict
  * against the schemaP's in <opt>.parameters
  */
-    var errList;
+    let errList;
     errList = [];
     opt.parameters.forEach(function (schemaP) {
         local.tryCatchOnError(function () {
@@ -62816,16 +61651,16 @@ local.swaggerValidateDataSchema = function (opt) {
  * this function will validate <opt>.data against the swagger <opt>.schema
  * http://json-schema.org/draft-04/json-schema-validation.html#rfc.section.5
  */
-    var $ref;
-    var circularSet;
-    var data;
-    var dataReadonlyRemove2;
-    var ii;
-    var list;
-    var oneOf;
-    var schema;
-    var test;
-    var tmp;
+    let $ref;
+    let circularSet;
+    let data;
+    let dataReadonlyRemove2;
+    let ii;
+    let list;
+    let oneOf;
+    let schema;
+    let test;
+    let tmp;
     if (!opt.schema) {
         return;
     }
@@ -63254,7 +62089,7 @@ local.swaggerValidateDataSchema = function (opt) {
             schema
         });
         // 5.4.3. required
-        (schema.required || []).forEach(function (key) {
+        local.coalesce(schema.required, []).forEach(function (key) {
             // validate semanticItemsRequiredForArrayObjects2
             test = !local.isNullOrUndefined(data[key]);
             local.throwSwaggerError(!test && {
@@ -63409,9 +62244,9 @@ local.swaggerValidateDataSchema = function (opt) {
     }
     // 5.5. Validation keywords for any instance type
     // 5.5.1. enum
-    tmp = (
-        schema.enum
-        || (!opt.modeSchema && (local.schemaPItems(schema) || {}).enum)
+    tmp = schema.enum || (
+        !opt.modeSchema
+        && local.coalesce(local.schemaPItems(schema), {}).enum
     );
     test = !tmp || (
         Array.isArray(data)
@@ -63432,7 +62267,7 @@ local.swaggerValidateDataSchema = function (opt) {
     // 5.5.2. type
     local.nop();
     // 5.5.3. allOf
-    (schema.allOf || []).forEach(function (element) {
+    local.coalesce(schema.allOf, []).forEach(function (element) {
         // recurse - schema.allOf
         local.swaggerValidateDataSchema({
             data,
@@ -63472,7 +62307,7 @@ local.swaggerValidateDataSchema = function (opt) {
         ? 1
         : 0
     );
-    (schema.oneOf || []).some(function (element) {
+    local.coalesce(schema.oneOf, []).some(function (element) {
         local.tryCatchOnError(function () {
             // recurse - schema.oneOf
             local.swaggerValidateDataSchema({
@@ -63583,7 +62418,7 @@ local.throwSwaggerError = function (opt) {
 /*
  * this function will throw a swaggerError with given <opt>.errorType
  */
-    var err;
+    let err;
     if (!opt) {
         return;
     }
@@ -63672,14 +62507,12 @@ local.uiEventListenerDict = local.objectAssignDefault(
     globalThis.domOnEventDelegateDict
 );
 
-local.uiEventListenerDict.onEventDomDb = local.db.onEventDomDb;
-
 local.uiEventListenerDict.onEventInputTextareaChange = function (evt) {
 /*
  * this function will show/hide the textarea's multiline placeholder
  */
-    var isTransparent;
-    var value;
+    let isTransparent;
+    let value;
     isTransparent = evt.targetOnEvent.style.background.indexOf(
         "transparent"
     ) >= 0;
@@ -63703,9 +62536,9 @@ local.uiEventListenerDict.onEventInputValidateAndAjax = function (
  * this function will validate the input parameters
  * against the schemas in <opt>.parameters
  */
-    var errorDict;
-    var jsonParse;
-    var tmp;
+    let errorDict;
+    let jsonParse;
+    let tmp;
     jsonParse = function (text) {
     /*
      * this function will try to JSON.parse(text)
@@ -63800,7 +62633,7 @@ local.uiEventListenerDict.onEventInputValidateAndAjax = function (
     opt.api.ajax(opt, onError || local.nop);
     // init errorDict
     errorDict = {};
-    ((opt.err && opt.err.errList) || []).forEach(function (err) {
+    local.coalesce(opt.err && opt.err.errList, []).forEach(function (err) {
         errorDict[err.opt.prefix[2]] = err;
     });
     // shake input on err
@@ -63977,7 +62810,7 @@ local.uiEventListenerDict.onEventOperationDisplayShow = function (
 /*
  * this function will toggle the display of the operation
  */
-    var element;
+    let element;
     element = evt.targetOnEvent;
     element = element.querySelector(
         ".operation"
@@ -64087,8 +62920,8 @@ local.uiEventListenerDict.onEventUiReload = function (opt, onError) {
 /*
  * this function will reload the ui
  */
-    var resource;
-    var swaggerJson;
+    let resource;
+    let swaggerJson;
     opt = opt || {};
     swaggerJson = opt;
     local.gotoNext(opt, function (err, data) {
@@ -64226,11 +63059,9 @@ local.uiEventListenerDict.onEventUiReload = function (opt, onError) {
             local._debugOnEventUiReload = err || local._debugOnEventUiReload;
             document.querySelector(
                 "#swggUiReloadErrorDiv1"
-            ).textContent = (
-                (err || {
-                    message: ""
-                }).message
-            );
+            ).textContent = local.identity(err || {
+                message: ""
+            }).message;
             local.setTimeoutOnError(onError, 0, err);
         }
     });
@@ -64319,9 +63150,8 @@ local.uiEventListenerDict.onEventUiReload = function (opt, onError) {
                     };
                 })
             });
-            operation.summary = (
-                operation.summary || operation.description
-            ).replace((
+            operation.summary = operation.summary || operation.description;
+            operation.summary = operation.summary.replace((
                 /\bhttps?:\/\/[^\s<]+[^<.,:;"')\]\s]/g
             ), "");
             operation.parameters.forEach(local.uiRenderSchemaP);
@@ -64365,7 +63195,7 @@ local.uiEventListenerDict.onEventUiReload = function (opt, onError) {
             });
         }
     });
-    // init evt-handling
+    // handle evt
     [
         "Change", "Click", "Keyup", "Submit"
     ].forEach(function (eventType) {
@@ -64401,7 +63231,7 @@ local.uiRenderSchemaP = function (schemaP) {
     // init enum
     schemaP.enum2 = (
         schemaP.enum
-        || (local.schemaPItems(schemaP) || {}).enum
+        || local.coalesce(local.schemaPItems(schemaP), {}).enum
         || (local.schemaPType(schemaP) === "boolean" && [
             false, true
         ])
@@ -64485,7 +63315,7 @@ local.uiRenderSchemaP = function (schemaP) {
         schemaP.isInputText = true;
     }
     // init format2 / type2
-    ([
+    Array.from([
         schemaP, schemaP.schema || {}
     ]).some(function (element) {
         local.objectSetDefault(schemaP, {
@@ -64496,7 +63326,7 @@ local.uiRenderSchemaP = function (schemaP) {
     });
     schemaP.type2 = schemaP.type2 || "object";
     // init schema2
-    ([
+    Array.from([
         schemaP,
         local.schemaPItems(schemaP),
         schemaP.schema,
@@ -64574,7 +63404,7 @@ local.urlParseWithBraket = function (url) {
 /*
  * this function will urlParse the url with curly-brackets preserved
  */
-    var tmp;
+    let tmp;
     tmp = local.stringUniqueKey(url);
     return JSON.parse(JSON.stringify(
         local.urlParse(url.replace((
@@ -64641,56 +63471,204 @@ local.swgg.apiUpdate(local.fsReadFileOrEmptyStringSync(
 (function (local) {
     "use strict";
 /* jslint ignore:start */
-local.assetsDict["/assets.utility2.example.js"] = ""
-/* jslint ignore:end */
-    return local;
-}(globalThis.utility2_rollup));
-/* script-end /assets.utility2.example.js */
-
-
-
-/* script-begin /assets.utility2.html */
-(function (local) {
-    "use strict";
-/* jslint ignore:start */
-local.assetsDict["/assets.utility2.html"] = ""
-/* jslint ignore:end */
-    return local;
-}(globalThis.utility2_rollup));
-/* script-end /assets.utility2.html */
-
-
-
-/* script-begin /assets.utility2.test.js */
-(function (local) {
-    "use strict";
-/* jslint ignore:start */
-local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in package utility2 */\n\
+local.assetsDict["/assets.utility2.example.js"] = "/*\n\
+example.js\n\
+\n\
+this script will demo automated browser-tests with coverage\n\
+(via puppeteer and istanbul)\n\
+\n\
+instruction\n\
+    1. save this script as example.js\n\
+    2. run the shell-command:\n\
+        $ npm install utility2 && \\\n\
+            PATH=\"$(pwd)/node_modules/.bin:$PATH\" \\\n\
+            PORT=8081 \\\n\
+            npm_config_mode_coverage=utility2 \\\n\
+            node_modules/.bin/utility2 test example.js\n\
+    3. view test-report in ./tmp/build/test-report.html\n\
+    4. view coverage in ./tmp/build/coverage.html/index.html\n\
+*/\n\
+\n\
+\n\
+\n\
+// assets.utility2.header.js - start\n\
 /* istanbul ignore next */\n\
 /* jslint utility2:true */\n\
 (function (globalThis) {\n\
     \"use strict\";\n\
-    var consoleError;\n\
-    var local;\n\
+    let ArrayPrototypeFlat;\n\
+    let TextXxcoder;\n\
+    let consoleError;\n\
+    let debugName;\n\
+    let local;\n\
+    debugName = \"debug\" + String(\"Inline\");\n\
     // init globalThis\n\
     globalThis.globalThis = globalThis.globalThis || globalThis;\n\
     // init debug_inline\n\
-    if (!globalThis[\"debug\\u0049nline\"]) {\n\
+    if (!globalThis[debugName]) {\n\
         consoleError = console.error;\n\
-        globalThis[\"debug\\u0049nline\"] = function (...argList) {\n\
+        globalThis[debugName] = function (...argList) {\n\
         /*\n\
          * this function will both print <argList> to stderr\n\
          * and return <argList>[0]\n\
          */\n\
-            // debug argList\n\
-            globalThis[\"debug\\u0049nlineArgList\"] = argList;\n\
-            consoleError(\"\\n\\ndebug\\u0049nline\");\n\
+            consoleError(\"\\n\\n\" + debugName);\n\
             consoleError.apply(console, argList);\n\
             consoleError(\"\\n\");\n\
             // return arg0 for inspection\n\
             return argList[0];\n\
         };\n\
     }\n\
+    // polyfill\n\
+    ArrayPrototypeFlat = function (depth) {\n\
+    /*\n\
+     * this function will polyfill Array.prototype.flat\n\
+     * https://github.com/jonathantneal/array-flat-polyfill\n\
+     */\n\
+        depth = (\n\
+            globalThis.isNaN(depth)\n\
+            ? 1\n\
+            : Number(depth)\n\
+        );\n\
+        if (!depth) {\n\
+            return Array.prototype.slice.call(this);\n\
+        }\n\
+        return Array.prototype.reduce.call(this, function (acc, cur) {\n\
+            if (Array.isArray(cur)) {\n\
+                // recurse\n\
+                acc.push.apply(acc, ArrayPrototypeFlat.call(cur, depth - 1));\n\
+            } else {\n\
+                acc.push(cur);\n\
+            }\n\
+            return acc;\n\
+        }, []);\n\
+    };\n\
+    Array.prototype.flat = Array.prototype.flat || ArrayPrototypeFlat;\n\
+    Array.prototype.flatMap = Array.prototype.flatMap || function flatMap(\n\
+        ...argList\n\
+    ) {\n\
+    /*\n\
+     * this function will polyfill Array.prototype.flatMap\n\
+     * https://github.com/jonathantneal/array-flat-polyfill\n\
+     */\n\
+        return this.map(...argList).flat();\n\
+    };\n\
+    String.prototype.trimEnd = (\n\
+        String.prototype.trimEnd || String.prototype.trimRight\n\
+    );\n\
+    String.prototype.trimStart = (\n\
+        String.prototype.trimStart || String.prototype.trimLeft\n\
+    );\n\
+    (function () {\n\
+        try {\n\
+            globalThis.TextDecoder = (\n\
+                globalThis.TextDecoder || require(\"util\").TextDecoder\n\
+            );\n\
+            globalThis.TextEncoder = (\n\
+                globalThis.TextEncoder || require(\"util\").TextEncoder\n\
+            );\n\
+        } catch (ignore) {}\n\
+    }());\n\
+    TextXxcoder = function () {\n\
+    /*\n\
+     * this function will polyfill TextDecoder/TextEncoder\n\
+     * https://gist.github.com/Yaffle/5458286\n\
+     */\n\
+        return;\n\
+    };\n\
+    TextXxcoder.prototype.decode = function (octets) {\n\
+    /*\n\
+     * this function will polyfill TextDecoder.prototype.decode\n\
+     * https://gist.github.com/Yaffle/5458286\n\
+     */\n\
+        let bytesNeeded;\n\
+        let codePoint;\n\
+        let ii;\n\
+        let kk;\n\
+        let octet;\n\
+        let string;\n\
+        string = \"\";\n\
+        ii = 0;\n\
+        while (ii < octets.length) {\n\
+            octet = octets[ii];\n\
+            bytesNeeded = 0;\n\
+            codePoint = 0;\n\
+            if (octet <= 0x7F) {\n\
+                bytesNeeded = 0;\n\
+                codePoint = octet & 0xFF;\n\
+            } else if (octet <= 0xDF) {\n\
+                bytesNeeded = 1;\n\
+                codePoint = octet & 0x1F;\n\
+            } else if (octet <= 0xEF) {\n\
+                bytesNeeded = 2;\n\
+                codePoint = octet & 0x0F;\n\
+            } else if (octet <= 0xF4) {\n\
+                bytesNeeded = 3;\n\
+                codePoint = octet & 0x07;\n\
+            }\n\
+            if (octets.length - ii - bytesNeeded > 0) {\n\
+                kk = 0;\n\
+                while (kk < bytesNeeded) {\n\
+                    octet = octets[ii + kk + 1];\n\
+                    codePoint = (codePoint << 6) | (octet & 0x3F);\n\
+                    kk += 1;\n\
+                }\n\
+            } else {\n\
+                codePoint = 0xFFFD;\n\
+                bytesNeeded = octets.length - ii;\n\
+            }\n\
+            string += String.fromCodePoint(codePoint);\n\
+            ii += bytesNeeded + 1;\n\
+        }\n\
+        return string;\n\
+    };\n\
+    TextXxcoder.prototype.encode = function (string) {\n\
+    /*\n\
+     * this function will polyfill TextEncoder.prototype.encode\n\
+     * https://gist.github.com/Yaffle/5458286\n\
+     */\n\
+        let bits;\n\
+        let cc;\n\
+        let codePoint;\n\
+        let ii;\n\
+        let length;\n\
+        let octets;\n\
+        octets = [];\n\
+        length = string.length;\n\
+        ii = 0;\n\
+        while (ii < length) {\n\
+            codePoint = string.codePointAt(ii);\n\
+            cc = 0;\n\
+            bits = 0;\n\
+            if (codePoint <= 0x0000007F) {\n\
+                cc = 0;\n\
+                bits = 0x00;\n\
+            } else if (codePoint <= 0x000007FF) {\n\
+                cc = 6;\n\
+                bits = 0xC0;\n\
+            } else if (codePoint <= 0x0000FFFF) {\n\
+                cc = 12;\n\
+                bits = 0xE0;\n\
+            } else if (codePoint <= 0x001FFFFF) {\n\
+                cc = 18;\n\
+                bits = 0xF0;\n\
+            }\n\
+            octets.push(bits | (codePoint >> cc));\n\
+            cc -= 6;\n\
+            while (cc >= 0) {\n\
+                octets.push(0x80 | ((codePoint >> cc) & 0x3F));\n\
+                cc -= 6;\n\
+            }\n\
+            ii += (\n\
+                codePoint >= 0x10000\n\
+                ? 2\n\
+                : 1\n\
+            );\n\
+        }\n\
+        return octets;\n\
+    };\n\
+    globalThis.TextDecoder = globalThis.TextDecoder || TextXxcoder;\n\
+    globalThis.TextEncoder = globalThis.TextEncoder || TextXxcoder;\n\
     // init local\n\
     local = {};\n\
     local.local = local;\n\
@@ -64701,12 +63679,16 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
         && globalThis.navigator\n\
         && typeof globalThis.navigator.userAgent === \"string\"\n\
     );\n\
+    // init isWebWorker\n\
+    local.isWebWorker = (\n\
+        local.isBrowser && typeof globalThis.importScript === \"function\"\n\
+    );\n\
     // init function\n\
     local.assertOrThrow = function (passed, message) {\n\
     /*\n\
      * this function will throw err.<message> if <passed> is falsy\n\
      */\n\
-        var err;\n\
+        let err;\n\
         if (passed) {\n\
             return;\n\
         }\n\
@@ -64723,16 +63705,32 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
                 // if message is a string, then leave as is\n\
                 ? message\n\
                 // else JSON.stringify message\n\
-                : JSON.stringify(message, null, 4)\n\
+                : JSON.stringify(message, undefined, 4)\n\
             )\n\
         );\n\
         throw err;\n\
+    };\n\
+    local.coalesce = function (...argList) {\n\
+    /*\n\
+     * this function will coalesce null, undefined, or \"\" in <argList>\n\
+     */\n\
+        let arg;\n\
+        let ii;\n\
+        ii = 0;\n\
+        while (ii < argList.length) {\n\
+            arg = argList[ii];\n\
+            if (arg !== null && arg !== undefined && arg !== \"\") {\n\
+                break;\n\
+            }\n\
+            ii += 1;\n\
+        }\n\
+        return arg;\n\
     };\n\
     local.fsRmrfSync = function (dir) {\n\
     /*\n\
      * this function will sync \"rm -rf\" <dir>\n\
      */\n\
-        var child_process;\n\
+        let child_process;\n\
         try {\n\
             child_process = require(\"child_process\");\n\
         } catch (ignore) {\n\
@@ -64750,7 +63748,7 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
     /*\n\
      * this function will sync write <data> to <file> with \"mkdir -p\"\n\
      */\n\
-        var fs;\n\
+        let fs;\n\
         try {\n\
             fs = require(\"fs\");\n\
         } catch (ignore) {\n\
@@ -64779,16 +63777,16 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
     local.functionOrNop = function (fnc) {\n\
     /*\n\
      * this function will if <fnc> exists,\n\
-     * them return <fnc>,\n\
+     * return <fnc>,\n\
      * else return <nop>\n\
      */\n\
         return fnc || local.nop;\n\
     };\n\
-    local.identity = function (value) {\n\
+    local.identity = function (val) {\n\
     /*\n\
-     * this function will return <value>\n\
+     * this function will return <val>\n\
      */\n\
-        return value;\n\
+        return val;\n\
     };\n\
     local.nop = function () {\n\
     /*\n\
@@ -64798,8 +63796,7 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
     };\n\
     local.objectAssignDefault = function (target, source) {\n\
     /*\n\
-     * this function will if items from <target> are\n\
-     * null, undefined, or empty-string,\n\
+     * this function will if items from <target> are null, undefined, or \"\",\n\
      * then overwrite them with items from <source>\n\
      */\n\
         target = target || {};\n\
@@ -64813,6 +63810,26 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
             }\n\
         });\n\
         return target;\n\
+    };\n\
+    local.querySelector = function (selectors) {\n\
+    /*\n\
+     * this function will return first dom-elem that match <selectors>\n\
+     */\n\
+        return (\n\
+            typeof document === \"object\" && document\n\
+            && typeof document.querySelector === \"function\"\n\
+            && document.querySelector(selectors)\n\
+        ) || {};\n\
+    };\n\
+    local.querySelectorAll = function (selectors) {\n\
+    /*\n\
+     * this function will return dom-elem-list that match <selectors>\n\
+     */\n\
+        return (\n\
+            typeof document === \"object\" && document\n\
+            && typeof document.querySelectorAll === \"function\"\n\
+            && Array.from(document.querySelectorAll(selectors))\n\
+        ) || [];\n\
     };\n\
     // require builtin\n\
     if (!local.isBrowser) {\n\
@@ -64847,9 +63864,11 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
 }((typeof globalThis === \"object\" && globalThis) || (function () {\n\
     return Function(\"return this\")(); // jslint ignore:line\n\
 }())));\n\
+// assets.utility2.header.js - end\n\
 \n\
 \n\
 \n\
+/* jslint utility2:true */\n\
 (function (local) {\n\
 \"use strict\";\n\
 \n\
@@ -64859,8 +63878,1739 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
 (function () {\n\
 // init local\n\
 local = (\n\
-    globalThis.utility2 || require(\"./lib.utility2.js\")\n\
-).requireReadme();\n\
+    globalThis.utility2_rollup\n\
+    || globalThis.utility2_utility2\n\
+    || require(\"utility2\")\n\
+);\n\
+// init exports\n\
+globalThis.local = local;\n\
+// run test-server\n\
+local.testRunServer(local);\n\
+// init assets\n\
+local.assetsDict[\"/assets.hello.txt\"] = \"hello \\ud83d\\ude01\\n\";\n\
+local.assetsDict[\"/assets.index.template.html\"] = \"\";\n\
+}());\n\
+\n\
+\n\
+\n\
+// run shared js-env code - function\n\
+(function () {\n\
+local.testCase_ajax_200 = function (opt, onError) {\n\
+/*\n\
+ * this function will test ajax's \"200 ok\" handling-behavior\n\
+ */\n\
+    if (!local.isBrowser) {\n\
+        onError(undefined, opt);\n\
+        return;\n\
+    }\n\
+    opt = {};\n\
+    // test ajax-path \"assets.hello.txt\"\n\
+    local.ajax({\n\
+        url: \"assets.hello.txt\"\n\
+    }, function (err, xhr) {\n\
+        local.tryCatchOnError(function () {\n\
+            // handle err\n\
+            local.assertOrThrow(!err, err);\n\
+            // validate data\n\
+            opt.data = xhr.responseText;\n\
+            local.assertOrThrow(\n\
+                opt.data === \"hello \\ud83d\\ude01\\n\",\n\
+                opt.data\n\
+            );\n\
+            onError();\n\
+        }, onError);\n\
+    });\n\
+};\n\
+\n\
+local.testCase_ajax_404 = function (opt, onError) {\n\
+/*\n\
+ * this function will test ajax's \"404 not found\" handling-behavior\n\
+ */\n\
+    if (!local.isBrowser) {\n\
+        onError(undefined, opt);\n\
+        return;\n\
+    }\n\
+    opt = {};\n\
+    // test ajax-path \"/undefined\"\n\
+    local.ajax({\n\
+        url: \"/undefined\"\n\
+    }, function (err) {\n\
+        local.tryCatchOnError(function () {\n\
+            // handle err\n\
+            local.assertOrThrow(err, err);\n\
+            opt.statusCode = err.statusCode;\n\
+            // validate 404 http statusCode\n\
+            local.assertOrThrow(opt.statusCode === 404, opt.statusCode);\n\
+            onError();\n\
+        }, onError);\n\
+    });\n\
+};\n\
+\n\
+local.testCase_webpage_default = function (opt, onError) {\n\
+/*\n\
+ * this function will test webpage's default handling-behavior\n\
+ */\n\
+    if (local.isBrowser) {\n\
+        onError(undefined, opt);\n\
+        return;\n\
+    }\n\
+    opt = {\n\
+        url: local.serverLocalHost + \"?modeTest=1\"\n\
+    };\n\
+    local.browserTest(opt, onError);\n\
+};\n\
+}());\n\
+\n\
+\n\
+\n\
+/* istanbul ignore next */\n\
+// run browser js-env code - init-test\n\
+(function () {\n\
+if (!local.isBrowser) {\n\
+    return;\n\
+}\n\
+// log stderr and stdout to #outputStdout1\n\
+[\"error\", \"log\"].forEach(function (key) {\n\
+    let elem;\n\
+    let fnc;\n\
+    elem = local.querySelector(\"#outputStdout1\");\n\
+    if (!elem) {\n\
+        return;\n\
+    }\n\
+    fnc = console[key];\n\
+    console[key] = function (...argList) {\n\
+        fnc.apply(console, argList);\n\
+        // append text to #outputStdout1\n\
+        elem.textContent += argList.map(function (arg) {\n\
+            return (\n\
+                typeof arg === \"string\"\n\
+                ? arg\n\
+                : JSON.stringify(arg, undefined, 4)\n\
+            );\n\
+        }).join(\" \").replace((\n\
+            /\\u001b\\[\\d*m/g\n\
+        ), \"\") + \"\\n\";\n\
+        // scroll textarea to bottom\n\
+        elem.scrollTop = elem.scrollHeight;\n\
+    };\n\
+});\n\
+local.objectAssignDefault(local, globalThis.domOnEventDelegateDict);\n\
+globalThis.domOnEventDelegateDict = local;\n\
+if ((\n\
+    /\\bmodeTest=1\\b/\n\
+).test(location.search)) {\n\
+    local.testRunBrowser();\n\
+}\n\
+}());\n\
+\n\
+\n\
+\n\
+// run node js-env code - init-test\n\
+(function () {\n\
+if (local.isBrowser) {\n\
+    return;\n\
+}\n\
+// init exports\n\
+module.exports = local;\n\
+// init assetsDict\n\
+local.assetsDict = local.assetsDict || {};\n\
+[\n\
+    \"assets.swgg.swagger.json\",\n\
+    \"assets.swgg.swagger.server.json\"\n\
+].forEach(function (file) {\n\
+    file = \"/\" + file;\n\
+    local.assetsDict[file] = local.assetsDict[file] || \"\";\n\
+    if (local.fs.existsSync(local.__dirname + file)) {\n\
+        local.assetsDict[file] = local.fs.readFileSync(\n\
+            local.__dirname + file,\n\
+            \"utf8\"\n\
+        );\n\
+    }\n\
+});\n\
+/* jslint ignore:start */\n\
+local.assetsDict[\"/assets.index.template.html\"] = '\\\n\
+<!doctype html>\\n\\\n\
+<html lang=\"en\">\\n\\\n\
+<head>\\n\\\n\
+<meta charset=\"utf-8\">\\n\\\n\
+<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\\n\\\n\
+<!-- \"assets.utility2.template.html\" -->\\n\\\n\
+<title>{{env.npm_package_name}} ({{env.npm_package_version}})</title>\\n\\\n\
+<style>\\n\\\n\
+/* jslint utility2:true */\\n\\\n\
+/*csslint\\n\\\n\
+*/\\n\\\n\
+/* csslint ignore:start */\\n\\\n\
+*,\\n\\\n\
+*:after,\\n\\\n\
+*:before {\\n\\\n\
+    box-sizing: border-box;\\n\\\n\
+}\\n\\\n\
+/* csslint ignore:end */\\n\\\n\
+@keyframes uiAnimateSpin {\\n\\\n\
+0% {\\n\\\n\
+    transform: rotate(0deg);\\n\\\n\
+}\\n\\\n\
+100% {\\n\\\n\
+    transform: rotate(360deg);\\n\\\n\
+}\\n\\\n\
+}\\n\\\n\
+a {\\n\\\n\
+    overflow-wrap: break-word;\\n\\\n\
+}\\n\\\n\
+body {\\n\\\n\
+    background: #f7f7f7;\\n\\\n\
+    font-family: Arial, Helvetica, sans-serif;\\n\\\n\
+    font-size: small;\\n\\\n\
+    margin: 0 40px;\\n\\\n\
+}\\n\\\n\
+body > div,\\n\\\n\
+body > input,\\n\\\n\
+body > pre,\\n\\\n\
+body > .button,\\n\\\n\
+body > .textarea {\\n\\\n\
+    margin-bottom: 20px;\\n\\\n\
+    margin-top: 0;\\n\\\n\
+}\\n\\\n\
+body > input,\\n\\\n\
+body > .button {\\n\\\n\
+    width: 20rem;\\n\\\n\
+}\\n\\\n\
+body > .readonly {\\n\\\n\
+    background: #ddd;\\n\\\n\
+}\\n\\\n\
+body > .textarea {\\n\\\n\
+    height: 10rem;\\n\\\n\
+    resize: vertical;\\n\\\n\
+    width: 100%;\\n\\\n\
+}\\n\\\n\
+code,\\n\\\n\
+pre,\\n\\\n\
+.textarea {\\n\\\n\
+    font-family: Consolas, Menlo, monospace;\\n\\\n\
+    font-size: smaller;\\n\\\n\
+}\\n\\\n\
+pre {\\n\\\n\
+    overflow-wrap: break-word;\\n\\\n\
+    white-space: pre-wrap;\\n\\\n\
+}\\n\\\n\
+.button {\\n\\\n\
+    background: #ddd;\\n\\\n\
+    border: 1px solid #999;\\n\\\n\
+    color: #000;\\n\\\n\
+    cursor: pointer;\\n\\\n\
+    display: inline-block;\\n\\\n\
+    padding: 2px 5px;\\n\\\n\
+    text-align: center;\\n\\\n\
+    text-decoration: none;\\n\\\n\
+}\\n\\\n\
+.button:hover {\\n\\\n\
+    background: #bbb;\\n\\\n\
+}\\n\\\n\
+.colorError {\\n\\\n\
+    color: #d00;\\n\\\n\
+}\\n\\\n\
+.textarea {\\n\\\n\
+    background: #fff;\\n\\\n\
+    border: 1px solid #999;\\n\\\n\
+    border-radius: 0;\\n\\\n\
+    cursor: auto;\\n\\\n\
+    overflow: auto;\\n\\\n\
+    padding: 2px;\\n\\\n\
+}\\n\\\n\
+.uiAnimateSlide {\\n\\\n\
+    overflow-y: hidden;\\n\\\n\
+    transition: max-height ease-in 250ms, min-height ease-in 250ms, padding-bottom ease-in 250ms, padding-top ease-in 250ms;\\n\\\n\
+}\\n\\\n\
+.zeroPixel {\\n\\\n\
+    border: 0;\\n\\\n\
+    height: 0;\\n\\\n\
+    margin: 0;\\n\\\n\
+    padding: 0;\\n\\\n\
+    width: 0;\\n\\\n\
+}\\n\\\n\
+</style>\\n\\\n\
+</head>\\n\\\n\
+<body>\\n\\\n\
+<div class=\"uiAnimateSpin\" style=\"animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;\"></div>\\n\\\n\
+<script>\\n\\\n\
+/* jslint utility2:true */\\n\\\n\
+// init domOnEventWindowOnloadTimeElapsed\\n\\\n\
+(function () {\\n\\\n\
+/*\\n\\\n\
+ * this function will measure and print time-elapsed for window.onload\\n\\\n\
+ */\\n\\\n\
+    \"use strict\";\\n\\\n\
+    if (!(\\n\\\n\
+        typeof window === \"object\" && window && window.document\\n\\\n\
+        && typeof document.addEventListener === \"function\"\\n\\\n\
+    ) || window.domOnEventWindowOnloadTimeElapsed) {\\n\\\n\
+        return;\\n\\\n\
+    }\\n\\\n\
+    window.domOnEventWindowOnloadTimeElapsed = Date.now() + 100;\\n\\\n\
+    window.addEventListener(\"load\", function () {\\n\\\n\
+        setTimeout(function () {\\n\\\n\
+            window.domOnEventWindowOnloadTimeElapsed = (\\n\\\n\
+                Date.now()\\n\\\n\
+                - window.domOnEventWindowOnloadTimeElapsed\\n\\\n\
+            );\\n\\\n\
+            console.error(\\n\\\n\
+                \"domOnEventWindowOnloadTimeElapsed = \"\\n\\\n\
+                + window.domOnEventWindowOnloadTimeElapsed\\n\\\n\
+            );\\n\\\n\
+        }, 100);\\n\\\n\
+    });\\n\\\n\
+}());\\n\\\n\
+\\n\\\n\
+\\n\\\n\
+\\n\\\n\
+// init domOnEventAjaxProgressUpdate\\n\\\n\
+(function () {\\n\\\n\
+/*\\n\\\n\
+ * this function will display incrementing ajax-progress-bar\\n\\\n\
+ */\\n\\\n\
+    \"use strict\";\\n\\\n\
+    let opt;\\n\\\n\
+    if (!(\\n\\\n\
+        typeof window === \"object\" && window && window.document\\n\\\n\
+        && typeof document.addEventListener === \"function\"\\n\\\n\
+    ) || window.domOnEventAjaxProgressUpdate) {\\n\\\n\
+        return;\\n\\\n\
+    }\\n\\\n\
+    window.domOnEventAjaxProgressUpdate = function (gotoState, onError) {\\n\\\n\
+        gotoState = (gotoState | 0) + 1;\\n\\\n\
+        switch (gotoState) {\\n\\\n\
+        // ajaxProgress - show\\n\\\n\
+        case 1:\\n\\\n\
+            // init timerInterval and timerTimeout\\n\\\n\
+            opt.timerInterval = (\\n\\\n\
+                opt.timerInterval || setInterval(opt, 2000, 1, onError)\\n\\\n\
+            );\\n\\\n\
+            opt.timerTimeout = (\\n\\\n\
+                opt.timerTimeout || setTimeout(opt, 30000, 2, onError)\\n\\\n\
+            );\\n\\\n\
+            // show ajaxProgress\\n\\\n\
+            if (opt.width !== -1) {\\n\\\n\
+                opt.style.background = opt.background;\\n\\\n\
+            }\\n\\\n\
+            setTimeout(opt, 50, gotoState, onError);\\n\\\n\
+            break;\\n\\\n\
+        // ajaxProgress - increment\\n\\\n\
+        case 2:\\n\\\n\
+            // show ajaxProgress\\n\\\n\
+            if (opt.width === -1) {\\n\\\n\
+                return;\\n\\\n\
+            }\\n\\\n\
+            opt.style.background = opt.background;\\n\\\n\
+            // reset ajaxProgress if it goes too high\\n\\\n\
+            if ((opt.style.width.slice(0, -1) | 0) > 95) {\\n\\\n\
+                opt.width = 0;\\n\\\n\
+            }\\n\\\n\
+            // this algorithm will indefinitely increment ajaxProgress\\n\\\n\
+            // with successively smaller increments without reaching 100%\\n\\\n\
+            opt.width += 1;\\n\\\n\
+            opt.style.width = Math.max(\\n\\\n\
+                100 - 75 * Math.exp(-0.125 * opt.width),\\n\\\n\
+                opt.style.width.slice(0, -1) | 0\\n\\\n\
+            ) + \"%\";\\n\\\n\
+            if (!opt.counter) {\\n\\\n\
+                setTimeout(opt, 0, gotoState, onError);\\n\\\n\
+            }\\n\\\n\
+            break;\\n\\\n\
+        // ajaxProgress - 100%\\n\\\n\
+        case 3:\\n\\\n\
+            opt.width = -1;\\n\\\n\
+            opt.style.width = \"100%\";\\n\\\n\
+            setTimeout(opt, 1000, gotoState, onError);\\n\\\n\
+            break;\\n\\\n\
+        // ajaxProgress - hide\\n\\\n\
+        case 4:\\n\\\n\
+            // cleanup timerInterval and timerTimeout\\n\\\n\
+            clearInterval(opt.timerInterval);\\n\\\n\
+            opt.timerInterval = null;\\n\\\n\
+            clearTimeout(opt.timerTimeout);\\n\\\n\
+            opt.timerTimeout = null;\\n\\\n\
+            // hide ajaxProgress\\n\\\n\
+            opt.style.background = \"transparent\";\\n\\\n\
+            if (onError) {\\n\\\n\
+                onError();\\n\\\n\
+            }\\n\\\n\
+            setTimeout(opt, 250, gotoState);\\n\\\n\
+            break;\\n\\\n\
+        // ajaxProgress - reset\\n\\\n\
+        default:\\n\\\n\
+            // reset ajaxProgress\\n\\\n\
+            opt.counter = 0;\\n\\\n\
+            opt.width = 0;\\n\\\n\
+            opt.style.width = \"0%\";\\n\\\n\
+        }\\n\\\n\
+    };\\n\\\n\
+    opt = window.domOnEventAjaxProgressUpdate;\\n\\\n\
+    opt.end = function (onError) {\\n\\\n\
+        opt.counter = 0;\\n\\\n\
+        window.domOnEventAjaxProgressUpdate(2, onError);\\n\\\n\
+    };\\n\\\n\
+    opt.elem = document.getElementById(\"domElementAjaxProgress1\");\\n\\\n\
+    if (!opt.elem) {\\n\\\n\
+        opt.elem = document.createElement(\"div\");\\n\\\n\
+        setTimeout(function () {\\n\\\n\
+            document.body.insertBefore(opt.elem, document.body.firstChild);\\n\\\n\
+        });\\n\\\n\
+    }\\n\\\n\
+    opt.elem.id = \"domElementAjaxProgress1\";\\n\\\n\
+    opt.style = opt.elem.style;\\n\\\n\
+    // init style\\n\\\n\
+    Object.entries({\\n\\\n\
+        background: \"#d00\",\\n\\\n\
+        height: \"2px\",\\n\\\n\
+        left: \"0\",\\n\\\n\
+        margin: \"0\",\\n\\\n\
+        padding: \"0\",\\n\\\n\
+        position: \"fixed\",\\n\\\n\
+        top: \"0\",\\n\\\n\
+        transition: \"background 250ms, width 750ms\",\\n\\\n\
+        width: \"0%\",\\n\\\n\
+        \"z-index\": \"1\"\\n\\\n\
+    }).forEach(function (entry) {\\n\\\n\
+        opt.style[entry[0]] = opt.style[entry[0]] || entry[1];\\n\\\n\
+    });\\n\\\n\
+    // init state\\n\\\n\
+    opt.background = opt.style.background;\\n\\\n\
+    opt.counter = 0;\\n\\\n\
+    opt.width = 0;\\n\\\n\
+}());\\n\\\n\
+\\n\\\n\
+\\n\\\n\
+\\n\\\n\
+// init domOnEventDelegateDict\\n\\\n\
+(function () {\\n\\\n\
+/*\\n\\\n\
+ * this function will handle delegated dom-evt\\n\\\n\
+ */\\n\\\n\
+    \"use strict\";\\n\\\n\
+    let debounce;\\n\\\n\
+    let timerTimeout;\\n\\\n\
+    debounce = function () {\\n\\\n\
+        return setTimeout(function () {\\n\\\n\
+            timerTimeout = undefined;\\n\\\n\
+        }, 30);\\n\\\n\
+    };\\n\\\n\
+    if (!(\\n\\\n\
+        typeof window === \"object\" && window && window.document\\n\\\n\
+        && typeof document.addEventListener === \"function\"\\n\\\n\
+    ) || window.domOnEventDelegateDict) {\\n\\\n\
+        return;\\n\\\n\
+    }\\n\\\n\
+    window.domOnEventDelegateDict = {};\\n\\\n\
+    window.domOnEventDelegateDict.domOnEventDelegate = function (evt) {\\n\\\n\
+        evt.targetOnEvent = evt.target.closest(\"[data-onevent]\");\\n\\\n\
+        if (\\n\\\n\
+            !evt.targetOnEvent\\n\\\n\
+            || evt.targetOnEvent.dataset.onevent === \"domOnEventNop\"\\n\\\n\
+            || evt.target.closest(\".disabled,.readonly\")\\n\\\n\
+        ) {\\n\\\n\
+            return;\\n\\\n\
+        }\\n\\\n\
+        // filter evt-change\\n\\\n\
+        switch (evt.type !== \"change\" && evt.target.type) {\\n\\\n\
+        case \"checkbox\":\\n\\\n\
+        case \"file\":\\n\\\n\
+        case \"select-one\":\\n\\\n\
+        case \"radio\":\\n\\\n\
+            return;\\n\\\n\
+        }\\n\\\n\
+        // filter evt-keyup\\n\\\n\
+        switch (evt.type) {\\n\\\n\
+        case \"keyup\":\\n\\\n\
+            if (!timerTimeout && (\\n\\\n\
+                evt.target.tagName === \"INPUT\"\\n\\\n\
+                || evt.target.tagName === \"TEXTAREA\"\\n\\\n\
+            )) {\\n\\\n\
+                timerTimeout = debounce();\\n\\\n\
+                if (evt.target.dataset.valueOld !== evt.target.value) {\\n\\\n\
+                    evt.target.dataset.valueOld = evt.target.value;\\n\\\n\
+                    break;\\n\\\n\
+                }\\n\\\n\
+            }\\n\\\n\
+            return;\\n\\\n\
+        }\\n\\\n\
+        switch (evt.targetOnEvent.tagName) {\\n\\\n\
+        case \"BUTTON\":\\n\\\n\
+        case \"FORM\":\\n\\\n\
+            evt.preventDefault();\\n\\\n\
+            break;\\n\\\n\
+        }\\n\\\n\
+        evt.stopPropagation();\\n\\\n\
+        // handle domOnEventClickTarget\\n\\\n\
+        if (evt.targetOnEvent.dataset.onevent === \"domOnEventClickTarget\") {\\n\\\n\
+            document.querySelector(\\n\\\n\
+                evt.targetOnEvent.dataset.clickTarget\\n\\\n\
+            ).click();\\n\\\n\
+            return;\\n\\\n\
+        }\\n\\\n\
+        window.domOnEventDelegateDict[evt.targetOnEvent.dataset.onevent](evt);\\n\\\n\
+    };\\n\\\n\
+    // handle evt\\n\\\n\
+    [\\n\\\n\
+        \"change\",\\n\\\n\
+        \"click\",\\n\\\n\
+        \"keyup\",\\n\\\n\
+        \"submit\"\\n\\\n\
+    ].forEach(function (eventType) {\\n\\\n\
+        document.addEventListener(\\n\\\n\
+            eventType,\\n\\\n\
+            window.domOnEventDelegateDict.domOnEventDelegate\\n\\\n\
+        );\\n\\\n\
+    });\\n\\\n\
+}());\\n\\\n\
+\\n\\\n\
+\\n\\\n\
+\\n\\\n\
+// init domOnEventSelectAllWithinPre\\n\\\n\
+(function () {\\n\\\n\
+/*\\n\\\n\
+ * this function will limit select-all within <pre tabIndex=\"0\"> elem\\n\\\n\
+ * https://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse\\n\\\n\
+ */\\n\\\n\
+    \"use strict\";\\n\\\n\
+    if (!(\\n\\\n\
+        typeof window === \"object\" && window && window.document\\n\\\n\
+        && typeof document.addEventListener === \"function\"\\n\\\n\
+    ) || window.domOnEventSelectAllWithinPre) {\\n\\\n\
+        return;\\n\\\n\
+    }\\n\\\n\
+    window.domOnEventSelectAllWithinPre = function (evt) {\\n\\\n\
+        let range;\\n\\\n\
+        let selection;\\n\\\n\
+        if (\\n\\\n\
+            evt && (evt.ctrlKey || evt.metaKey) && evt.key === \"a\"\\n\\\n\
+            && evt.target.closest(\"pre\")\\n\\\n\
+        ) {\\n\\\n\
+            range = document.createRange();\\n\\\n\
+            range.selectNodeContents(evt.target.closest(\"pre\"));\\n\\\n\
+            selection = window.getSelection();\\n\\\n\
+            selection.removeAllRanges();\\n\\\n\
+            selection.addRange(range);\\n\\\n\
+            evt.preventDefault();\\n\\\n\
+        }\\n\\\n\
+    };\\n\\\n\
+    // handle evt\\n\\\n\
+    document.addEventListener(\\n\\\n\
+        \"keydown\",\\n\\\n\
+        window.domOnEventSelectAllWithinPre\\n\\\n\
+    );\\n\\\n\
+}());\\n\\\n\
+</script>\\n\\\n\
+<h1>\\n\\\n\
+<!-- utility2-comment\\n\\\n\
+<a\\n\\\n\
+    {{#if env.npm_package_homepage}}\\n\\\n\
+    href=\"{{env.npm_package_homepage}}\"\\n\\\n\
+    {{/if env.npm_package_homepage}}\\n\\\n\
+    target=\"_blank\"\\n\\\n\
+>\\n\\\n\
+utility2-comment -->\\n\\\n\
+    {{env.npm_package_name}} ({{env.npm_package_version}})\\n\\\n\
+<!-- utility2-comment\\n\\\n\
+</a>\\n\\\n\
+utility2-comment -->\\n\\\n\
+</h1>\\n\\\n\
+<h3>{{env.npm_package_description}}</h3>\\n\\\n\
+<!-- utility2-comment\\n\\\n\
+<a class=\"button\" download href=\"assets.app.js\">download standalone app</a><br>\\n\\\n\
+<button class=\"button\" data-onevent=\"testRunBrowser\" id=\"buttonTestRun1\">run browser-tests</button><br>\\n\\\n\
+<div class=\"uiAnimateSlide\" id=\"htmlTestReport1\" style=\"border-bottom: 0; border-top: 0; margin-bottom: 0; margin-top: 0; max-height: 0; padding-bottom: 0; padding-top: 0;\"></div>\\n\\\n\
+utility2-comment -->\\n\\\n\
+\\n\\\n\
+\\n\\\n\
+\\n\\\n\
+<!-- custom-html-start -->\\n\\\n\
+<label>edit or paste script below to cover and test</label>\\n\\\n\
+<textarea class=\"textarea\" data-onevent=\"domOnEventInputChange\" id=\"inputTextarea1\">\\n\\\n\
+// remove comment below to disable jslint\\n\\\n\
+/*jslint browser, devel*/\\n\\\n\
+/*global window*/\\n\\\n\
+(function () {\\n\\\n\
+    \"use strict\";\\n\\\n\
+    var testCaseDict;\\n\\\n\
+    testCaseDict = {};\\n\\\n\
+    testCaseDict.modeTest = 1;\\n\\\n\
+\\n\\\n\
+    // comment this testCase to disable failed error demo\\n\\\n\
+    testCaseDict.testCase_failed_error_demo = function (opt, onError) {\\n\\\n\
+    /*\\n\\\n\
+     * this function will run a failed error demo\\n\\\n\
+     */\\n\\\n\
+        // hack-jslint\\n\\\n\
+        window.utility2.nop(opt);\\n\\\n\
+        onError(new Error(\"this is a failed error demo\"));\\n\\\n\
+    };\\n\\\n\
+\\n\\\n\
+    testCaseDict.testCase_passed_ajax_demo = function (opt, onError) {\\n\\\n\
+    /*\\n\\\n\
+     * this function will demo a passed ajax test\\n\\\n\
+     */\\n\\\n\
+        var data;\\n\\\n\
+        opt = {url: \"/\"};\\n\\\n\
+        // test ajax-req for main-page \"/\"\\n\\\n\
+        window.utility2.ajax(opt, function (err, xhr) {\\n\\\n\
+            try {\\n\\\n\
+                // handle err\\n\\\n\
+                console.assert(!err, err);\\n\\\n\
+                // validate \"200 ok\" status\\n\\\n\
+                console.assert(xhr.statusCode === 200, xhr.statusCode);\\n\\\n\
+                // validate non-empty data\\n\\\n\
+                data = xhr.responseText;\\n\\\n\
+                console.assert(data && data.length > 0, data);\\n\\\n\
+                onError();\\n\\\n\
+            } catch (errCaught) {\\n\\\n\
+                onError(errCaught);\\n\\\n\
+            }\\n\\\n\
+        });\\n\\\n\
+    };\\n\\\n\
+\\n\\\n\
+    window.utility2.testRunDefault(testCaseDict);\\n\\\n\
+}());\\n\\\n\
+</textarea>\\n\\\n\
+<button class=\"button\" data-onevent=\"domOnEventInputChange\" id=\"buttonJslintAutofix1\">jslint autofix</button><br>\\n\\\n\
+<pre class= \"colorError\" id=\"outputJslintPre1\" tabindex=\"0\"></pre>\\n\\\n\
+<label>instrumented-code</label>\\n\\\n\
+<textarea class=\"readonly textarea\" id=\"outputTextarea1\" readonly tabindex=\"0\"></textarea>\\n\\\n\
+<label>stderr and stdout</label>\\n\\\n\
+<textarea class=\"onevent-reset-output readonly textarea\" id=\"outputStdout1\" readonly></textarea>\\n\\\n\
+<div id=\"htmlTestReport2\"></div>\\n\\\n\
+<div id=\"htmlCoverageReport1\"></div>\\n\\\n\
+<script>\\n\\\n\
+/* jslint utility2:true */\\n\\\n\
+window.addEventListener(\"load\", function (local) {\\n\\\n\
+\"use strict\";\\n\\\n\
+local = window.utility2;\\n\\\n\
+local.querySelectorAll(\\n\\\n\
+    \"#buttonTestRun1, #htmlTestReport1\"\\n\\\n\
+).forEach(function (elem) {\\n\\\n\
+    elem.style.display = \"none\";\\n\\\n\
+});\\n\\\n\
+local.domOnEventInputChange = function (evt) {\\n\\\n\
+    switch (evt.type + \".\" + evt.target.id) {\\n\\\n\
+    case \"click.buttonJslintAutofix1\":\\n\\\n\
+    case \"keyup.inputTextarea1\":\\n\\\n\
+        // jslint #inputTextarea1\\n\\\n\
+        local.jslintAndPrint(local.querySelector(\\n\\\n\
+            \"#inputTextarea1\"\\n\\\n\
+        ).value, \"inputTextarea1.js\", {\\n\\\n\
+            autofix: evt.target.id === \"buttonJslintAutofix1\",\\n\\\n\
+            conditional: evt.target.id !== \"buttonJslintAutofix1\"\\n\\\n\
+        });\\n\\\n\
+        if (local.jslint.jslintResult.autofix) {\\n\\\n\
+            local.querySelector(\\n\\\n\
+                \"#inputTextarea1\"\\n\\\n\
+            ).value = local.jslint.jslintResult.code;\\n\\\n\
+        }\\n\\\n\
+        local.querySelector(\\n\\\n\
+            \"#outputJslintPre1\"\\n\\\n\
+        ).textContent = local.jslint.jslintResult.errMsg.replace((\\n\\\n\
+            /\\\\u001b\\\\[\\\\d*m/g\\n\\\n\
+        ), \"\").trim();\\n\\\n\
+        // try to cleanup __coverage__\\n\\\n\
+        try {\\n\\\n\
+            delete globalThis.__coverage__[\"/inputTextarea1.js\"];\\n\\\n\
+        } catch (ignore) {}\\n\\\n\
+        // try to cover and eval #inputTextarea1\\n\\\n\
+        try {\\n\\\n\
+            local.querySelector(\\n\\\n\
+                \"#outputTextarea1\"\\n\\\n\
+            ).value = local.istanbul.instrumentSync(\\n\\\n\
+                local.querySelector(\"#inputTextarea1\").value,\\n\\\n\
+                \"/inputTextarea1.js\"\\n\\\n\
+            );\\n\\\n\
+            eval( // jslint ignore:line\\n\\\n\
+                local.querySelector(\"#outputTextarea1\").value\\n\\\n\
+            );\\n\\\n\
+        } catch (errCaught) {\\n\\\n\
+            console.error(errCaught);\\n\\\n\
+        }\\n\\\n\
+        break;\\n\\\n\
+    }\\n\\\n\
+};\\n\\\n\
+// handle evt\\n\\\n\
+local.on(\"utility2.testRunEnd\", function () {\\n\\\n\
+    local.querySelector(\\n\\\n\
+        \"#htmlCoverageReport1\"\\n\\\n\
+    ).innerHTML = local.istanbul.coverageReportCreate({\\n\\\n\
+        coverage: globalThis.__coverage__\\n\\\n\
+    });\\n\\\n\
+});\\n\\\n\
+local.on(\"utility2.testRunProgressUpdate\", function (testReport) {\\n\\\n\
+    local.querySelector(\\n\\\n\
+        \"#htmlTestReport2\"\\n\\\n\
+    ).innerHTML = local.testReportMerge(testReport, {});\\n\\\n\
+});\\n\\\n\
+local.domOnEventInputChange({\\n\\\n\
+    target: {\\n\\\n\
+        id: \"inputTextarea1\"\\n\\\n\
+    },\\n\\\n\
+    type: \"keyup\"\\n\\\n\
+});\\n\\\n\
+});\\n\\\n\
+</script>\\n\\\n\
+<!-- custom-html-end -->\\n\\\n\
+\\n\\\n\
+\\n\\\n\
+\\n\\\n\
+<!-- utility2-comment\\n\\\n\
+{{#if isRollup}}\\n\\\n\
+<script src=\"assets.app.js\"></script>\\n\\\n\
+{{#unless isRollup}}\\n\\\n\
+utility2-comment -->\\n\\\n\
+<script src=\"assets.utility2.lib.istanbul.js\"></script>\\n\\\n\
+<script src=\"assets.utility2.lib.jslint.js\"></script>\\n\\\n\
+<script src=\"assets.utility2.lib.marked.js\"></script>\\n\\\n\
+<script src=\"assets.utility2.lib.sjcl.js\"></script>\\n\\\n\
+<script src=\"assets.utility2.js\"></script>\\n\\\n\
+<script>window.utility2_onReadyBefore.counter += 1;</script>\\n\\\n\
+<script src=\"jsonp.utility2.stateInit?callback=window.utility2.stateInit\"></script>\\n\\\n\
+<script src=\"assets.example.js\"></script>\\n\\\n\
+<script src=\"assets.test.js\"></script>\\n\\\n\
+<script>\\n\\\n\
+if (window.utility2_onReadyBefore) {\\n\\\n\
+    window.utility2_onReadyBefore();\\n\\\n\
+}\\n\\\n\
+</script>\\n\\\n\
+<!-- utility2-comment\\n\\\n\
+{{/if isRollup}}\\n\\\n\
+utility2-comment -->\\n\\\n\
+<div style=\"text-align: center;\">\\n\\\n\
+    [\\n\\\n\
+    this app was created with\\n\\\n\
+    <a\\n\\\n\
+        href=\"https://github.com/kaizhu256/node-utility2\" target=\"_blank\"\\n\\\n\
+    >utility2</a>\\n\\\n\
+    ]\\n\\\n\
+</div>\\n\\\n\
+</body>\\n\\\n\
+</html>\\n\\\n\
+';\n\
+/* jslint ignore:end */\n\
+local.assetsDict[\"/assets.utility2.js\"] = (\n\
+    local.assetsDict[\"/assets.utility2.js\"]\n\
+    || local.fs.readFileSync(\n\
+        local.__dirname + \"/lib.utility2.js\",\n\
+        \"utf8\"\n\
+    ).replace((\n\
+        /^#!\\//\n\
+    ), \"// \")\n\
+);\n\
+/* validateLineSortedReset */\n\
+local.assetsDict[\"/\"] = local.assetsDict[\n\
+    \"/assets.index.template.html\"\n\
+].replace((\n\
+    /\\{\\{env\\.(\\w+?)\\}\\}/g\n\
+), function (match0, match1) {\n\
+    switch (match1) {\n\
+    case \"npm_package_description\":\n\
+        return \"the greatest app in the world!\";\n\
+    case \"npm_package_name\":\n\
+        return \"utility2\";\n\
+    case \"npm_package_nameLib\":\n\
+        return \"utility2\";\n\
+    case \"npm_package_version\":\n\
+        return \"0.0.1\";\n\
+    default:\n\
+        return match0;\n\
+    }\n\
+});\n\
+local.assetsDict[\"/assets.example.html\"] = local.assetsDict[\"/\"];\n\
+// init cli\n\
+if (module !== require.main || globalThis.utility2_rollup) {\n\
+    return;\n\
+}\n\
+local.assetsDict[\"/assets.example.js\"] = (\n\
+    local.assetsDict[\"/assets.example.js\"]\n\
+    || local.fs.readFileSync(__filename, \"utf8\")\n\
+);\n\
+local.assetsDict[\"/favicon.ico\"] = local.assetsDict[\"/favicon.ico\"] || \"\";\n\
+local.assetsDict[\"/index.html\"] = local.assetsDict[\"/\"];\n\
+// if $npm_config_timeout_exit exists,\n\
+// then exit this process after $npm_config_timeout_exit ms\n\
+if (Number(process.env.npm_config_timeout_exit)) {\n\
+    setTimeout(process.exit, Number(process.env.npm_config_timeout_exit));\n\
+}\n\
+// start server\n\
+if (globalThis.utility2_serverHttp1) {\n\
+    return;\n\
+}\n\
+process.env.PORT = process.env.PORT || \"8081\";\n\
+console.error(\"http-server listening on port \" + process.env.PORT);\n\
+local.http.createServer(function (req, res) {\n\
+    req.urlParsed = local.url.parse(req.url);\n\
+    if (local.assetsDict[req.urlParsed.pathname] !== undefined) {\n\
+        res.end(local.assetsDict[req.urlParsed.pathname]);\n\
+        return;\n\
+    }\n\
+    res.statusCode = 404;\n\
+    res.end();\n\
+}).listen(process.env.PORT);\n\
+}());\n\
+}());\n\
+"
+/* jslint ignore:end */
+    return local;
+}(globalThis.utility2_rollup));
+/* script-end /assets.utility2.example.js */
+
+
+
+/* script-begin /assets.utility2.html */
+(function (local) {
+    "use strict";
+/* jslint ignore:start */
+local.assetsDict["/assets.utility2.html"] = "<!doctype html>\n\
+<html lang=\"en\">\n\
+<head>\n\
+<meta charset=\"utf-8\">\n\
+<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n\
+<!-- \"assets.utility2.template.html\" -->\n\
+<title>utility2 (0.0.1)</title>\n\
+<style>\n\
+/* jslint utility2:true */\n\
+/*csslint\n\
+*/\n\
+/* csslint ignore:start */\n\
+*,\n\
+*:after,\n\
+*:before {\n\
+    box-sizing: border-box;\n\
+}\n\
+/* csslint ignore:end */\n\
+@keyframes uiAnimateSpin {\n\
+0% {\n\
+    transform: rotate(0deg);\n\
+}\n\
+100% {\n\
+    transform: rotate(360deg);\n\
+}\n\
+}\n\
+a {\n\
+    overflow-wrap: break-word;\n\
+}\n\
+body {\n\
+    background: #f7f7f7;\n\
+    font-family: Arial, Helvetica, sans-serif;\n\
+    font-size: small;\n\
+    margin: 0 40px;\n\
+}\n\
+body > div,\n\
+body > input,\n\
+body > pre,\n\
+body > .button,\n\
+body > .textarea {\n\
+    margin-bottom: 20px;\n\
+    margin-top: 0;\n\
+}\n\
+body > input,\n\
+body > .button {\n\
+    width: 20rem;\n\
+}\n\
+body > .readonly {\n\
+    background: #ddd;\n\
+}\n\
+body > .textarea {\n\
+    height: 10rem;\n\
+    resize: vertical;\n\
+    width: 100%;\n\
+}\n\
+code,\n\
+pre,\n\
+.textarea {\n\
+    font-family: Consolas, Menlo, monospace;\n\
+    font-size: smaller;\n\
+}\n\
+pre {\n\
+    overflow-wrap: break-word;\n\
+    white-space: pre-wrap;\n\
+}\n\
+.button {\n\
+    background: #ddd;\n\
+    border: 1px solid #999;\n\
+    color: #000;\n\
+    cursor: pointer;\n\
+    display: inline-block;\n\
+    padding: 2px 5px;\n\
+    text-align: center;\n\
+    text-decoration: none;\n\
+}\n\
+.button:hover {\n\
+    background: #bbb;\n\
+}\n\
+.colorError {\n\
+    color: #d00;\n\
+}\n\
+.textarea {\n\
+    background: #fff;\n\
+    border: 1px solid #999;\n\
+    border-radius: 0;\n\
+    cursor: auto;\n\
+    overflow: auto;\n\
+    padding: 2px;\n\
+}\n\
+.uiAnimateSlide {\n\
+    overflow-y: hidden;\n\
+    transition: max-height ease-in 250ms, min-height ease-in 250ms, padding-bottom ease-in 250ms, padding-top ease-in 250ms;\n\
+}\n\
+.zeroPixel {\n\
+    border: 0;\n\
+    height: 0;\n\
+    margin: 0;\n\
+    padding: 0;\n\
+    width: 0;\n\
+}\n\
+</style>\n\
+</head>\n\
+<body>\n\
+<div class=\"uiAnimateSpin\" style=\"animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;\"></div>\n\
+<script>\n\
+/* jslint utility2:true */\n\
+// init domOnEventWindowOnloadTimeElapsed\n\
+(function () {\n\
+/*\n\
+ * this function will measure and print time-elapsed for window.onload\n\
+ */\n\
+    \"use strict\";\n\
+    if (!(\n\
+        typeof window === \"object\" && window && window.document\n\
+        && typeof document.addEventListener === \"function\"\n\
+    ) || window.domOnEventWindowOnloadTimeElapsed) {\n\
+        return;\n\
+    }\n\
+    window.domOnEventWindowOnloadTimeElapsed = Date.now() + 100;\n\
+    window.addEventListener(\"load\", function () {\n\
+        setTimeout(function () {\n\
+            window.domOnEventWindowOnloadTimeElapsed = (\n\
+                Date.now()\n\
+                - window.domOnEventWindowOnloadTimeElapsed\n\
+            );\n\
+            console.error(\n\
+                \"domOnEventWindowOnloadTimeElapsed = \"\n\
+                + window.domOnEventWindowOnloadTimeElapsed\n\
+            );\n\
+        }, 100);\n\
+    });\n\
+}());\n\
+\n\
+\n\
+\n\
+// init domOnEventAjaxProgressUpdate\n\
+(function () {\n\
+/*\n\
+ * this function will display incrementing ajax-progress-bar\n\
+ */\n\
+    \"use strict\";\n\
+    let opt;\n\
+    if (!(\n\
+        typeof window === \"object\" && window && window.document\n\
+        && typeof document.addEventListener === \"function\"\n\
+    ) || window.domOnEventAjaxProgressUpdate) {\n\
+        return;\n\
+    }\n\
+    window.domOnEventAjaxProgressUpdate = function (gotoState, onError) {\n\
+        gotoState = (gotoState | 0) + 1;\n\
+        switch (gotoState) {\n\
+        // ajaxProgress - show\n\
+        case 1:\n\
+            // init timerInterval and timerTimeout\n\
+            opt.timerInterval = (\n\
+                opt.timerInterval || setInterval(opt, 2000, 1, onError)\n\
+            );\n\
+            opt.timerTimeout = (\n\
+                opt.timerTimeout || setTimeout(opt, 30000, 2, onError)\n\
+            );\n\
+            // show ajaxProgress\n\
+            if (opt.width !== -1) {\n\
+                opt.style.background = opt.background;\n\
+            }\n\
+            setTimeout(opt, 50, gotoState, onError);\n\
+            break;\n\
+        // ajaxProgress - increment\n\
+        case 2:\n\
+            // show ajaxProgress\n\
+            if (opt.width === -1) {\n\
+                return;\n\
+            }\n\
+            opt.style.background = opt.background;\n\
+            // reset ajaxProgress if it goes too high\n\
+            if ((opt.style.width.slice(0, -1) | 0) > 95) {\n\
+                opt.width = 0;\n\
+            }\n\
+            // this algorithm will indefinitely increment ajaxProgress\n\
+            // with successively smaller increments without reaching 100%\n\
+            opt.width += 1;\n\
+            opt.style.width = Math.max(\n\
+                100 - 75 * Math.exp(-0.125 * opt.width),\n\
+                opt.style.width.slice(0, -1) | 0\n\
+            ) + \"%\";\n\
+            if (!opt.counter) {\n\
+                setTimeout(opt, 0, gotoState, onError);\n\
+            }\n\
+            break;\n\
+        // ajaxProgress - 100%\n\
+        case 3:\n\
+            opt.width = -1;\n\
+            opt.style.width = \"100%\";\n\
+            setTimeout(opt, 1000, gotoState, onError);\n\
+            break;\n\
+        // ajaxProgress - hide\n\
+        case 4:\n\
+            // cleanup timerInterval and timerTimeout\n\
+            clearInterval(opt.timerInterval);\n\
+            opt.timerInterval = null;\n\
+            clearTimeout(opt.timerTimeout);\n\
+            opt.timerTimeout = null;\n\
+            // hide ajaxProgress\n\
+            opt.style.background = \"transparent\";\n\
+            if (onError) {\n\
+                onError();\n\
+            }\n\
+            setTimeout(opt, 250, gotoState);\n\
+            break;\n\
+        // ajaxProgress - reset\n\
+        default:\n\
+            // reset ajaxProgress\n\
+            opt.counter = 0;\n\
+            opt.width = 0;\n\
+            opt.style.width = \"0%\";\n\
+        }\n\
+    };\n\
+    opt = window.domOnEventAjaxProgressUpdate;\n\
+    opt.end = function (onError) {\n\
+        opt.counter = 0;\n\
+        window.domOnEventAjaxProgressUpdate(2, onError);\n\
+    };\n\
+    opt.elem = document.getElementById(\"domElementAjaxProgress1\");\n\
+    if (!opt.elem) {\n\
+        opt.elem = document.createElement(\"div\");\n\
+        setTimeout(function () {\n\
+            document.body.insertBefore(opt.elem, document.body.firstChild);\n\
+        });\n\
+    }\n\
+    opt.elem.id = \"domElementAjaxProgress1\";\n\
+    opt.style = opt.elem.style;\n\
+    // init style\n\
+    Object.entries({\n\
+        background: \"#d00\",\n\
+        height: \"2px\",\n\
+        left: \"0\",\n\
+        margin: \"0\",\n\
+        padding: \"0\",\n\
+        position: \"fixed\",\n\
+        top: \"0\",\n\
+        transition: \"background 250ms, width 750ms\",\n\
+        width: \"0%\",\n\
+        \"z-index\": \"1\"\n\
+    }).forEach(function (entry) {\n\
+        opt.style[entry[0]] = opt.style[entry[0]] || entry[1];\n\
+    });\n\
+    // init state\n\
+    opt.background = opt.style.background;\n\
+    opt.counter = 0;\n\
+    opt.width = 0;\n\
+}());\n\
+\n\
+\n\
+\n\
+// init domOnEventDelegateDict\n\
+(function () {\n\
+/*\n\
+ * this function will handle delegated dom-evt\n\
+ */\n\
+    \"use strict\";\n\
+    let debounce;\n\
+    let timerTimeout;\n\
+    debounce = function () {\n\
+        return setTimeout(function () {\n\
+            timerTimeout = undefined;\n\
+        }, 30);\n\
+    };\n\
+    if (!(\n\
+        typeof window === \"object\" && window && window.document\n\
+        && typeof document.addEventListener === \"function\"\n\
+    ) || window.domOnEventDelegateDict) {\n\
+        return;\n\
+    }\n\
+    window.domOnEventDelegateDict = {};\n\
+    window.domOnEventDelegateDict.domOnEventDelegate = function (evt) {\n\
+        evt.targetOnEvent = evt.target.closest(\"[data-onevent]\");\n\
+        if (\n\
+            !evt.targetOnEvent\n\
+            || evt.targetOnEvent.dataset.onevent === \"domOnEventNop\"\n\
+            || evt.target.closest(\".disabled,.readonly\")\n\
+        ) {\n\
+            return;\n\
+        }\n\
+        // filter evt-change\n\
+        switch (evt.type !== \"change\" && evt.target.type) {\n\
+        case \"checkbox\":\n\
+        case \"file\":\n\
+        case \"select-one\":\n\
+        case \"radio\":\n\
+            return;\n\
+        }\n\
+        // filter evt-keyup\n\
+        switch (evt.type) {\n\
+        case \"keyup\":\n\
+            if (!timerTimeout && (\n\
+                evt.target.tagName === \"INPUT\"\n\
+                || evt.target.tagName === \"TEXTAREA\"\n\
+            )) {\n\
+                timerTimeout = debounce();\n\
+                if (evt.target.dataset.valueOld !== evt.target.value) {\n\
+                    evt.target.dataset.valueOld = evt.target.value;\n\
+                    break;\n\
+                }\n\
+            }\n\
+            return;\n\
+        }\n\
+        switch (evt.targetOnEvent.tagName) {\n\
+        case \"BUTTON\":\n\
+        case \"FORM\":\n\
+            evt.preventDefault();\n\
+            break;\n\
+        }\n\
+        evt.stopPropagation();\n\
+        // handle domOnEventClickTarget\n\
+        if (evt.targetOnEvent.dataset.onevent === \"domOnEventClickTarget\") {\n\
+            document.querySelector(\n\
+                evt.targetOnEvent.dataset.clickTarget\n\
+            ).click();\n\
+            return;\n\
+        }\n\
+        window.domOnEventDelegateDict[evt.targetOnEvent.dataset.onevent](evt);\n\
+    };\n\
+    // handle evt\n\
+    [\n\
+        \"change\",\n\
+        \"click\",\n\
+        \"keyup\",\n\
+        \"submit\"\n\
+    ].forEach(function (eventType) {\n\
+        document.addEventListener(\n\
+            eventType,\n\
+            window.domOnEventDelegateDict.domOnEventDelegate\n\
+        );\n\
+    });\n\
+}());\n\
+\n\
+\n\
+\n\
+// init domOnEventSelectAllWithinPre\n\
+(function () {\n\
+/*\n\
+ * this function will limit select-all within <pre tabIndex=\"0\"> elem\n\
+ * https://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse\n\
+ */\n\
+    \"use strict\";\n\
+    if (!(\n\
+        typeof window === \"object\" && window && window.document\n\
+        && typeof document.addEventListener === \"function\"\n\
+    ) || window.domOnEventSelectAllWithinPre) {\n\
+        return;\n\
+    }\n\
+    window.domOnEventSelectAllWithinPre = function (evt) {\n\
+        let range;\n\
+        let selection;\n\
+        if (\n\
+            evt && (evt.ctrlKey || evt.metaKey) && evt.key === \"a\"\n\
+            && evt.target.closest(\"pre\")\n\
+        ) {\n\
+            range = document.createRange();\n\
+            range.selectNodeContents(evt.target.closest(\"pre\"));\n\
+            selection = window.getSelection();\n\
+            selection.removeAllRanges();\n\
+            selection.addRange(range);\n\
+            evt.preventDefault();\n\
+        }\n\
+    };\n\
+    // handle evt\n\
+    document.addEventListener(\n\
+        \"keydown\",\n\
+        window.domOnEventSelectAllWithinPre\n\
+    );\n\
+}());\n\
+</script>\n\
+<h1>\n\
+\n\
+<a\n\
+    \n\
+    href=\"https://github.com/kaizhu256/node-utility2\"\n\
+    \n\
+    target=\"_blank\"\n\
+>\n\
+\n\
+    utility2 (0.0.1)\n\
+\n\
+</a>\n\
+\n\
+</h1>\n\
+<h3>this zero-dependency package will provide high-level functions to to build, test, and deploy webapps</h3>\n\
+\n\
+<a class=\"button\" download href=\"assets.app.js\">download standalone app</a><br>\n\
+<button class=\"button\" data-onevent=\"testRunBrowser\" id=\"buttonTestRun1\">run browser-tests</button><br>\n\
+<div class=\"uiAnimateSlide\" id=\"htmlTestReport1\" style=\"border-bottom: 0; border-top: 0; margin-bottom: 0; margin-top: 0; max-height: 0; padding-bottom: 0; padding-top: 0;\"></div>\n\
+\n\
+\n\
+\n\
+\n\
+<!-- custom-html-start -->\n\
+<label>edit or paste script below to cover and test</label>\n\
+<textarea class=\"textarea\" data-onevent=\"domOnEventInputChange\" id=\"inputTextarea1\">\n\
+// remove comment below to disable jslint\n\
+/*jslint browser, devel*/\n\
+/*global window*/\n\
+(function () {\n\
+    \"use strict\";\n\
+    var testCaseDict;\n\
+    testCaseDict = {};\n\
+    testCaseDict.modeTest = 1;\n\
+\n\
+    // comment this testCase to disable failed error demo\n\
+    testCaseDict.testCase_failed_error_demo = function (opt, onError) {\n\
+    /*\n\
+     * this function will run a failed error demo\n\
+     */\n\
+        // hack-jslint\n\
+        window.utility2.nop(opt);\n\
+        onError(new Error(\"this is a failed error demo\"));\n\
+    };\n\
+\n\
+    testCaseDict.testCase_passed_ajax_demo = function (opt, onError) {\n\
+    /*\n\
+     * this function will demo a passed ajax test\n\
+     */\n\
+        var data;\n\
+        opt = {url: \"/\"};\n\
+        // test ajax-req for main-page \"/\"\n\
+        window.utility2.ajax(opt, function (err, xhr) {\n\
+            try {\n\
+                // handle err\n\
+                console.assert(!err, err);\n\
+                // validate \"200 ok\" status\n\
+                console.assert(xhr.statusCode === 200, xhr.statusCode);\n\
+                // validate non-empty data\n\
+                data = xhr.responseText;\n\
+                console.assert(data && data.length > 0, data);\n\
+                onError();\n\
+            } catch (errCaught) {\n\
+                onError(errCaught);\n\
+            }\n\
+        });\n\
+    };\n\
+\n\
+    window.utility2.testRunDefault(testCaseDict);\n\
+}());\n\
+</textarea>\n\
+<button class=\"button\" data-onevent=\"domOnEventInputChange\" id=\"buttonJslintAutofix1\">jslint autofix</button><br>\n\
+<pre class= \"colorError\" id=\"outputJslintPre1\" tabindex=\"0\"></pre>\n\
+<label>instrumented-code</label>\n\
+<textarea class=\"readonly textarea\" id=\"outputTextarea1\" readonly tabindex=\"0\"></textarea>\n\
+<label>stderr and stdout</label>\n\
+<textarea class=\"onevent-reset-output readonly textarea\" id=\"outputStdout1\" readonly></textarea>\n\
+<div id=\"htmlTestReport2\"></div>\n\
+<div id=\"htmlCoverageReport1\"></div>\n\
+<script>\n\
+/* jslint utility2:true */\n\
+window.addEventListener(\"load\", function (local) {\n\
+\"use strict\";\n\
+local = window.utility2;\n\
+local.querySelectorAll(\n\
+    \"#buttonTestRun1, #htmlTestReport1\"\n\
+).forEach(function (elem) {\n\
+    elem.style.display = \"none\";\n\
+});\n\
+local.domOnEventInputChange = function (evt) {\n\
+    switch (evt.type + \".\" + evt.target.id) {\n\
+    case \"click.buttonJslintAutofix1\":\n\
+    case \"keyup.inputTextarea1\":\n\
+        // jslint #inputTextarea1\n\
+        local.jslintAndPrint(local.querySelector(\n\
+            \"#inputTextarea1\"\n\
+        ).value, \"inputTextarea1.js\", {\n\
+            autofix: evt.target.id === \"buttonJslintAutofix1\",\n\
+            conditional: evt.target.id !== \"buttonJslintAutofix1\"\n\
+        });\n\
+        if (local.jslint.jslintResult.autofix) {\n\
+            local.querySelector(\n\
+                \"#inputTextarea1\"\n\
+            ).value = local.jslint.jslintResult.code;\n\
+        }\n\
+        local.querySelector(\n\
+            \"#outputJslintPre1\"\n\
+        ).textContent = local.jslint.jslintResult.errMsg.replace((\n\
+            /\\\\u001b\\\\[\\\\d*m/g\n\
+        ), \"\").trim();\n\
+        // try to cleanup __coverage__\n\
+        try {\n\
+            delete globalThis.__coverage__[\"/inputTextarea1.js\"];\n\
+        } catch (ignore) {}\n\
+        // try to cover and eval #inputTextarea1\n\
+        try {\n\
+            local.querySelector(\n\
+                \"#outputTextarea1\"\n\
+            ).value = local.istanbul.instrumentSync(\n\
+                local.querySelector(\"#inputTextarea1\").value,\n\
+                \"/inputTextarea1.js\"\n\
+            );\n\
+            eval( // jslint ignore:line\n\
+                local.querySelector(\"#outputTextarea1\").value\n\
+            );\n\
+        } catch (errCaught) {\n\
+            console.error(errCaught);\n\
+        }\n\
+        break;\n\
+    }\n\
+};\n\
+// handle evt\n\
+local.on(\"utility2.testRunEnd\", function () {\n\
+    local.querySelector(\n\
+        \"#htmlCoverageReport1\"\n\
+    ).innerHTML = local.istanbul.coverageReportCreate({\n\
+        coverage: globalThis.__coverage__\n\
+    });\n\
+});\n\
+local.on(\"utility2.testRunProgressUpdate\", function (testReport) {\n\
+    local.querySelector(\n\
+        \"#htmlTestReport2\"\n\
+    ).innerHTML = local.testReportMerge(testReport, {});\n\
+});\n\
+local.domOnEventInputChange({\n\
+    target: {\n\
+        id: \"inputTextarea1\"\n\
+    },\n\
+    type: \"keyup\"\n\
+});\n\
+});\n\
+</script>\n\
+<!-- custom-html-end -->\n\
+\n\
+\n\
+\n\
+\n\
+\n\
+<script src=\"assets.utility2.rollup.js\"></script>\n\
+<script src=\"assets.utility2.example.js\"></script>\n\
+<script src=\"assets.utility2.test.js\"></script>\n\
+\n\
+\n\
+<div style=\"text-align: center;\">\n\
+    [\n\
+    this app was created with\n\
+    <a\n\
+        href=\"https://github.com/kaizhu256/node-utility2\" target=\"_blank\"\n\
+    >utility2</a>\n\
+    ]\n\
+</div>\n\
+</body>\n\
+</html>\n\
+"
+/* jslint ignore:end */
+    return local;
+}(globalThis.utility2_rollup));
+/* script-end /assets.utility2.html */
+
+
+
+/* script-begin /assets.utility2.test.js */
+(function (local) {
+    "use strict";
+/* jslint ignore:start */
+local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in package utility2 */\n\
+// assets.utility2.header.js - start\n\
+/* istanbul ignore next */\n\
+/* jslint utility2:true */\n\
+(function (globalThis) {\n\
+    \"use strict\";\n\
+    let ArrayPrototypeFlat;\n\
+    let TextXxcoder;\n\
+    let consoleError;\n\
+    let debugName;\n\
+    let local;\n\
+    debugName = \"debug\" + String(\"Inline\");\n\
+    // init globalThis\n\
+    globalThis.globalThis = globalThis.globalThis || globalThis;\n\
+    // init debug_inline\n\
+    if (!globalThis[debugName]) {\n\
+        consoleError = console.error;\n\
+        globalThis[debugName] = function (...argList) {\n\
+        /*\n\
+         * this function will both print <argList> to stderr\n\
+         * and return <argList>[0]\n\
+         */\n\
+            consoleError(\"\\n\\n\" + debugName);\n\
+            consoleError.apply(console, argList);\n\
+            consoleError(\"\\n\");\n\
+            // return arg0 for inspection\n\
+            return argList[0];\n\
+        };\n\
+    }\n\
+    // polyfill\n\
+    ArrayPrototypeFlat = function (depth) {\n\
+    /*\n\
+     * this function will polyfill Array.prototype.flat\n\
+     * https://github.com/jonathantneal/array-flat-polyfill\n\
+     */\n\
+        depth = (\n\
+            globalThis.isNaN(depth)\n\
+            ? 1\n\
+            : Number(depth)\n\
+        );\n\
+        if (!depth) {\n\
+            return Array.prototype.slice.call(this);\n\
+        }\n\
+        return Array.prototype.reduce.call(this, function (acc, cur) {\n\
+            if (Array.isArray(cur)) {\n\
+                // recurse\n\
+                acc.push.apply(acc, ArrayPrototypeFlat.call(cur, depth - 1));\n\
+            } else {\n\
+                acc.push(cur);\n\
+            }\n\
+            return acc;\n\
+        }, []);\n\
+    };\n\
+    Array.prototype.flat = Array.prototype.flat || ArrayPrototypeFlat;\n\
+    Array.prototype.flatMap = Array.prototype.flatMap || function flatMap(\n\
+        ...argList\n\
+    ) {\n\
+    /*\n\
+     * this function will polyfill Array.prototype.flatMap\n\
+     * https://github.com/jonathantneal/array-flat-polyfill\n\
+     */\n\
+        return this.map(...argList).flat();\n\
+    };\n\
+    String.prototype.trimEnd = (\n\
+        String.prototype.trimEnd || String.prototype.trimRight\n\
+    );\n\
+    String.prototype.trimStart = (\n\
+        String.prototype.trimStart || String.prototype.trimLeft\n\
+    );\n\
+    (function () {\n\
+        try {\n\
+            globalThis.TextDecoder = (\n\
+                globalThis.TextDecoder || require(\"util\").TextDecoder\n\
+            );\n\
+            globalThis.TextEncoder = (\n\
+                globalThis.TextEncoder || require(\"util\").TextEncoder\n\
+            );\n\
+        } catch (ignore) {}\n\
+    }());\n\
+    TextXxcoder = function () {\n\
+    /*\n\
+     * this function will polyfill TextDecoder/TextEncoder\n\
+     * https://gist.github.com/Yaffle/5458286\n\
+     */\n\
+        return;\n\
+    };\n\
+    TextXxcoder.prototype.decode = function (octets) {\n\
+    /*\n\
+     * this function will polyfill TextDecoder.prototype.decode\n\
+     * https://gist.github.com/Yaffle/5458286\n\
+     */\n\
+        let bytesNeeded;\n\
+        let codePoint;\n\
+        let ii;\n\
+        let kk;\n\
+        let octet;\n\
+        let string;\n\
+        string = \"\";\n\
+        ii = 0;\n\
+        while (ii < octets.length) {\n\
+            octet = octets[ii];\n\
+            bytesNeeded = 0;\n\
+            codePoint = 0;\n\
+            if (octet <= 0x7F) {\n\
+                bytesNeeded = 0;\n\
+                codePoint = octet & 0xFF;\n\
+            } else if (octet <= 0xDF) {\n\
+                bytesNeeded = 1;\n\
+                codePoint = octet & 0x1F;\n\
+            } else if (octet <= 0xEF) {\n\
+                bytesNeeded = 2;\n\
+                codePoint = octet & 0x0F;\n\
+            } else if (octet <= 0xF4) {\n\
+                bytesNeeded = 3;\n\
+                codePoint = octet & 0x07;\n\
+            }\n\
+            if (octets.length - ii - bytesNeeded > 0) {\n\
+                kk = 0;\n\
+                while (kk < bytesNeeded) {\n\
+                    octet = octets[ii + kk + 1];\n\
+                    codePoint = (codePoint << 6) | (octet & 0x3F);\n\
+                    kk += 1;\n\
+                }\n\
+            } else {\n\
+                codePoint = 0xFFFD;\n\
+                bytesNeeded = octets.length - ii;\n\
+            }\n\
+            string += String.fromCodePoint(codePoint);\n\
+            ii += bytesNeeded + 1;\n\
+        }\n\
+        return string;\n\
+    };\n\
+    TextXxcoder.prototype.encode = function (string) {\n\
+    /*\n\
+     * this function will polyfill TextEncoder.prototype.encode\n\
+     * https://gist.github.com/Yaffle/5458286\n\
+     */\n\
+        let bits;\n\
+        let cc;\n\
+        let codePoint;\n\
+        let ii;\n\
+        let length;\n\
+        let octets;\n\
+        octets = [];\n\
+        length = string.length;\n\
+        ii = 0;\n\
+        while (ii < length) {\n\
+            codePoint = string.codePointAt(ii);\n\
+            cc = 0;\n\
+            bits = 0;\n\
+            if (codePoint <= 0x0000007F) {\n\
+                cc = 0;\n\
+                bits = 0x00;\n\
+            } else if (codePoint <= 0x000007FF) {\n\
+                cc = 6;\n\
+                bits = 0xC0;\n\
+            } else if (codePoint <= 0x0000FFFF) {\n\
+                cc = 12;\n\
+                bits = 0xE0;\n\
+            } else if (codePoint <= 0x001FFFFF) {\n\
+                cc = 18;\n\
+                bits = 0xF0;\n\
+            }\n\
+            octets.push(bits | (codePoint >> cc));\n\
+            cc -= 6;\n\
+            while (cc >= 0) {\n\
+                octets.push(0x80 | ((codePoint >> cc) & 0x3F));\n\
+                cc -= 6;\n\
+            }\n\
+            ii += (\n\
+                codePoint >= 0x10000\n\
+                ? 2\n\
+                : 1\n\
+            );\n\
+        }\n\
+        return octets;\n\
+    };\n\
+    globalThis.TextDecoder = globalThis.TextDecoder || TextXxcoder;\n\
+    globalThis.TextEncoder = globalThis.TextEncoder || TextXxcoder;\n\
+    // init local\n\
+    local = {};\n\
+    local.local = local;\n\
+    globalThis.globalLocal = local;\n\
+    // init isBrowser\n\
+    local.isBrowser = (\n\
+        typeof globalThis.XMLHttpRequest === \"function\"\n\
+        && globalThis.navigator\n\
+        && typeof globalThis.navigator.userAgent === \"string\"\n\
+    );\n\
+    // init isWebWorker\n\
+    local.isWebWorker = (\n\
+        local.isBrowser && typeof globalThis.importScript === \"function\"\n\
+    );\n\
+    // init function\n\
+    local.assertOrThrow = function (passed, message) {\n\
+    /*\n\
+     * this function will throw err.<message> if <passed> is falsy\n\
+     */\n\
+        let err;\n\
+        if (passed) {\n\
+            return;\n\
+        }\n\
+        err = (\n\
+            (\n\
+                message\n\
+                && typeof message.message === \"string\"\n\
+                && typeof message.stack === \"string\"\n\
+            )\n\
+            // if message is errObj, then leave as is\n\
+            ? message\n\
+            : new Error(\n\
+                typeof message === \"string\"\n\
+                // if message is a string, then leave as is\n\
+                ? message\n\
+                // else JSON.stringify message\n\
+                : JSON.stringify(message, undefined, 4)\n\
+            )\n\
+        );\n\
+        throw err;\n\
+    };\n\
+    local.coalesce = function (...argList) {\n\
+    /*\n\
+     * this function will coalesce null, undefined, or \"\" in <argList>\n\
+     */\n\
+        let arg;\n\
+        let ii;\n\
+        ii = 0;\n\
+        while (ii < argList.length) {\n\
+            arg = argList[ii];\n\
+            if (arg !== null && arg !== undefined && arg !== \"\") {\n\
+                break;\n\
+            }\n\
+            ii += 1;\n\
+        }\n\
+        return arg;\n\
+    };\n\
+    local.fsRmrfSync = function (dir) {\n\
+    /*\n\
+     * this function will sync \"rm -rf\" <dir>\n\
+     */\n\
+        let child_process;\n\
+        try {\n\
+            child_process = require(\"child_process\");\n\
+        } catch (ignore) {\n\
+            return;\n\
+        }\n\
+        child_process.spawnSync(\"rm\", [\n\
+            \"-rf\", dir\n\
+        ], {\n\
+            stdio: [\n\
+                \"ignore\", 1, 2\n\
+            ]\n\
+        });\n\
+    };\n\
+    local.fsWriteFileWithMkdirpSync = function (file, data) {\n\
+    /*\n\
+     * this function will sync write <data> to <file> with \"mkdir -p\"\n\
+     */\n\
+        let fs;\n\
+        try {\n\
+            fs = require(\"fs\");\n\
+        } catch (ignore) {\n\
+            return;\n\
+        }\n\
+        // try to write file\n\
+        try {\n\
+            fs.writeFileSync(file, data);\n\
+        } catch (ignore) {\n\
+            // mkdir -p\n\
+            require(\"child_process\").spawnSync(\n\
+                \"mkdir\",\n\
+                [\n\
+                    \"-p\", require(\"path\").dirname(file)\n\
+                ],\n\
+                {\n\
+                    stdio: [\n\
+                        \"ignore\", 1, 2\n\
+                    ]\n\
+                }\n\
+            );\n\
+            // rewrite file\n\
+            fs.writeFileSync(file, data);\n\
+        }\n\
+    };\n\
+    local.functionOrNop = function (fnc) {\n\
+    /*\n\
+     * this function will if <fnc> exists,\n\
+     * return <fnc>,\n\
+     * else return <nop>\n\
+     */\n\
+        return fnc || local.nop;\n\
+    };\n\
+    local.identity = function (val) {\n\
+    /*\n\
+     * this function will return <val>\n\
+     */\n\
+        return val;\n\
+    };\n\
+    local.nop = function () {\n\
+    /*\n\
+     * this function will do nothing\n\
+     */\n\
+        return;\n\
+    };\n\
+    local.objectAssignDefault = function (target, source) {\n\
+    /*\n\
+     * this function will if items from <target> are null, undefined, or \"\",\n\
+     * then overwrite them with items from <source>\n\
+     */\n\
+        target = target || {};\n\
+        Object.keys(source || {}).forEach(function (key) {\n\
+            if (\n\
+                target[key] === null\n\
+                || target[key] === undefined\n\
+                || target[key] === \"\"\n\
+            ) {\n\
+                target[key] = target[key] || source[key];\n\
+            }\n\
+        });\n\
+        return target;\n\
+    };\n\
+    local.querySelector = function (selectors) {\n\
+    /*\n\
+     * this function will return first dom-elem that match <selectors>\n\
+     */\n\
+        return (\n\
+            typeof document === \"object\" && document\n\
+            && typeof document.querySelector === \"function\"\n\
+            && document.querySelector(selectors)\n\
+        ) || {};\n\
+    };\n\
+    local.querySelectorAll = function (selectors) {\n\
+    /*\n\
+     * this function will return dom-elem-list that match <selectors>\n\
+     */\n\
+        return (\n\
+            typeof document === \"object\" && document\n\
+            && typeof document.querySelectorAll === \"function\"\n\
+            && Array.from(document.querySelectorAll(selectors))\n\
+        ) || [];\n\
+    };\n\
+    // require builtin\n\
+    if (!local.isBrowser) {\n\
+        local.assert = require(\"assert\");\n\
+        local.buffer = require(\"buffer\");\n\
+        local.child_process = require(\"child_process\");\n\
+        local.cluster = require(\"cluster\");\n\
+        local.crypto = require(\"crypto\");\n\
+        local.dgram = require(\"dgram\");\n\
+        local.dns = require(\"dns\");\n\
+        local.domain = require(\"domain\");\n\
+        local.events = require(\"events\");\n\
+        local.fs = require(\"fs\");\n\
+        local.http = require(\"http\");\n\
+        local.https = require(\"https\");\n\
+        local.net = require(\"net\");\n\
+        local.os = require(\"os\");\n\
+        local.path = require(\"path\");\n\
+        local.querystring = require(\"querystring\");\n\
+        local.readline = require(\"readline\");\n\
+        local.repl = require(\"repl\");\n\
+        local.stream = require(\"stream\");\n\
+        local.string_decoder = require(\"string_decoder\");\n\
+        local.timers = require(\"timers\");\n\
+        local.tls = require(\"tls\");\n\
+        local.tty = require(\"tty\");\n\
+        local.url = require(\"url\");\n\
+        local.util = require(\"util\");\n\
+        local.vm = require(\"vm\");\n\
+        local.zlib = require(\"zlib\");\n\
+    }\n\
+}((typeof globalThis === \"object\" && globalThis) || (function () {\n\
+    return Function(\"return this\")(); // jslint ignore:line\n\
+}())));\n\
+// assets.utility2.header.js - end\n\
+\n\
+\n\
+\n\
+/* istanbul ignore next */\n\
+/* jslint utility2:true */\n\
+(function (local) {\n\
+\"use strict\";\n\
+\n\
+\n\
+\n\
+// run shared js-env code - init-before\n\
+(function () {\n\
+// init local\n\
+local = globalThis.utility2 || require(\"./lib.utility2.js\");\n\
+local = local.requireReadme();\n\
 globalThis.local = local;\n\
 // init test\n\
 local.testRunDefault(local);\n\
@@ -64870,35 +65620,6 @@ local.testRunDefault(local);\n\
 \n\
 // run shared js-env code - function\n\
 (function () {\n\
-local._testCase_testRunDefault_failure = function (opt, onError) {\n\
-/*\n\
- * this function will test testRunDefault's failure handling-behavior\n\
- */\n\
-    // test failure from callback handling-behavior\n\
-    onError(local.errDefault);\n\
-    // test failure from multiple-callback handling-behavior\n\
-    onError(null, opt);\n\
-    // test failure from ajax handling-behavior\n\
-    local.ajax({\n\
-        url: \"/undefined\"\n\
-    }, onError);\n\
-    // test failure from uncaught-uncaughtexception handling-behavior\n\
-    setTimeout(local.throwError);\n\
-    // test console.error handling-behavior\n\
-    local.testMock([\n\
-        [\n\
-            globalThis, {\n\
-                __coverage__: null\n\
-            }\n\
-        ]\n\
-    ], function (onError) {\n\
-        console.error();\n\
-        onError(null, opt);\n\
-    }, local.onErrorThrow);\n\
-    // test failure from thrown err handling-behavior\n\
-    throw local.errDefault;\n\
-};\n\
-\n\
 local.testCase_FormData_default = function (opt, onError) {\n\
 /*\n\
  * this function will test FormData's default handling-behavior\n\
@@ -64921,7 +65642,7 @@ local.testCase_FormData_default = function (opt, onError) {\n\
     opt.method = \"POST\";\n\
     opt.url = \"/test.echo\";\n\
     local.ajax(opt, function (err, xhr) {\n\
-        // validate no err occurred\n\
+        // handle err\n\
         local.assertOrThrow(!err, err);\n\
         // validate responseText\n\
         local.assertOrThrow(xhr.responseText.indexOf(\n\
@@ -64937,7 +65658,7 @@ local.testCase_FormData_default = function (opt, onError) {\n\
             + \"filename=\\\"filename2.txt\\\"\\r\\nContent-Type: text/plain; \"\n\
             + \"charset=utf-8\\r\\n\\r\\naabbhello \\ud83d\\ude01\\n0\\r\\n\"\n\
         ) >= 0, xhr.responseText);\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
     });\n\
 };\n\
 \n\
@@ -64959,9 +65680,9 @@ local.testCase_FormData_err = function (opt, onError) {\n\
             method: \"POST\",\n\
             url: \"/test.echo\"\n\
         }, function (err) {\n\
-            // validate err occurred\n\
+            // handle err\n\
             local.assertOrThrow(err, err);\n\
-            onError(null, opt);\n\
+            onError(undefined, opt);\n\
         });\n\
     }, onError);\n\
 };\n\
@@ -64975,13 +65696,13 @@ local.testCase_FormData_nullCase = function (opt, onError) {\n\
         method: \"POST\",\n\
         url: \"/test.echo\"\n\
     }, function (err, xhr) {\n\
-        // validate no err occurred\n\
+        // handle err\n\
         local.assertOrThrow(!err, err);\n\
         // validate responseText\n\
         local.assertOrThrow((\n\
             /\\r\\n\\r\\n$/\n\
         ).test(xhr.responseText), xhr.responseText);\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
     });\n\
 };\n\
 \n\
@@ -64990,7 +65711,7 @@ local.testCase_ajax_cache = function (opt, onError) {\n\
  * this function will test ajax's cache handling-behavior\n\
  */\n\
     if (local.isBrowser) {\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
         return;\n\
     }\n\
     opt = {};\n\
@@ -65032,7 +65753,7 @@ local.testCase_ajax_default = function (opt, onError) {\n\
 /*\n\
  * this function will test ajax's default handling-behavior\n\
  */\n\
-    var onParallel;\n\
+    let onParallel;\n\
     onParallel = local.onParallel(onError);\n\
     onParallel.counter += 1;\n\
 \n\
@@ -65068,7 +65789,7 @@ local.testCase_ajax_default = function (opt, onError) {\n\
             responseType: responseType.replace(\"blob\", \"arraybuffer\"),\n\
             url: \"/test.body\"\n\
         }, function (err, xhr) {\n\
-            // validate no err occurred\n\
+            // handle err\n\
             local.assertOrThrow(!err, err);\n\
             // validate statusCode\n\
             local.assertJsonEqual(xhr.statusCode, 200);\n\
@@ -65103,7 +65824,7 @@ local.testCase_ajax_default = function (opt, onError) {\n\
     opt = local.ajax({\n\
         url: \"/test.timeout\"\n\
     }, function (err, xhr) {\n\
-        // validate err occurred\n\
+        // handle err\n\
         local.assertOrThrow(err, err);\n\
         // validate statusCode\n\
         local.assertJsonEqual(xhr.statusCode, 500);\n\
@@ -65131,7 +65852,7 @@ local.testCase_ajax_default = function (opt, onError) {\n\
         modeDebug: true,\n\
         url: \"/test.echo\"\n\
     }, function (err, xhr) {\n\
-        // validate no err occurred\n\
+        // handle err\n\
         local.assertOrThrow(!err, err);\n\
         // validate statusCode\n\
         local.assertJsonEqual(xhr.statusCode, 200);\n\
@@ -65177,7 +65898,7 @@ local.testCase_ajax_default = function (opt, onError) {\n\
     }, function (option2, onParallel) {\n\
         onParallel.counter += 1;\n\
         local.ajax(option2.elem, function (err) {\n\
-            // validate err occurred\n\
+            // handle err\n\
             local.assertOrThrow(err, err);\n\
             onParallel(null, opt);\n\
         });\n\
@@ -65188,7 +65909,7 @@ local.testCase_ajax_default = function (opt, onError) {\n\
     local.ajax({\n\
         url: \"LICENSE\"\n\
     }, function (err, xhr) {\n\
-        // validate no err occurred\n\
+        // handle err\n\
         local.assertOrThrow(!err, err);\n\
         // validate statusCode\n\
         local.assertJsonEqual(xhr.statusCode, 200);\n\
@@ -65221,7 +65942,7 @@ local.testCase_ajax_default = function (opt, onError) {\n\
                     : local.serverLocalHost\n\
                 )\n\
             }, function (err, xhr) {\n\
-                // validate no err occurred\n\
+                // handle err\n\
                 local.assertOrThrow(!err, err);\n\
                 // validate statusCode\n\
                 local.assertJsonEqual(xhr.statusCode, 200);\n\
@@ -65240,14 +65961,14 @@ local.testCase_ajax_default = function (opt, onError) {\n\
                     : local.serverLocalHost\n\
                 ) + \"/undefined\"\n\
             }, function (err, xhr) {\n\
-                // validate err occurred\n\
+                // handle err\n\
                 local.assertOrThrow(err, err);\n\
                 // validate statusCode\n\
                 local.assertJsonEqual(xhr.statusCode, 404);\n\
                 onParallel();\n\
             });\n\
         });\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
     }, onParallel);\n\
     onParallel();\n\
 \n\
@@ -65258,7 +65979,7 @@ local.testCase_ajax_default = function (opt, onError) {\n\
             timeout: 1,\n\
             url: \"/test.timeout\"\n\
         }, function (err, xhr) {\n\
-            // validate err occurred\n\
+            // handle err\n\
             local.assertOrThrow(err, err);\n\
             // validate statusCode\n\
             local.assertJsonEqual(xhr.statusCode, 500);\n\
@@ -65277,7 +65998,7 @@ local.testCase_assertXxx_default = function (opt, onError) {\n\
     local.tryCatchOnError(function () {\n\
         local.assertOrThrow(null);\n\
     }, function (err) {\n\
-        // validate err occurred\n\
+        // handle err\n\
         local.assertOrThrow(err, err);\n\
         // validate err.message\n\
         local.assertJsonEqual(err.message, \"\");\n\
@@ -65286,7 +66007,7 @@ local.testCase_assertXxx_default = function (opt, onError) {\n\
     local.tryCatchOnError(function () {\n\
         local.assertOrThrow(null, \"aa\");\n\
     }, function (err) {\n\
-        // validate err occurred\n\
+        // handle err\n\
         local.assertOrThrow(err, err);\n\
         // validate err.message\n\
         local.assertJsonEqual(err.message, \"aa\");\n\
@@ -65295,7 +66016,7 @@ local.testCase_assertXxx_default = function (opt, onError) {\n\
     local.tryCatchOnError(function () {\n\
         local.assertOrThrow(null, local.errDefault);\n\
     }, function (err) {\n\
-        // validate err occurred\n\
+        // handle err\n\
         local.assertOrThrow(err, err);\n\
     });\n\
     // test assertion failed with json object\n\
@@ -65304,7 +66025,7 @@ local.testCase_assertXxx_default = function (opt, onError) {\n\
             aa: 1\n\
         });\n\
     }, function (err) {\n\
-        // validate err occurred\n\
+        // handle err\n\
         local.assertOrThrow(err, err);\n\
         // validate err.message\n\
         local.assertJsonEqual(err.message, \"{\\n    \\\"aa\\\": 1\\n}\");\n\
@@ -65324,7 +66045,7 @@ local.testCase_assertXxx_default = function (opt, onError) {\n\
             }\n\
         });\n\
     });\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_base64Xxx_default = function (opt, onError) {\n\
@@ -65350,14 +66071,14 @@ local.testCase_base64Xxx_default = function (opt, onError) {\n\
         local.base64FromBuffer(local.base64ToUtf8(opt.base64)),\n\
         opt.base64\n\
     );\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_blobRead_default = function (opt, onError) {\n\
 /*\n\
  * this function will test blobRead's default handling-behavior\n\
  */\n\
-    var onParallel;\n\
+    let onParallel;\n\
     onParallel = local.onParallel(onError);\n\
     onParallel.counter += 1;\n\
     // test data handling-behavior\n\
@@ -65369,7 +66090,7 @@ local.testCase_blobRead_default = function (opt, onError) {\n\
         new Uint8Array(0),\n\
         local.stringHelloEmoji\n\
     ]), function (err, data) {\n\
-        // validate no err occurred\n\
+        // handle err\n\
         local.assertOrThrow(!err, err);\n\
         // validate data\n\
         local.assertJsonEqual(\n\
@@ -65399,10 +66120,10 @@ local.testCase_blobRead_default = function (opt, onError) {\n\
         ]\n\
     ], function (onError) {\n\
         local.blobRead(null, function (err) {\n\
-            // validate err occurred\n\
+            // handle err\n\
             local.assertOrThrow(err, err);\n\
         });\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
     }, onParallel);\n\
     onParallel();\n\
 };\n\
@@ -65464,7 +66185,7 @@ local.testCase_bufferIndexOfSubBuffer_default = function (opt, onError) {\n\
         opt.fromIndex\n\
     ), opt.validate);\n\
 });\n\
-onError(null, opt);\n\
+onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_bufferValidateAndCoerce_err = function (opt, onError) {\n\
@@ -65478,10 +66199,10 @@ local.testCase_bufferValidateAndCoerce_err = function (opt, onError) {\n\
         } catch (errCaught) {\n\
             opt = errCaught;\n\
         }\n\
-        // validate err occurred\n\
+        // handle err\n\
         local.assertOrThrow(opt, elem);\n\
     });\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_buildApidoc_default = function (opt, onError) {\n\
@@ -65498,7 +66219,7 @@ local.testCase_buildApp_default = function (opt, onError) {\n\
  * this function will test buildApp's default handling-behavior\n\
  */\n\
     if (local.isBrowser) {\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
         return;\n\
     }\n\
     local.testCase_buildReadme_default(opt, local.onErrorThrow);\n\
@@ -65512,9 +66233,6 @@ local.testCase_buildApp_default = function (opt, onError) {\n\
             }, {\n\
                 file: \"/assets.script_only.html\",\n\
                 url: \"/assets.script_only.html\"\n\
-            }, {\n\
-                file: \"/assets.utility2.lib.db.js\",\n\
-                url: \"/assets.utility2.lib.db.js\"\n\
             }, {\n\
                 file: \"/assets.utility2.lib.istanbul.js\",\n\
                 url: \"/assets.utility2.lib.istanbul.js\"\n\
@@ -65540,7 +66258,7 @@ local.testCase_buildLib_default = function (opt, onError) {\n\
  * this function will test buildLib's default handling-behavior\n\
  */\n\
     if (local.isBrowser) {\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
         return;\n\
     }\n\
     local.testMock([\n\
@@ -65587,7 +66305,7 @@ local.testCase_buildReadme_default = function (opt, onError) {\n\
  * this function will test buildReadme's default handling-behavior\n\
  */\n\
     if (local.isBrowser) {\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
         return;\n\
     }\n\
     opt = {};\n\
@@ -65602,9 +66320,9 @@ local.testCase_buildReadme_default = function (opt, onError) {\n\
         [\n\
             // customize quickstart-example-js-instruction\n\
             (\n\
-                /#\\u0020quickstart\\u0020example.js[\\S\\s]*?istanbul\\u0020instrument\\u0020in\\u0020package/\n\
+                /#\\u0020quickstart\\u0020example.js[\\S\\s]*?\\n\\n\\n\\n/\n\
             ),\n\
-            // customize quickstart-example-js-html-script\n\
+            // customize quickstart-example-js-script\n\
             (\n\
                 /#unless\\u0020isRollup[\\S\\s]*?<script\\u0020src=\"assets\\.example\\.js\">/\n\
             ),\n\
@@ -65654,7 +66372,7 @@ local.testCase_buildXxx_default = function (opt, onError) {\n\
         local._testCase_webpage_default(null, local.nop);\n\
         local.assetsDict[\"/\"] = \"<script src=\\\"assets.test.js\\\"></script>\";\n\
         local._testCase_webpage_default(null, local.nop);\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
     }, onError);\n\
 };\n\
 \n\
@@ -65666,9 +66384,9 @@ local.testCase_childProcessSpawnWithTimeout_default = function (\n\
  * this function will test\n\
  * childProcessSpawnWithTimeout's default handling-behavior\n\
  */\n\
-    var onParallel;\n\
+    let onParallel;\n\
     if (local.isBrowser) {\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
         return;\n\
     }\n\
     opt = {};\n\
@@ -65700,7 +66418,7 @@ local.testCase_childProcessSpawnWithTimeout_default = function (\n\
                 5000\n\
             ])\n\
         );\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
     }, local.onErrorThrow);\n\
     opt.childProcess.on(\n\
         \"error\",\n\
@@ -65724,7 +66442,7 @@ local.testCase_childProcessSpawnWithUtility2_err = function (\n\
  * childProcessSpawnWithTimeout's err handling-behavior\n\
  */\n\
     if (local.isBrowser) {\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
         return;\n\
     }\n\
     local.testMock([\n\
@@ -65736,10 +66454,10 @@ local.testCase_childProcessSpawnWithUtility2_err = function (\n\
         ]\n\
     ], function (onError) {\n\
         local.local.childProcessSpawnWithUtility2(\"undefined\", function (err) {\n\
-            // validate err occurred\n\
+            // handle err\n\
             local.assertOrThrow(err, err);\n\
         });\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
     }, onError);\n\
 };\n\
 \n\
@@ -65748,7 +66466,7 @@ local.testCase_cliRun_default = function (opt, onError) {\n\
  * this function will test cliRun's default handling-behavior\n\
  */\n\
     if (local.isBrowser) {\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
         return;\n\
     }\n\
     local.testMock([\n\
@@ -65796,7 +66514,7 @@ local.testCase_cliRun_default = function (opt, onError) {\n\
         local.cliDict._default = null;\n\
         local.cliDict._help = null;\n\
         local.tryCatchOnError(local.cliRun, local.nop);\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
     }, onError);\n\
 };\n\
 \n\
@@ -65828,7 +66546,7 @@ local.testCase_corsBackendHostInject_default = function (opt, onError) {\n\
             pathname: \"/build..beta..travis-ci.org/\"\n\
         }\n\
     ), \"aa-beta.bb.com/cc/dd\");\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_corsForwardProxyHostIfNeeded_default = function (\n\
@@ -65839,7 +66557,7 @@ local.testCase_corsForwardProxyHostIfNeeded_default = function (\n\
  * this function will corsForwardProxyHostIfNeeded's default handling-behavior\n\
  */\n\
     if (!local.isBrowser) {\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
         return;\n\
     }\n\
     local.assertOrThrow(local.corsForwardProxyHostIfNeeded({\n\
@@ -65848,7 +66566,7 @@ local.testCase_corsForwardProxyHostIfNeeded_default = function (\n\
         },\n\
         url: \"https://example.com\"\n\
     }).indexOf(\".herokuapp.com\") >= 0);\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 /* istanbul ignore next */\n\
@@ -65913,13 +66631,13 @@ local.testCase_domFragmentRender_default = function (opt, onError) {\n\
  * this function will test domFragmentRender's default handling-behavior\n\
  */\n\
     if (!local.isBrowser) {\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
         return;\n\
     }\n\
     local.assertJsonEqual(local.domFragmentRender(\"<div>{{value}}</div>\", {\n\
         value: \"aa\"\n\
     }).children[0].outerHTML, \"<div>aa</div>\");\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_isNullOrUndefined_default = function (opt, onError) {\n\
@@ -65932,7 +66650,7 @@ local.testCase_isNullOrUndefined_default = function (opt, onError) {\n\
     local.assertJsonEqual(local.isNullOrUndefined(undefined), true);\n\
     // validate data\n\
     local.assertJsonEqual(local.isNullOrUndefined(false), false);\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_jsonCopy_default = function (opt, onError) {\n\
@@ -65945,7 +66663,7 @@ local.testCase_jsonCopy_default = function (opt, onError) {\n\
 ].forEach(function (elem) {\n\
     local.assertJsonEqual(local.jsonCopy(elem), elem);\n\
 });\n\
-onError(null, opt);\n\
+onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_jsonStringifyOrdered_default = function (opt, onError) {\n\
@@ -66002,7 +66720,7 @@ local.testCase_jsonStringifyOrdered_default = function (opt, onError) {\n\
             }\n\
         }\n\
     );\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_jwtAes256GcmXxx_default = function (opt, onError) {\n\
@@ -66026,7 +66744,7 @@ local.testCase_jwtAes256GcmXxx_default = function (opt, onError) {\n\
     );\n\
     // test decryption-failed handling-behavior\n\
     local.assertJsonEqual(local.jwtAes256GcmDecrypt(opt.token, null), {});\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_jwtHs256Xxx_default = function (opt, onError) {\n\
@@ -66063,7 +66781,7 @@ local.testCase_jwtHs256Xxx_default = function (opt, onError) {\n\
     );\n\
     // test decoding-failed handling-behavior\n\
     local.assertJsonEqual(local.jwtHs256Decode(opt.token, \"undefined\"), {});\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_libUtility2Js_standalone = function (opt, onError) {\n\
@@ -66071,7 +66789,7 @@ local.testCase_libUtility2Js_standalone = function (opt, onError) {\n\
  * this function will test lib.utility2.js's standalone handling-behavior\n\
  */\n\
     if (local.isBrowser) {\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
         return;\n\
     }\n\
     local.fs.writeFileSync(\"tmp/lib.utility2.js\", local.fs.readFileSync(\n\
@@ -66079,7 +66797,7 @@ local.testCase_libUtility2Js_standalone = function (opt, onError) {\n\
         \"utf8\"\n\
     ).replace(\"/* istanbul instrument in package utility2 */\", \"\"));\n\
     require(\"./tmp/lib.utility2.js\");\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_listGetElementRandom_default = function (opt, onError) {\n\
@@ -66105,7 +66823,7 @@ local.testCase_listGetElementRandom_default = function (opt, onError) {\n\
             \"aa\", \"bb\", \"cc\", \"dd\"\n\
         ]\n\
     );\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_listShuffle_default = function (opt, onError) {\n\
@@ -66128,7 +66846,7 @@ local.testCase_listShuffle_default = function (opt, onError) {\n\
     }\n\
     // validate list changed at least once during the shuffle\n\
     local.assertOrThrow(opt.changed, opt);\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_localStorageSetItemOrClear_default = function (\n\
@@ -66139,7 +66857,7 @@ local.testCase_localStorageSetItemOrClear_default = function (\n\
  * this function will localStorageSetItemOrClear's default handling-behavior\n\
  */\n\
     if (!local.isBrowser) {\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
         return;\n\
     }\n\
     local.localStorageSetItemOrClear(\n\
@@ -66172,9 +66890,9 @@ local.testCase_middlewareForwardProxy_default = function (opt, onError) {\n\
 /*\n\
  * this function will test middlewareForwardProxy's default handling-behavior\n\
  */\n\
-    var onParallel;\n\
+    let onParallel;\n\
     if (local.isBrowser) {\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
         return;\n\
     }\n\
     onParallel = local.onParallel(onError);\n\
@@ -66198,7 +66916,7 @@ local.testCase_middlewareForwardProxy_default = function (opt, onError) {\n\
         },\n\
         url: \"\"\n\
     }, function (err, xhr) {\n\
-        // validate no err occurred\n\
+        // handle err\n\
         local.assertOrThrow(!err, err);\n\
         // validate responseText\n\
         local.assertJsonEqual(xhr.responseText, local.stringHelloEmoji);\n\
@@ -66212,38 +66930,11 @@ local.testCase_middlewareForwardProxy_default = function (opt, onError) {\n\
         },\n\
         url: \"\"\n\
     }, function (err) {\n\
-        // validate err occurred\n\
+        // handle err\n\
         local.assertOrThrow(err, err);\n\
         onParallel(null, opt);\n\
     });\n\
     onParallel(null, opt);\n\
-};\n\
-\n\
-local.testCase_middlewareJsonpStateInit_assetsList = function (\n\
-    opt,\n\
-    onError\n\
-) {\n\
-/*\n\
- * this function will middlewareJsonpStateInit's assetsList handling-behavior\n\
- */\n\
-    local.testMock([\n\
-        [\n\
-            local.env, {\n\
-                npm_package_assetsList: \"undefined\"\n\
-            }\n\
-        ], [\n\
-            local, {\n\
-                assetsDict: {}\n\
-            }\n\
-        ]\n\
-    ], function (onError) {\n\
-        local.middlewareJsonpStateInit({\n\
-            stateInit: true\n\
-        });\n\
-        // validate data\n\
-        local.assertJsonEqual(local.assetsDict[\"/undefined\"], \"\");\n\
-        onError(null, opt);\n\
-    }, onError);\n\
 };\n\
 \n\
 local.testCase_moduleDirname_default = function (opt, onError) {\n\
@@ -66251,7 +66942,7 @@ local.testCase_moduleDirname_default = function (opt, onError) {\n\
  * this function will test moduleDirname's default handling-behavior\n\
  */\n\
     if (local.isBrowser) {\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
         return;\n\
     }\n\
     // test null-case handling-behavior\n\
@@ -66273,7 +66964,7 @@ local.testCase_moduleDirname_default = function (opt, onError) {\n\
         local.moduleDirname(\"syntax-err\", module.paths),\n\
         \"\"\n\
     );\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_numberToRomanNumerals_default = function (opt, onError) {\n\
@@ -66392,7 +67083,7 @@ local.testCase_numberToRomanNumerals_default = function (opt, onError) {\n\
         );\n\
         opt.ii += 1;\n\
     }\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_objectSetDefault_default = function (opt, onError) {\n\
@@ -66516,7 +67207,7 @@ local.testCase_objectSetDefault_default = function (opt, onError) {\n\
             1, 1\n\
         ]\n\
     });\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_objectSetOverride_default = function (opt, onError) {\n\
@@ -66647,7 +67338,7 @@ local.testCase_objectSetOverride_default = function (opt, onError) {\n\
         null,\n\
         local.env\n\
     ).emptyString, \"\");\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_onErrorDefault_default = function (opt, onError) {\n\
@@ -66675,7 +67366,7 @@ local.testCase_onErrorDefault_default = function (opt, onError) {\n\
         local.onErrorDefault(local.errDefault);\n\
         // validate opt\n\
         local.assertOrThrow(opt, opt);\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
     }, onError);\n\
 };\n\
 \n\
@@ -66686,9 +67377,9 @@ local.testCase_onErrorThrow_err = function (opt, onError) {\n\
     local.tryCatchOnError(function () {\n\
         local.onErrorThrow(local.errDefault);\n\
     }, function (err) {\n\
-        // validate err occurred\n\
+        // handle err\n\
         local.assertOrThrow(err, err);\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
     });\n\
 };\n\
 \n\
@@ -66700,16 +67391,16 @@ local.testCase_onErrorWithStack_toString = function (opt, onError) {\n\
         String(local.onErrorWithStack(local.nop)),\n\
         String(local.nop)\n\
     );\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_onFileModifiedRestart_watchFile = function (opt, onError) {\n\
 /*\n\
  * this function will test onFileModifiedRestart's watchFile handling-behavior\n\
  */\n\
-    var onParallel;\n\
+    let onParallel;\n\
     if (local.isBrowser) {\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
         return;\n\
     }\n\
     onParallel = local.onParallel(onError);\n\
@@ -66741,9 +67432,9 @@ local.testCase_onNext_err = function (opt, onError) {\n\
     local.tryCatchOnError(function () {\n\
         opt.gotoNext();\n\
     }, function (err) {\n\
-        // validate err occurred\n\
+        // handle err\n\
         local.assertOrThrow(err, err);\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
     });\n\
 };\n\
 \n\
@@ -66771,7 +67462,7 @@ local.testCase_onParallelList_default = function (opt, onError) {\n\
                 // test multiple-callback handling-behavior\n\
                 setTimeout(onParallel, 5000);\n\
             }, function (err) {\n\
-                // validate err occurred\n\
+                // handle err\n\
                 local.assertOrThrow(err, err);\n\
                 opt.gotoNext();\n\
             });\n\
@@ -66849,8 +67540,8 @@ local.testCase_onParallel_default = function (opt, onError) {\n\
 /*\n\
  * this function will test onParallel's default handling-behavior\n\
  */\n\
-    var onParallel;\n\
-    var onParallelError;\n\
+    let onParallel;\n\
+    let onParallelError;\n\
     // test onEach handling-behavior\n\
     onParallel = local.onParallel(onError, function () {\n\
         // validate counter\n\
@@ -66865,11 +67556,11 @@ local.testCase_onParallel_default = function (opt, onError) {\n\
         onParallelError();\n\
         // test multiple-callback-error handling-behavior\n\
         onParallelError();\n\
-        // validate err occurred\n\
+        // handle err\n\
         local.assertOrThrow(onParallelError.err, onParallelError.err);\n\
         // test err handling-behavior\n\
         onParallelError(local.errDefault);\n\
-        // validate err occurred\n\
+        // handle err\n\
         local.assertOrThrow(onParallelError.err, onParallelError.err);\n\
         // test ignore-after-error handling-behavior\n\
         onParallelError();\n\
@@ -66884,7 +67575,7 @@ local.testCase_onTimeout_timeout = function (opt, onError) {\n\
  */\n\
     opt = local.timeElapsedStart();\n\
     local.onTimeout(function (err) {\n\
-        // validate err occurred\n\
+        // handle err\n\
         local.assertOrThrow(err, err);\n\
         // validate err.message\n\
         local.assertOrThrow(\n\
@@ -66895,7 +67586,7 @@ local.testCase_onTimeout_timeout = function (opt, onError) {\n\
         local.timeElapsedPoll(opt);\n\
         // validate timeElapsed passed is greater than timeout\n\
         local.assertOrThrow(opt.timeElapsed >= 1000, opt);\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
     }, 1000, \"testCase_onTimeout_timeout\");\n\
 };\n\
 \n\
@@ -66917,7 +67608,7 @@ local.testCase_profileXxx_default = function (opt, onError) {\n\
     local.profile(function (onError) {\n\
         setTimeout(onError);\n\
     }, function (err, timeElapsed) {\n\
-        // validate no err occurred\n\
+        // handle err\n\
         local.assertOrThrow(!err, err);\n\
         opt.timeElapsed = timeElapsed;\n\
         // validate timeElapsed\n\
@@ -66925,7 +67616,7 @@ local.testCase_profileXxx_default = function (opt, onError) {\n\
             0 <= opt.timeElapsed\n\
             && opt.timeElapsed < local.timeoutDefault\n\
         ), opt.timeElapsed);\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
     });\n\
 };\n\
 \n\
@@ -66934,11 +67625,11 @@ local.testCase_replStart_default = function (opt, onError) {\n\
  * this function will test replStart's default handling-behavior\n\
  */\n\
     if (local.isBrowser) {\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
         return;\n\
     }\n\
     local.replStart();\n\
-    // hack-istanbul - test replStart's muliple-call handling-behavior\n\
+    // hack-coverage - test replStart's muliple-call handling-behavior\n\
     local.replStart();\n\
     local.testMock([\n\
         [\n\
@@ -66983,44 +67674,8 @@ local.testCase_replStart_default = function (opt, onError) {\n\
         ].forEach(function (script) {\n\
             globalThis.utility2_repl1.eval(script, null, \"repl\", local.nop);\n\
         });\n\
-        // test err handling-behavior\n\
-        globalThis.utility2_repl1.onError(local.errDefault);\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
     }, onError);\n\
-};\n\
-\n\
-local.testCase_replStart_tcp = function (opt, onError) {\n\
-/*\n\
- * this function will test replStart's tcp handling-behavior\n\
- */\n\
-    if (local.isBrowser) {\n\
-        onError(null, opt);\n\
-        return;\n\
-    }\n\
-    opt = {};\n\
-    opt.data = \"\";\n\
-    opt.input = Math.random();\n\
-    opt.socket = local.net.createConnection(local.env.PORT_REPL);\n\
-    opt.socket.on(\"data\", function (data) {\n\
-    /*\n\
-     * this function will concat data to opt.data\n\
-     */\n\
-        opt.data += data;\n\
-    });\n\
-    opt.socket.setEncoding(\"utf8\");\n\
-    opt.socket.on(\"end\", function () {\n\
-        // validate data\n\
-        local.assertOrThrow(\n\
-            opt.data.indexOf(opt.input) >= 0,\n\
-            JSON.stringify([\n\
-                opt.data, opt.input\n\
-            ])\n\
-        );\n\
-        onError(null, opt);\n\
-    });\n\
-    opt.socket.write(opt.input + \"\\n\");\n\
-    // test err handling-behavior\n\
-    opt.socket.end(\"undefined()\\n\");\n\
 };\n\
 \n\
 local.testCase_requireReadme_start = function (opt, onError) {\n\
@@ -67028,7 +67683,7 @@ local.testCase_requireReadme_start = function (opt, onError) {\n\
  * this function will test requireReadme's start handling-behavior\n\
  */\n\
     if (local.isBrowser) {\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
         return;\n\
     }\n\
     local.testMock([\n\
@@ -67045,7 +67700,7 @@ local.testCase_requireReadme_start = function (opt, onError) {\n\
         ], [\n\
             local.fs, {\n\
                 readFile: function (file, opt, onError) {\n\
-                    onError(null, \"{}\", file, opt);\n\
+                    onError(undefined, \"{}\", file, opt);\n\
                 },\n\
                 readdirSync: function () {\n\
                     // test jslintAndPrint.conditional handling-behavior\n\
@@ -67064,7 +67719,7 @@ local.testCase_requireReadme_start = function (opt, onError) {\n\
         // validate data\n\
         local.requireReadme();\n\
         local.assertOrThrow(local._testCase_requireReadme_start === local);\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
     }, onError);\n\
 };\n\
 \n\
@@ -67135,7 +67790,7 @@ local.testCase_semverCompare_default = function (opt, onError) {\n\
         );\n\
         return bb;\n\
     });\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_serverRespondTimeoutDefault_timeout = function (\n\
@@ -67169,7 +67824,7 @@ local.testCase_serverRespondTimeoutDefault_timeout = function (\n\
         }, {\n\
             on: opt\n\
         });\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
     }, onError);\n\
 };\n\
 \n\
@@ -67210,7 +67865,7 @@ local.testCase_sjclHashScryptXxx_default = function (opt, onError) {\n\
         \"$s0$80801$epIxT/h6HbbwHaehFnh/bw==\"\n\
         + \"$l/guDhz2Q0v/D93gq0K0qtSX6FWP8pH5maAJkbIcRaE=\"\n\
     )), true);\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_sjclHashShaXxxCreate_default = function (opt, onError) {\n\
@@ -67225,7 +67880,7 @@ local.testCase_sjclHashShaXxxCreate_default = function (opt, onError) {\n\
         local.sjclHashSha256Create(\"aa\"),\n\
         \"lhtt0+3jy47LqsvWjeBAzXjrLtWIkTDM60xJJo6k1QY=\"\n\
     );\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_sjclHmacShaXxx_default = function (opt, onError) {\n\
@@ -67240,7 +67895,7 @@ local.testCase_sjclHmacShaXxx_default = function (opt, onError) {\n\
         local.sjclHmacSha256Create(\"aa\", \"bb\"),\n\
         \"94Xv3VdPHA+ohKyjkM1pb0W5ZVAuMVcmIAAI2AqNRCQ=\"\n\
     );\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_stringHtmlSafe_default = function (opt, onError) {\n\
@@ -67256,7 +67911,7 @@ local.testCase_stringHtmlSafe_default = function (opt, onError) {\n\
             + \"ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\"\n\
         )\n\
     );\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_stringQuotedToAscii_default = function (opt, onError) {\n\
@@ -67267,7 +67922,7 @@ local.testCase_stringQuotedToAscii_default = function (opt, onError) {\n\
         local.stringQuotedToAscii(local.stringHelloEmoji),\n\
         \"hello \\\\ud83d\\\\ude01\\n\"\n\
     );\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_stringRegexpEscape_default = function (opt, onError) {\n\
@@ -67287,7 +67942,7 @@ local.testCase_stringRegexpEscape_default = function (opt, onError) {\n\
             + \"\\u007f\"\n\
         )\n\
     );\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_stringTruncate_default = function (opt, onError) {\n\
@@ -67297,7 +67952,7 @@ local.testCase_stringTruncate_default = function (opt, onError) {\n\
     local.assertJsonEqual(local.stringTruncate(\"aa\"), \"aa\");\n\
     local.assertJsonEqual(local.stringTruncate(\"aa\", 1), \"...\");\n\
     local.assertJsonEqual(local.stringTruncate(\"aa\", 2), \"aa\");\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_stringUniqueKey_default = function (opt, onError) {\n\
@@ -67305,127 +67960,7 @@ local.testCase_stringUniqueKey_default = function (opt, onError) {\n\
  * this function will test stringUniqueKey's default handling-behavior\n\
  */\n\
     local.assertOrThrow((\"zqxj\").indexOf(local.stringUniqueKey(\"zqxj\") < 0));\n\
-    onError(null, opt);\n\
-};\n\
-\n\
-local.testCase_taskCreateCached_default = function (opt, onError) {\n\
-/*\n\
- * this function will test taskCreateCached's default handling-behavior\n\
- */\n\
-    var cacheValue;\n\
-    var onTask;\n\
-    var option2;\n\
-    opt = {};\n\
-    local.gotoNext(opt, function (err, data) {\n\
-        switch (opt.gotoState) {\n\
-        // test no cache handling-behavior\n\
-        case 1:\n\
-            onTask = function (onError) {\n\
-                onError(null, cacheValue);\n\
-            };\n\
-            opt.cacheDict = \"testCase_taskCreateCached_default\";\n\
-            opt.key = \"memory\";\n\
-            // cleanup memory-cache\n\
-            local.cacheDict[opt.cacheDict] = null;\n\
-            cacheValue = \"aa\";\n\
-            option2 = {\n\
-                cacheDict: opt.cacheDict,\n\
-                key: opt.key,\n\
-                // test onCacheWrite handling-behavior\n\
-                onCacheWrite: opt.gotoNext\n\
-            };\n\
-            local.taskCreateCached(option2, onTask, opt.gotoNext);\n\
-            break;\n\
-        case 2:\n\
-            // validate data\n\
-            local.assertJsonEqual(data, \"aa\");\n\
-            // validate no cache-hit\n\
-            local.assertOrThrow(!option2.modeCacheHit, option2.modeCacheHit);\n\
-            break;\n\
-        // test cache with update handling-behavior\n\
-        case 3:\n\
-            cacheValue = \"bb\";\n\
-            option2 = {\n\
-                cacheDict: opt.cacheDict,\n\
-                key: opt.key,\n\
-                // test modeCacheUpdate handling-behavior\n\
-                modeCacheUpdate: true,\n\
-                // test onCacheWrite handling-behavior\n\
-                onCacheWrite: opt.gotoNext\n\
-            };\n\
-            local.taskCreateCached(option2, onTask, opt.gotoNext);\n\
-            break;\n\
-        case 4:\n\
-            // validate data\n\
-            local.assertJsonEqual(data, \"aa\");\n\
-            // validate modeCacheHit\n\
-            local.assertJsonEqual(option2.modeCacheHit, true);\n\
-            break;\n\
-        // test cache handling-behavior\n\
-        case 5:\n\
-            option2 = {\n\
-                cacheDict: opt.cacheDict,\n\
-                key: opt.key\n\
-            };\n\
-            local.taskCreateCached(option2, onTask, opt.gotoNext);\n\
-            break;\n\
-        case 6:\n\
-            // validate data\n\
-            local.assertJsonEqual(data, \"bb\");\n\
-            // validate modeCacheHit\n\
-            local.assertJsonEqual(option2.modeCacheHit, true);\n\
-            opt.gotoNext();\n\
-            break;\n\
-        default:\n\
-            onError(err, opt);\n\
-        }\n\
-    });\n\
-    opt.gotoState = 0;\n\
-    opt.gotoNext();\n\
-};\n\
-\n\
-local.testCase_taskCreate_multipleCallback = function (opt, onError) {\n\
-/*\n\
- * this function will test taskCreate's multiple-callback handling-behavior\n\
- */\n\
-    opt = {\n\
-        counter: 0,\n\
-        key: \"testCase_taskCreate_multiCallback\"\n\
-    };\n\
-    local.taskCreate(opt, function (onError) {\n\
-        onError(null, opt);\n\
-        // test multiple-callback handling-behavior\n\
-        onError(null, opt);\n\
-    }, function () {\n\
-        opt.counter += 1;\n\
-    });\n\
-    // validate counter incremented once\n\
-    local.assertJsonEqual(opt.counter, 1);\n\
-    onError(null, opt);\n\
-};\n\
-\n\
-local.testCase_taskCreate_upsert = function (opt, onError) {\n\
-/*\n\
- * this function will test taskCreate's upsert handling-behavior\n\
- */\n\
-    opt = {\n\
-        counter: 0,\n\
-        key: \"testCase_taskCreate_upsert\"\n\
-    };\n\
-    // test upsert handling-behavior\n\
-    [\n\
-        null, null\n\
-    ].forEach(function () {\n\
-        local.taskCreate(opt, function (onError) {\n\
-            opt.counter += 1;\n\
-            setTimeout(onError);\n\
-        });\n\
-    });\n\
-    // validate counter incremented once\n\
-    setTimeout(function () {\n\
-        local.assertJsonEqual(opt.counter, 1);\n\
-        onError(null, opt);\n\
-    });\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_templateRender_default = function (opt, onError) {\n\
@@ -67492,7 +68027,7 @@ local.testCase_templateRender_default = function (opt, onError) {\n\
             \"{{#undefined aa}}\\n\"\n\
             + \"list1{{#each list1}}\\n\"\n\
             + \"    aa - {{aa}}\\n\"\n\
-            + \"    list2{{#eachTrimRightComma list2}}\\n\"\n\
+            + \"    list2{{#eachTrimEndComma list2}}\\n\"\n\
             + \"        {{#this/ notHtmlSafe jsonStringify}}\\n\"\n\
             + \"        bb - {{bb}}\\n\"\n\
             + \"        {{#if bb}}\\n\"\n\
@@ -67504,7 +68039,7 @@ local.testCase_templateRender_default = function (opt, onError) {\n\
             + \"        unless\\n\"\n\
             + \"        {{/unless bb}}\\n\"\n\
             + \"        ,\\n\"\n\
-            + \"    {{/eachTrimRightComma list2}}\\n\"\n\
+            + \"    {{/eachTrimEndComma list2}}\\n\"\n\
             + \"{{/each list1}}\\n\"\n\
             + \"{{/undefined aa}}\\n\"\n\
         ), {\n\
@@ -67558,9 +68093,9 @@ local.testCase_templateRender_default = function (opt, onError) {\n\
             aa: 1\n\
         });\n\
     }, local.nop);\n\
-    // validate err occurred\n\
+    // handle err\n\
     local.assertOrThrow(local._debugTryCatchError, local._debugTryCatchError);\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_testReportCreate_default = function (opt, onError) {\n\
@@ -67568,7 +68103,7 @@ local.testCase_testReportCreate_default = function (opt, onError) {\n\
  * this function will test testReport's default handling-behavior\n\
  */\n\
     if (local.isBrowser) {\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
         return;\n\
     }\n\
     local.testMock([], function (onError) {\n\
@@ -67588,7 +68123,7 @@ local.testCase_testReportCreate_default = function (opt, onError) {\n\
                 }\n\
             ]\n\
         });\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
     }, onError);\n\
 };\n\
 \n\
@@ -67599,9 +68134,9 @@ local.testCase_throwError_default = function (opt, onError) {\n\
     local.tryCatchOnError(function () {\n\
         local.throwError();\n\
     }, function (err) {\n\
-        // validate err occurred\n\
+        // handle err\n\
         local.assertOrThrow(err, err);\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
     });\n\
 };\n\
 \n\
@@ -67610,33 +68145,10 @@ local.testCase_uiAnimateXxx_default = function (opt, onError) {\n\
  * this function will test uiAnimateXxx's default handling-behavior\n\
  */\n\
     if (!local.isBrowser) {\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
         return;\n\
     }\n\
     opt = document.createElement(\"div\");\n\
-    // test uiAnimateShake handling-behavior\n\
-    local.uiAnimateShake();\n\
-    local.uiAnimateShake(opt);\n\
-    local.assertOrThrow(\n\
-        opt.classList.contains(\"uiAnimateShake\"),\n\
-        opt.classList\n\
-    );\n\
-    local.uiAnimateShake(opt);\n\
-    local.assertOrThrow(\n\
-        opt.classList.contains(\"uiAnimateShake\"),\n\
-        opt.classList\n\
-    );\n\
-    // test uiAnimateShakeIfError handling-behavior\n\
-    local.uiAnimateShakeIfError();\n\
-    local.uiAnimateShakeIfError(null, opt);\n\
-    local.assertOrThrow(\n\
-        !opt.classList.contains(\"hasError\"),\n\
-        opt.classList\n\
-    );\n\
-    local.uiAnimateShakeIfError(true, opt);\n\
-    local.assertOrThrow(opt.classList.contains(\"hasError\"), opt.classList);\n\
-    local.uiAnimateShakeIfError(null, opt);\n\
-    local.assertOrThrow(!opt.classList.contains(\"hasError\"), opt.classList);\n\
     // test uiAnimateSlideXxx handling-behavior\n\
     local.uiAnimateSlideDown();\n\
     local.uiAnimateSlideUp();\n\
@@ -67655,7 +68167,7 @@ local.testCase_uiAnimateXxx_default = function (opt, onError) {\n\
             opt, document.createElement(\"div\")\n\
         ]\n\
     );\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_urlJoin_default = function (opt, onError) {\n\
@@ -67677,7 +68189,7 @@ local.testCase_urlJoin_default = function (opt, onError) {\n\
         local.urlJoin(\"http://aa/bb/\", \"http://zz\"),\n\
         \"http://zz\"\n\
     );\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
 local.testCase_urlParse_default = function (opt, onError) {\n\
@@ -67732,7 +68244,7 @@ local.testCase_urlParse_default = function (opt, onError) {\n\
             query: {},\n\
             search: \"\"\n\
         });\n\
-        onError(null, opt);\n\
+        onError(undefined, opt);\n\
     }, onError);\n\
 };\n\
 \n\
@@ -67744,39 +68256,42 @@ local.testCase_uuid4Create_default = function (opt, onError) {\n\
         local.regexpValidateUuid.test(local.uuid4Create()),\n\
         local.uuid4Create()\n\
     );\n\
-    onError(null, opt);\n\
+    onError(undefined, opt);\n\
 };\n\
 \n\
-//!! local.testCase_webpage_err = function (opt, onError) {\n\
-//!! /*\n\
- //!! * this function will test webpage's err handling-behavior\n\
- //!! */\n\
-    //!! if (local.isBrowser) {\n\
-        //!! onError(null, opt);\n\
-        //!! return;\n\
-    //!! }\n\
-    //!! local.browserTest({\n\
-        //!! modeSilent: true,\n\
-        //!! timeoutDefault: local.timeoutDefault - 5000,\n\
-        //!! // https://localhost:8080/assets.script_only.html?modeTest=1&modeTestCase=_testCase_testRunDefault_failure&timeExit=\n\
-        //!! url: (\n\
-            //!! local.serverLocalHost\n\
-            //!! // test script_only handling-behavior\n\
-            //!! + \"/assets.script_only.html\"\n\
-            //!! // test electron-callback handling-behavior\n\
-            //!! + \"?modeTest=1&\"\n\
-            //!! // test specific testCase handling-behavior\n\
-            //!! // test testRunDefault's failure handling-behavior\n\
-            //!! + \"modeTestCase=_testCase_testRunDefault_failure&\"\n\
-            //!! // test timeExit handling-behavior\n\
-            //!! + \"timeExit={{timeExit}}\"\n\
-        //!! )\n\
-    //!! }, function (err) {\n\
-        //!! // validate err occurred\n\
-        //!! local.assertOrThrow(err, err);\n\
-        //!! onError(null, opt);\n\
-    //!! });\n\
-//!! };\n\
+local.testCase_webpage_err = function (opt, onError) {\n\
+/*\n\
+ * this function will test webpage's err handling-behavior\n\
+ */\n\
+    if (!local.isBrowser) {\n\
+        local.browserTest({\n\
+            modeSilent: true,\n\
+            url: (\n\
+                local.serverLocalHost\n\
+                + \"?modeTest=1\"\n\
+                + \"&modeTestCase=testCase_webpage_err\"\n\
+            )\n\
+        }, function (err) {\n\
+            onError(undefined, err);\n\
+        });\n\
+        return;\n\
+    }\n\
+    if (local.modeTestCase !== \"testCase_webpage_err\") {\n\
+        onError();\n\
+        return;\n\
+    }\n\
+    // ignore err in coverage-case\n\
+    globalThis.utility2_testReport.testPlatformList[0].testCaseList = [];\n\
+    globalThis.utility2_testReport.testsPending = 0;\n\
+    setTimeout(function () {\n\
+        // test err from callback handling-behavior\n\
+        onError(local.errDefault, opt);\n\
+        // test err from multiple-callback handling-behavior\n\
+        onError(undefined, opt);\n\
+    }, 2000);\n\
+    // test uncaught-err handling-behavior\n\
+    setTimeout(local.throwError);\n\
+};\n\
 \n\
 local.utility2.serverLocalUrlTest = function (url) {\n\
 /*\n\
@@ -67799,9 +68314,9 @@ local.assetsDict[\"/assets.swgg.swagger.json\"] = (\n\
     || local.assetsDict[\"/assets.swgg.swagger.json\"]\n\
     || local.assetsDict[\"/assets.swgg.swagger.petstore.json\"]\n\
 );\n\
-// hack-istanbul - re-run test-server\n\
+// hack-coverage - test testRunServer's multiple-call handling-behavior\n\
 local.testRunServer(local);\n\
-// hack-istanbul - stateInit\n\
+// hack-coverage - stateInit\n\
 local.stateInit({});\n\
 // init test-middleware\n\
 local.middlewareList.push(function (req, res, next) {\n\
@@ -67843,7 +68358,7 @@ local.middlewareList.push(function (req, res, next) {\n\
                 }\n\
             ]\n\
         ], function (onError) {\n\
-            var err;\n\
+            let err;\n\
             err = new Error(\"error\");\n\
             err.statusCode = 500;\n\
             local.middlewareError(err, req, res);\n\
@@ -67898,7 +68413,7 @@ if (local.isBrowser) {\n\
             }\n\
         });\n\
         setInterval(function () {\n\
-            var cronTime;\n\
+            let cronTime;\n\
             cronTime = new Date();\n\
             if (\n\
                 cronTime.toISOString().slice(0, 16)\n\
